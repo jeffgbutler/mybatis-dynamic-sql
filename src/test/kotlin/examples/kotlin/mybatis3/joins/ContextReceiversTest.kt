@@ -59,10 +59,8 @@ class ContextReceiversTest {
 }
 
 /**
- * Define a new condition that renders an "any" condition. Note that this condition
- * also renders the equals sign - so we cannot use the built-in "isEqualTo" keyword.
- * This is done so we can demonstrate adding a new keyword through a contextual extension
- * function.
+ * Define a new condition that renders an "any" condition. This is to demonstrate adding a new keyword through a
+ * contextual extension function.
  */
 class MatchesWithSubSelect<T>(selectModelBuilder: Buildable<SelectModel>) :
     AbstractSubselectCondition<T>(selectModelBuilder) {
