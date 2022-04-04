@@ -235,8 +235,8 @@ class GroupingCriteriaCollector {
             .build()
     }
 
-    // infix functions...we may be able to rewrite these as extension functions once Kotlin solves the multiple
-    // receivers problem (https://youtrack.jetbrains.com/issue/KT-42435)
+    // DSL functions. You can extend the DSL through use of a contextual extension function. This is also called
+    // a function with a "context receiver" and is an experimental feature in Kotlin 1.6.20.
 
     // conditions for all data types
     fun BindableColumn<*>.isNull() = invoke(org.mybatis.dynamic.sql.util.kotlin.elements.isNull())
