@@ -40,8 +40,8 @@
     <url>https://github.com/mybatis/mybatis-dynamic-sql/issues</url>
   </issueManagement>
   <ciManagement>
-    <system>Travis CI</system>
-    <url>https://travis-ci.org/mybatis/mybatis-dynamic-sql</url>
+    <system>Github</system>
+    <url>https://github.com/mybatis/mybatis-dynamic-sql/actions</url>
   </ciManagement>
   <distributionManagement>
     <site>
@@ -65,7 +65,7 @@
 
     <module.name>org.mybatis.dynamic.sql</module.name>
 
-    <kotlin.version>1.6.20-RC2</kotlin.version>
+    <kotlin.version>1.6.20</kotlin.version>
     <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
 
     <sonar.sources>pom.xml,src/main/java,src/main/kotlin</sonar.sources>
@@ -86,7 +86,6 @@
         <configuration>
           <args>
             <arg>-Xuse-ir</arg>
-            <arg>-Xcontext-receivers</arg>
           </args>
         </configuration>
         <executions>
@@ -219,7 +218,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>5.3.16</version>
+      <version>5.3.18</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
