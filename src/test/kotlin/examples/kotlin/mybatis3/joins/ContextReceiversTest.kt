@@ -30,9 +30,8 @@ import org.mybatis.dynamic.sql.util.kotlin.KotlinSubQueryBuilder
 import org.mybatis.dynamic.sql.util.kotlin.mybatis3.select
 
 /**
- * Demonstrate use of Kotlin's context receivers to add new conditions to the WHERE DSL.
- *
- * In IntelliJ this requires use of an early access version of the Kotlin plugin (1.6.20+).
+ * Demonstrate use of Kotlin's context receivers to add new keywords to the WHERE DSL. This requires Kotlin
+ * 1.6.20+. See the notes below on the contextual declaration for details on how to enable this support.
  */
 class ContextReceiversTest {
     @Test
@@ -59,7 +58,12 @@ class ContextReceiversTest {
     }
 }
 
-// define a new condition that renders an "any" condition
+/**
+ * Define a new condition that renders an "any" condition. Note that this condition
+ * also renders the equals sign - so we cannot use the built-in "isEqualTo" keyword.
+ * This is done so we can demonstrate adding a new keyword through a contextual extension
+ * function.
+ */
 class MatchesWithSubSelect<T>(selectModelBuilder: Buildable<SelectModel>) :
     AbstractSubselectCondition<T>(selectModelBuilder) {
 
@@ -67,7 +71,15 @@ class MatchesWithSubSelect<T>(selectModelBuilder: Buildable<SelectModel>) :
         "$columnName = any ($renderedSelectStatement)"
 }
 
-// add the new condition to the DSL with a context receiver (Kotlin 1.6.20+)
+/**
+ * Define a contextual declaration for the new DSL feature (add "matchesAny" as a DSL keyword in a where clause).
+ *
+ * Note - this is an experimental feature in Kotlin. It is enabled with the -Xcontext-receivers compiler
+ * option (see pom.xml).
+ *
+ * In IntelliJ, you must add -Xcontext-receivers as an additional command line parameter
+ * (Project Structure>Project Settings>Modules>Kotlin)
+ */
 context (GroupingCriteriaCollector)
 infix fun  <T> BindableColumn<T>.matchesAny(subQuery: KotlinSubQueryBuilder.() -> Unit) =
     invoke(MatchesWithSubSelect(KotlinSubQueryBuilder().apply(subQuery)))

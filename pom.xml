@@ -111,6 +111,9 @@
                 <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
                 <sourceDir>${project.basedir}/src/test/java</sourceDir>
               </sourceDirs>
+              <args>
+                <arg>-Xcontext-receivers</arg>
+              </args>
             </configuration>
           </execution>
         </executions>
