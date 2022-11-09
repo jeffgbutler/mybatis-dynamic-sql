@@ -1,11 +1,11 @@
 /*
- *    Copyright 2016-2021 the original author or authors.
+ *    Copyright 2016-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -398,6 +398,7 @@ class SelectStatementTest {
         SelectStatementProvider selectStatement = select(column1, column3)
                 .from(table)
                 .where(column3, isInWhenPresent((Collection<String>) null))
+                .configureStatement(c -> c.setNonRenderingWhereClauseAllowed(true))
                 .build()
                 .render(RenderingStrategies.MYBATIS3);
 
@@ -409,6 +410,7 @@ class SelectStatementTest {
         SelectStatementProvider selectStatement = select(column1, column3)
                 .from(table)
                 .where(column3, isInCaseInsensitiveWhenPresent((Collection<String>) null))
+                .configureStatement(c -> c.setNonRenderingWhereClauseAllowed(true))
                 .build()
                 .render(RenderingStrategies.MYBATIS3);
 
@@ -420,6 +422,7 @@ class SelectStatementTest {
         SelectStatementProvider selectStatement = select(column1, column3)
                 .from(table)
                 .where(column3, isNotInWhenPresent((Collection<String>) null))
+                .configureStatement(c -> c.setNonRenderingWhereClauseAllowed(true))
                 .build()
                 .render(RenderingStrategies.MYBATIS3);
 
@@ -431,6 +434,7 @@ class SelectStatementTest {
         SelectStatementProvider selectStatement = select(column1, column3)
                 .from(table)
                 .where(column3, isNotInCaseInsensitiveWhenPresent((Collection<String>) null))
+                .configureStatement(c -> c.setNonRenderingWhereClauseAllowed(true))
                 .build()
                 .render(RenderingStrategies.MYBATIS3);
 

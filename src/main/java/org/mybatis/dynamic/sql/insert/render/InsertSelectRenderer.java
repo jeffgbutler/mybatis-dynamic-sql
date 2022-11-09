@@ -1,11 +1,11 @@
 /*
- *    Copyright 2016-2020 the original author or authors.
+ *    Copyright 2016-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,6 +26,7 @@ import org.mybatis.dynamic.sql.insert.InsertColumnListModel;
 import org.mybatis.dynamic.sql.insert.InsertSelectModel;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
+import org.mybatis.dynamic.sql.util.StringUtilities;
 
 public class InsertSelectRenderer {
 
@@ -40,21 +41,21 @@ public class InsertSelectRenderer {
     public InsertSelectStatementProvider render() {
         SelectStatementProvider selectStatement = model.selectModel().render(renderingStrategy);
 
-        return DefaultGeneralInsertStatementProvider.withInsertStatement(calculateInsertStatement(selectStatement))
+        String statementStart = InsertRenderingUtilities.calculateInsertStatementStart(model.table());
+        Optional<String> columnsPhrase = calculateColumnsPhrase();
+        String renderedSelectStatement = selectStatement.getSelectStatement();
+
+        String insertStatement = statementStart
+                + columnsPhrase.map(StringUtilities::spaceBefore).orElse("") //$NON-NLS-1$
+                + spaceBefore(renderedSelectStatement);
+
+        return DefaultGeneralInsertStatementProvider.withInsertStatement(insertStatement)
                 .withParameters(selectStatement.getParameters())
                 .build();
     }
 
-    private String calculateInsertStatement(SelectStatementProvider selectStatement) {
-        return "insert into" //$NON-NLS-1$
-                + spaceBefore(model.table().tableNameAtRuntime())
-                + spaceBefore(calculateColumnsPhrase())
-                + spaceBefore(selectStatement.getSelectStatement());
-    }
-
     private Optional<String> calculateColumnsPhrase() {
-        return model.columnList()
-                .map(this::calculateColumnsPhrase);
+        return model.columnList().map(this::calculateColumnsPhrase);
     }
 
     private String calculateColumnsPhrase(InsertColumnListModel columnList) {

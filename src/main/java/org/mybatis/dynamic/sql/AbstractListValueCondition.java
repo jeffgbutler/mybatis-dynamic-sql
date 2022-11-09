@@ -1,11 +1,11 @@
 /*
- *    Copyright 2016-2021 the original author or authors.
+ *    Copyright 2016-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,12 +26,30 @@ import java.util.stream.Stream;
 
 public abstract class AbstractListValueCondition<T> implements VisitableCondition<T> {
     protected final Collection<T> values;
+
+    /**
+     * Callback to execute when the list is empty.
+     *
+     * @deprecated in favor of the statement configuration functions
+     */
+    @Deprecated
     protected final Callback emptyCallback;
 
     protected AbstractListValueCondition(Collection<T> values) {
         this(values, () -> { });
     }
 
+    /**
+     * Construct a new condition with a callback.
+     *
+     * @param values
+     *            values
+     * @param emptyCallback
+     *            empty callback
+     *
+     * @deprecated in favor of the statement configuration functions
+     */
+    @Deprecated
     protected AbstractListValueCondition(Collection<T> values, Callback emptyCallback) {
         this.values = Objects.requireNonNull(values);
         this.emptyCallback = Objects.requireNonNull(emptyCallback);
@@ -90,12 +108,24 @@ public abstract class AbstractListValueCondition<T> implements VisitableConditio
      *     Else returns a condition that will not render (this). If all values are filtered out of the value
      *     list, then the condition will not render.
      *
-     * @param predicate predicate applied to the values, if renderable
-     * @return a new condition with filtered values if renderable, otherwise a condition
-     *     that will not render.
+     * @param predicate
+     *            predicate applied to the values, if renderable
+     *
+     * @return a new condition with filtered values if renderable, otherwise a condition that will not render.
      */
     public abstract AbstractListValueCondition<T> filter(Predicate<? super T> predicate);
 
+    /**
+     * Specifies a callback function to be called if the value list is empty when rendered.
+     *
+     * @param callback
+     *            a callback function - typically throws an exception to block the statement from executing
+     *
+     * @return this condition
+     *
+     * @deprecated in favor of the statement configuration functions
+     */
+    @Deprecated
     public abstract AbstractListValueCondition<T> withListEmptyCallback(Callback callback);
 
     public abstract String renderCondition(String columnName, Stream<String> placeholders);

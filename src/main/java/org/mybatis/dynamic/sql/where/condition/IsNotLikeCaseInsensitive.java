@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -58,11 +58,13 @@ public class IsNotLikeCaseInsensitive extends AbstractSingleValueCondition<Strin
 
     /**
      * If renderable, apply the mapping to the value and return a new condition with the new value. Else return a
-     *     condition that will not render (this).
+     * condition that will not render (this).
      *
-     * @param mapper a mapping function to apply to the value, if renderable
-     * @return a new condition with the result of applying the mapper to the value of this condition,
-     *     if renderable, otherwise a condition that will not render.
+     * @param mapper
+     *            a mapping function to apply to the value, if renderable
+     *
+     * @return a new condition with the result of applying the mapper to the value of this condition, if renderable,
+     *         otherwise a condition that will not render.
      */
     public IsNotLikeCaseInsensitive map(UnaryOperator<String> mapper) {
         return mapSupport(mapper, IsNotLikeCaseInsensitive::new, IsNotLikeCaseInsensitive::empty);

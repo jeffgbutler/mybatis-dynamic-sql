@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,11 +21,12 @@ import org.mybatis.dynamic.sql.insert.MultiRowInsertDSL
 import org.mybatis.dynamic.sql.insert.MultiRowInsertModel
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping
 import org.mybatis.dynamic.sql.util.Buildable
+import org.mybatis.dynamic.sql.util.Messages
 
 typealias KotlinMultiRowInsertCompleter<T> = KotlinMultiRowInsertBuilder<T>.() -> Unit
 
 @MyBatisDslMarker
-class KotlinMultiRowInsertBuilder<T> (private val rows: Collection<T>): Buildable<MultiRowInsertModel<T>> {
+class KotlinMultiRowInsertBuilder<T : Any> (private val rows: Collection<T>): Buildable<MultiRowInsertModel<T>> {
     private var table: SqlTable? = null
     private val columnMappings = mutableListOf<AbstractColumnMapping>()
 
@@ -33,13 +34,13 @@ class KotlinMultiRowInsertBuilder<T> (private val rows: Collection<T>): Buildabl
         this.table = table
     }
 
-    fun <C : Any> map(column: SqlColumn<C>) = MultiRowInsertColumnMapCompleter(column) {
+    fun <C> map(column: SqlColumn<C>) = MultiRowInsertColumnMapCompleter(column) {
         columnMappings.add(it)
     }
 
     override fun build(): MultiRowInsertModel<T> =
         if (table == null) {
-            throw KInvalidSQLException("Multi Row Insert Statements Must Contain an \"into\" phrase.")
+            throw KInvalidSQLException(Messages.getString("ERROR.26")) //$NON-NLS-1$
         } else {
             with(MultiRowInsertDSL.Builder<T>()) {
                 withRecords(rows)

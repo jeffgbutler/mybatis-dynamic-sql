@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,11 +21,12 @@ import org.mybatis.dynamic.sql.insert.BatchInsertDSL
 import org.mybatis.dynamic.sql.insert.BatchInsertModel
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping
 import org.mybatis.dynamic.sql.util.Buildable
+import org.mybatis.dynamic.sql.util.Messages
 
 typealias KotlinBatchInsertCompleter<T> = KotlinBatchInsertBuilder<T>.() -> Unit
 
 @MyBatisDslMarker
-class KotlinBatchInsertBuilder<T> (private val rows: Collection<T>): Buildable<BatchInsertModel<T>> {
+class KotlinBatchInsertBuilder<T : Any> (private val rows: Collection<T>): Buildable<BatchInsertModel<T>> {
     private var table: SqlTable? = null
     private val columnMappings = mutableListOf<AbstractColumnMapping>()
 
@@ -33,13 +34,13 @@ class KotlinBatchInsertBuilder<T> (private val rows: Collection<T>): Buildable<B
         this.table = table
     }
 
-    fun <C : Any> map(column: SqlColumn<C>) = MultiRowInsertColumnMapCompleter(column) {
+    fun <C> map(column: SqlColumn<C>) = MultiRowInsertColumnMapCompleter(column) {
         columnMappings.add(it)
     }
 
     override fun build(): BatchInsertModel<T> =
         if (table == null) {
-            throw KInvalidSQLException("Batch Insert Statements Must Contain an \"into\" phrase.")
+            throw KInvalidSQLException(Messages.getString("ERROR.23")) //$NON-NLS-1$
         } else {
             with(BatchInsertDSL.Builder<T>()) {
                 withRecords(rows)

@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -57,7 +57,7 @@ public class IsBetween<T> extends AbstractTwoValueCondition<T> {
 
     /**
      * If renderable, apply the mappings to the values and return a new condition with the new values. Else return a
-     *     condition that will not render (this).
+     * condition that will not render (this).
      *
      * @param mapper1 a mapping function to apply to the first value, if renderable
      * @param mapper2 a mapping function to apply to the second value, if renderable

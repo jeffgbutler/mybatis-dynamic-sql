@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -97,7 +97,9 @@ public interface SqlBuilder {
     /**
      * Renders as select count(distinct column) from table...
      *
-     * @param column the column to count
+     * @param column
+     *            the column to count
+     *
      * @return the next step in the DSL
      */
     static CountDSL.FromGatherer<SelectModel> countDistinctColumn(BasicColumn column) {
@@ -107,7 +109,9 @@ public interface SqlBuilder {
     /**
      * Renders as select count(column) from table...
      *
-     * @param column the column to count
+     * @param column
+     *            the column to count
+     *
      * @return the next step in the DSL
      */
     static CountDSL.FromGatherer<SelectModel> countColumn(BasicColumn column) {
@@ -117,7 +121,9 @@ public interface SqlBuilder {
     /**
      * Renders as select count(*) from table...
      *
-     * @param table the table to count
+     * @param table
+     *            the table to count
+     *
      * @return the next step in the DSL
      */
     static CountDSL<SelectModel> countFrom(SqlTable table) {
@@ -128,6 +134,10 @@ public interface SqlBuilder {
         return DeleteDSL.deleteFrom(table);
     }
 
+    static DeleteDSL<DeleteModel> deleteFrom(SqlTable table, String tableAlias) {
+        return DeleteDSL.deleteFrom(table, tableAlias);
+    }
+
     static <T> InsertDSL.IntoGatherer<T> insert(T row) {
         return InsertDSL.insert(row);
     }
@@ -135,20 +145,26 @@ public interface SqlBuilder {
     /**
      * Insert a Batch of records. The model object is structured to support bulk inserts with JDBC batch support.
      *
-     * @param records records to insert
-     * @param <T> the type of record to insert
+     * @param records
+     *            records to insert
+     * @param <T>
+     *            the type of record to insert
+     *
      * @return the next step in the DSL
      */
     @SafeVarargs
-    static <T> BatchInsertDSL.IntoGatherer<T> insertBatch(T...records) {
+    static <T> BatchInsertDSL.IntoGatherer<T> insertBatch(T... records) {
         return BatchInsertDSL.insert(records);
     }
 
     /**
      * Insert a Batch of records. The model object is structured to support bulk inserts with JDBC batch support.
      *
-     * @param records records to insert
-     * @param <T> the type of record to insert
+     * @param records
+     *            records to insert
+     * @param <T>
+     *            the type of record to insert
+     *
      * @return the next step in the DSL
      */
     static <T> BatchInsertDSL.IntoGatherer<T> insertBatch(Collection<T> records) {
@@ -161,13 +177,15 @@ public interface SqlBuilder {
      * for large bulk inserts as it is possible to exceed the limit of parameter markers in a prepared statement.
      *
      * <p>For large bulk inserts, see {@link SqlBuilder#insertBatch(Object[])}
+     * @param records
+     *            records to insert
+     * @param <T>
+     *            the type of record to insert
      *
-     * @param records records to insert
-     * @param <T> the type of record to insert
      * @return the next step in the DSL
      */
     @SafeVarargs
-    static <T> MultiRowInsertDSL.IntoGatherer<T> insertMultiple(T...records) {
+    static <T> MultiRowInsertDSL.IntoGatherer<T> insertMultiple(T... records) {
         return MultiRowInsertDSL.insert(records);
     }
 
@@ -177,9 +195,11 @@ public interface SqlBuilder {
      * for large bulk inserts as it is possible to exceed the limit of parameter markers in a prepared statement.
      *
      * <p>For large bulk inserts, see {@link SqlBuilder#insertBatch(Collection)}
+     * @param records
+     *            records to insert
+     * @param <T>
+     *            the type of record to insert
      *
-     * @param records records to insert
-     * @param <T> the type of record to insert
      * @return the next step in the DSL
      */
     static <T> MultiRowInsertDSL.IntoGatherer<T> insertMultiple(Collection<T> records) {
@@ -190,7 +210,7 @@ public interface SqlBuilder {
         return new InsertIntoNextStep(table);
     }
 
-    static FromGatherer<SelectModel> select(BasicColumn...selectList) {
+    static FromGatherer<SelectModel> select(BasicColumn... selectList) {
         return SelectDSL.select(selectList);
     }
 
@@ -198,7 +218,7 @@ public interface SqlBuilder {
         return SelectDSL.select(selectList);
     }
 
-    static FromGatherer<SelectModel> selectDistinct(BasicColumn...selectList) {
+    static FromGatherer<SelectModel> selectDistinct(BasicColumn... selectList) {
         return SelectDSL.selectDistinct(selectList);
     }
 
@@ -208,6 +228,10 @@ public interface SqlBuilder {
 
     static UpdateDSL<UpdateModel> update(SqlTable table) {
         return UpdateDSL.update(table);
+    }
+
+    static UpdateDSL<UpdateModel> update(SqlTable table, String tableAlias) {
+        return UpdateDSL.update(table, tableAlias);
     }
 
     static WhereDSL where() {
@@ -229,7 +253,7 @@ public interface SqlBuilder {
 
     // where condition connectors
     static <T> CriteriaGroup group(BindableColumn<T> column, VisitableCondition<T> condition,
-                                   AndOrCriteriaGroup...subCriteria) {
+                                   AndOrCriteriaGroup... subCriteria) {
         return group(column, condition, Arrays.asList(subCriteria));
     }
 
@@ -242,7 +266,7 @@ public interface SqlBuilder {
                 .build();
     }
 
-    static CriteriaGroup group(ExistsPredicate existsPredicate, AndOrCriteriaGroup...subCriteria) {
+    static CriteriaGroup group(ExistsPredicate existsPredicate, AndOrCriteriaGroup... subCriteria) {
         return group(existsPredicate, Arrays.asList(subCriteria));
     }
 
@@ -254,7 +278,7 @@ public interface SqlBuilder {
                 .build();
     }
 
-    static CriteriaGroup group(SqlCriterion initialCriterion, AndOrCriteriaGroup...subCriteria) {
+    static CriteriaGroup group(SqlCriterion initialCriterion, AndOrCriteriaGroup... subCriteria) {
         return group(initialCriterion, Arrays.asList(subCriteria));
     }
 
@@ -272,7 +296,7 @@ public interface SqlBuilder {
     }
 
     static <T> NotCriterion not(BindableColumn<T> column, VisitableCondition<T> condition,
-                                AndOrCriteriaGroup...subCriteria) {
+                                AndOrCriteriaGroup... subCriteria) {
         return not(column, condition, Arrays.asList(subCriteria));
     }
 
@@ -285,7 +309,7 @@ public interface SqlBuilder {
                 .build();
     }
 
-    static NotCriterion not(ExistsPredicate existsPredicate, AndOrCriteriaGroup...subCriteria) {
+    static NotCriterion not(ExistsPredicate existsPredicate, AndOrCriteriaGroup... subCriteria) {
         return not(existsPredicate, Arrays.asList(subCriteria));
     }
 
@@ -297,7 +321,7 @@ public interface SqlBuilder {
                 .build();
     }
 
-    static NotCriterion not(SqlCriterion initialCriterion, AndOrCriteriaGroup...subCriteria) {
+    static NotCriterion not(SqlCriterion initialCriterion, AndOrCriteriaGroup... subCriteria) {
         return not(initialCriterion, Arrays.asList(subCriteria));
     }
 
@@ -315,7 +339,7 @@ public interface SqlBuilder {
     }
 
     static <T> AndOrCriteriaGroup or(BindableColumn<T> column, VisitableCondition<T> condition,
-                                     AndOrCriteriaGroup...subCriteria) {
+                                     AndOrCriteriaGroup... subCriteria) {
         return new AndOrCriteriaGroup.Builder()
                 .withInitialCriterion(ColumnAndConditionCriterion.withColumn(column)
                         .withCondition(condition)
@@ -325,7 +349,7 @@ public interface SqlBuilder {
                 .build();
     }
 
-    static AndOrCriteriaGroup or(ExistsPredicate existsPredicate, AndOrCriteriaGroup...subCriteria) {
+    static AndOrCriteriaGroup or(ExistsPredicate existsPredicate, AndOrCriteriaGroup... subCriteria) {
         return new AndOrCriteriaGroup.Builder()
                 .withInitialCriterion(new ExistsCriterion.Builder()
                         .withExistsPredicate(existsPredicate).build())
@@ -334,7 +358,7 @@ public interface SqlBuilder {
                 .build();
     }
 
-    static AndOrCriteriaGroup or(SqlCriterion initialCriterion, AndOrCriteriaGroup...subCriteria) {
+    static AndOrCriteriaGroup or(SqlCriterion initialCriterion, AndOrCriteriaGroup... subCriteria) {
         return new AndOrCriteriaGroup.Builder()
                 .withConnector("or") //$NON-NLS-1$
                 .withInitialCriterion(initialCriterion)
@@ -350,7 +374,7 @@ public interface SqlBuilder {
     }
 
     static <T> AndOrCriteriaGroup and(BindableColumn<T> column, VisitableCondition<T> condition,
-                                      AndOrCriteriaGroup...subCriteria) {
+                                      AndOrCriteriaGroup... subCriteria) {
         return new AndOrCriteriaGroup.Builder()
                 .withInitialCriterion(ColumnAndConditionCriterion.withColumn(column)
                         .withCondition(condition)
@@ -360,7 +384,7 @@ public interface SqlBuilder {
                 .build();
     }
 
-    static AndOrCriteriaGroup and(ExistsPredicate existsPredicate, AndOrCriteriaGroup...subCriteria) {
+    static AndOrCriteriaGroup and(ExistsPredicate existsPredicate, AndOrCriteriaGroup... subCriteria) {
         return new AndOrCriteriaGroup.Builder()
                 .withInitialCriterion(new ExistsCriterion.Builder()
                         .withExistsPredicate(existsPredicate).build())
@@ -369,7 +393,7 @@ public interface SqlBuilder {
                 .build();
     }
 
-    static AndOrCriteriaGroup and(SqlCriterion initialCriterion, AndOrCriteriaGroup...subCriteria) {
+    static AndOrCriteriaGroup and(SqlCriterion initialCriterion, AndOrCriteriaGroup... subCriteria) {
         return new AndOrCriteriaGroup.Builder()
                 .withConnector("and") //$NON-NLS-1$
                 .withInitialCriterion(initialCriterion)
@@ -649,7 +673,7 @@ public interface SqlBuilder {
     }
 
     @SafeVarargs
-    static <T> IsIn<T> isIn(T...values) {
+    static <T> IsIn<T> isIn(T... values) {
         return IsIn.of(values);
     }
 
@@ -662,7 +686,7 @@ public interface SqlBuilder {
     }
 
     @SafeVarargs
-    static <T> IsIn<T> isInWhenPresent(T...values) {
+    static <T> IsIn<T> isInWhenPresent(T... values) {
         return IsIn.of(values).filter(Objects::nonNull);
     }
 
@@ -671,7 +695,7 @@ public interface SqlBuilder {
     }
 
     @SafeVarargs
-    static <T> IsNotIn<T> isNotIn(T...values) {
+    static <T> IsNotIn<T> isNotIn(T... values) {
         return IsNotIn.of(values);
     }
 
@@ -684,7 +708,7 @@ public interface SqlBuilder {
     }
 
     @SafeVarargs
-    static <T> IsNotIn<T> isNotInWhenPresent(T...values) {
+    static <T> IsNotIn<T> isNotInWhenPresent(T... values) {
         return IsNotIn.of(values).filter(Objects::nonNull);
     }
 
@@ -799,7 +823,7 @@ public interface SqlBuilder {
         return isNotLikeCaseInsensitiveWhenPresent(valueSupplier.get());
     }
 
-    static IsInCaseInsensitive isInCaseInsensitive(String...values) {
+    static IsInCaseInsensitive isInCaseInsensitive(String... values) {
         return IsInCaseInsensitive.of(values);
     }
 
@@ -807,7 +831,7 @@ public interface SqlBuilder {
         return IsInCaseInsensitive.of(values);
     }
 
-    static IsInCaseInsensitive isInCaseInsensitiveWhenPresent(String...values) {
+    static IsInCaseInsensitive isInCaseInsensitiveWhenPresent(String... values) {
         return IsInCaseInsensitive.of(values).filter(Objects::nonNull);
     }
 
@@ -815,7 +839,7 @@ public interface SqlBuilder {
         return values == null ? IsInCaseInsensitive.empty() : IsInCaseInsensitive.of(values).filter(Objects::nonNull);
     }
 
-    static IsNotInCaseInsensitive isNotInCaseInsensitive(String...values) {
+    static IsNotInCaseInsensitive isNotInCaseInsensitive(String... values) {
         return IsNotInCaseInsensitive.of(values);
     }
 
@@ -823,7 +847,7 @@ public interface SqlBuilder {
         return IsNotInCaseInsensitive.of(values);
     }
 
-    static IsNotInCaseInsensitive isNotInCaseInsensitiveWhenPresent(String...values) {
+    static IsNotInCaseInsensitive isNotInCaseInsensitiveWhenPresent(String... values) {
         return IsNotInCaseInsensitive.of(values).filter(Objects::nonNull);
     }
 
@@ -877,7 +901,7 @@ public interface SqlBuilder {
                     .withSelectStatement(selectModelBuilder);
         }
 
-        public InsertSelectDSL.SelectGatherer withColumnList(SqlColumn<?>...columns) {
+        public InsertSelectDSL.SelectGatherer withColumnList(SqlColumn<?>... columns) {
             return InsertSelectDSL.insertInto(table)
                     .withColumnList(columns);
         }

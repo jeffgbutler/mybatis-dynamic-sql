@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +27,7 @@ import org.mybatis.dynamic.sql.util.ValueOrNullMapping
 import org.mybatis.dynamic.sql.util.ValueWhenPresentMapping
 
 @MyBatisDslMarker
-sealed class AbstractInsertColumnMapCompleter<T : Any>(
+sealed class AbstractInsertColumnMapCompleter<T>(
     internal val column: SqlColumn<T>,
     internal val mappingConsumer: (AbstractColumnMapping) -> Unit) {
 
@@ -38,7 +38,7 @@ sealed class AbstractInsertColumnMapCompleter<T : Any>(
     infix fun toStringConstant(constant: String) = mappingConsumer.invoke(StringConstantMapping.of(column, constant))
 }
 
-class MultiRowInsertColumnMapCompleter<T : Any>(
+class MultiRowInsertColumnMapCompleter<T>(
     column: SqlColumn<T>,
     mappingConsumer: (AbstractColumnMapping) -> Unit)
     : AbstractInsertColumnMapCompleter<T>(column, mappingConsumer) {
@@ -46,7 +46,7 @@ class MultiRowInsertColumnMapCompleter<T : Any>(
     infix fun toProperty(property: String) = mappingConsumer.invoke(PropertyMapping.of(column, property))
 }
 
-class SingleRowInsertColumnMapCompleter<T : Any>(
+class SingleRowInsertColumnMapCompleter<T>(
     column: SqlColumn<T>,
     mappingConsumer: (AbstractColumnMapping) -> Unit)
     : AbstractInsertColumnMapCompleter<T>(column, mappingConsumer) {
@@ -57,14 +57,14 @@ class SingleRowInsertColumnMapCompleter<T : Any>(
         mappingConsumer.invoke(PropertyWhenPresentMapping.of(column, property, valueSupplier))
 }
 
-class GeneralInsertColumnSetCompleter<T : Any>(
+class GeneralInsertColumnSetCompleter<T>(
     column: SqlColumn<T>,
     mappingConsumer: (AbstractColumnMapping) -> Unit)
     : AbstractInsertColumnMapCompleter<T>(column, mappingConsumer) {
 
-    infix fun toValue(value: T) = toValue { value }
+    infix fun toValue(value: T & Any) = toValue { value }
 
-    infix fun toValue(value: () -> T) = mappingConsumer.invoke(ValueMapping.of(column, value))
+    infix fun toValue(value: () -> T & Any) = mappingConsumer.invoke(ValueMapping.of(column, value))
 
     infix fun toValueOrNull(value: T?) = toValueOrNull { value }
 

@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,8 +21,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.mybatis.dynamic.sql.SqlCriterion;
+import org.mybatis.dynamic.sql.exception.NonRenderingWhereClauseException;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.render.TableAliasCalculator;
+import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 import org.mybatis.dynamic.sql.util.FragmentCollector;
 import org.mybatis.dynamic.sql.where.WhereModel;
 
@@ -41,13 +43,20 @@ public class WhereRenderer {
                 .build();
     }
 
-    public Optional<WhereClauseProvider> render() {
-        return whereModel.initialCriterion().map(this::renderWithInitialCriterion)
+    public Optional<FragmentAndParameters> render() {
+        Optional<FragmentAndParameters> whereClause = whereModel.initialCriterion()
+                .map(this::renderWithInitialCriterion)
                 .orElseGet(this::renderWithoutInitialCriterion)
-                .map(rc -> WhereClauseProvider.withWhereClause(rc.fragmentAndParameters().fragment())
+                .map(rc -> FragmentAndParameters.withFragment(rc.fragmentAndParameters().fragment())
                         .withParameters(rc.fragmentAndParameters().parameters())
                         .build()
                 );
+
+        if (whereClause.isPresent() || whereModel.isNonRenderingClauseAllowed()) {
+            return whereClause;
+        } else {
+            throw new NonRenderingWhereClauseException();
+        }
     }
 
     private Optional<RenderedCriterion> renderWithInitialCriterion(SqlCriterion initialCriterion) {

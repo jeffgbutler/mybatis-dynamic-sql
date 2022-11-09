@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -57,7 +57,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig
 import org.springframework.transaction.annotation.Transactional
 
 @Suppress("LargeClass", "MaxLineLength")
-@SpringJUnitConfig(classes = [SpringConfiguration::class])
+@SpringJUnitConfig(SpringConfiguration::class)
 @Transactional
 open class KotlinElementsTest {
     @Autowired
@@ -335,6 +335,7 @@ open class KotlinElementsTest {
             from(person)
             where { id (isBetweenWhenPresent<Int>(null).and(3)) }
             orderBy(id)
+            configureStatement { isNonRenderingWhereClauseAllowed = true }
         }
 
         assertThat(selectStatement.selectStatement).isEqualTo(
@@ -353,6 +354,7 @@ open class KotlinElementsTest {
             from(person)
             where { id (isBetweenWhenPresent(2).and(null)) }
             orderBy(id)
+            configureStatement { isNonRenderingWhereClauseAllowed = true }
         }
 
         assertThat(selectStatement.selectStatement).isEqualTo(
@@ -371,6 +373,7 @@ open class KotlinElementsTest {
             from(person)
             where { id (isBetweenWhenPresent<Int>(null).and(null)) }
             orderBy(id)
+            configureStatement { isNonRenderingWhereClauseAllowed = true }
         }
 
         assertThat(selectStatement.selectStatement).isEqualTo(
@@ -425,6 +428,7 @@ open class KotlinElementsTest {
             from(person)
             where { id (isNotBetweenWhenPresent<Int>(null).and(3)) }
             orderBy(id)
+            configureStatement { isNonRenderingWhereClauseAllowed = true }
         }
 
         assertThat(selectStatement.selectStatement).isEqualTo(
@@ -443,6 +447,7 @@ open class KotlinElementsTest {
             from(person)
             where { id (isNotBetweenWhenPresent(2).and(null)) }
             orderBy(id)
+            configureStatement { isNonRenderingWhereClauseAllowed = true }
         }
 
         assertThat(selectStatement.selectStatement).isEqualTo(
@@ -461,6 +466,7 @@ open class KotlinElementsTest {
             from(person)
             where { id (isNotBetweenWhenPresent<Int>(null).and(null)) }
             orderBy(id)
+            configureStatement { isNonRenderingWhereClauseAllowed = true }
         }
 
         assertThat(selectStatement.selectStatement).isEqualTo(
@@ -551,6 +557,7 @@ open class KotlinElementsTest {
             from(person)
             where { firstName (isInCaseInsensitiveWhenPresent(null, null)) }
             orderBy(id)
+            configureStatement { isNonRenderingWhereClauseAllowed = true }
         }
 
         assertThat(selectStatement.selectStatement).isEqualTo(
@@ -605,6 +612,7 @@ open class KotlinElementsTest {
             from(person)
             where { firstName (isNotInCaseInsensitiveWhenPresent(null, null)) }
             orderBy(id)
+            configureStatement { isNonRenderingWhereClauseAllowed = true }
         }
 
         assertThat(selectStatement.selectStatement).isEqualTo(

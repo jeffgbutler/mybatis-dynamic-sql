@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,6 +34,14 @@ public class IsNotInCaseInsensitive extends AbstractListValueCondition<String> {
         return EMPTY;
     }
 
+    /**
+     * Build an empty condition.
+     *
+     * @return a new empty condition
+     *
+     * @deprecated in favor of the statement configuration functions
+     */
+    @Deprecated
     private IsNotInCaseInsensitive emptyWithCallback() {
         return new IsNotInCaseInsensitive(Collections.emptyList(), emptyCallback);
     }
@@ -42,6 +50,17 @@ public class IsNotInCaseInsensitive extends AbstractListValueCondition<String> {
         super(values);
     }
 
+    /**
+     * Build a new instance with a callback.
+     *
+     * @param values
+     *            values
+     * @param emptyCallback
+     *            empty callback
+     *
+     * @deprecated in favor of the statement configuration functions
+     */
+    @Deprecated
     protected IsNotInCaseInsensitive(Collection<String> values, Callback emptyCallback) {
         super(values, emptyCallback);
     }
@@ -53,6 +72,17 @@ public class IsNotInCaseInsensitive extends AbstractListValueCondition<String> {
                         Collectors.joining(",", "not in (", ")")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
+    /**
+     * Build a new instance with a callback.
+     *
+     * @param callback
+     *            a callback function - typically throws an exception to block the statement from executing
+     *
+     * @return this condition
+     *
+     * @deprecated in favor of the statement configuration functions
+     */
+    @Deprecated
     @Override
     public IsNotInCaseInsensitive withListEmptyCallback(Callback callback) {
         return new IsNotInCaseInsensitive(values, callback);

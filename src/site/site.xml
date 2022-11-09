@@ -7,7 +7,7 @@
        you may not use this file except in compliance with the License.
        You may obtain a copy of the License at
 
-          http://www.apache.org/licenses/LICENSE-2.0
+          https://www.apache.org/licenses/LICENSE-2.0
 
        Unless required by applicable law or agreed to in writing, software
        distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +27,7 @@
 
   <bannerRight>
     <name>MyBatis</name>
-    <src>http://mybatis.github.io/images/mybatis-logo.png</src>
+    <src>https://mybatis.org/images/mybatis-logo.png</src>
     <alt>MyBatis logo</alt>
     <href>http://www.mybatis.org/</href>
   </bannerRight>
@@ -37,6 +37,8 @@
       <item href="docs/introduction.html" name="Introduction" />
       <item href="docs/CHANGELOG.html" name="Change Log" />
       <item href="docs/quickStart.html" name="Quick Start" />
+      <item href="docs/exceptions.html" name="Exceptions thrown by the Library" />
+      <item href="docs/configuration.html" name="Configuration of the Library" />
       <item href="docs/databaseObjects.html" name="Modeling Database Objects" />
       <item href="docs/whereClauses.html" name="WHERE Clause Support" >
         <item href="docs/conditions.html" name="WHERE Conditions"/>

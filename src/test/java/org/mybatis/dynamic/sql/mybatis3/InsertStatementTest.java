@@ -1,11 +1,11 @@
 /*
- *    Copyright 2016-2020 the original author or authors.
+ *    Copyright 2016-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -49,9 +49,9 @@ class InsertStatementTest {
                 .render(RenderingStrategies.MYBATIS3);
 
         String expected = "insert into foo (id, first_name, last_name, occupation) "
-                + "values (#{record.id,jdbcType=INTEGER}, "
-                + "#{record.firstName,jdbcType=VARCHAR}, " + "#{record.lastName,jdbcType=VARCHAR}, "
-                + "#{record.occupation,jdbcType=VARCHAR})";
+                + "values (#{row.id,jdbcType=INTEGER}, "
+                + "#{row.firstName,jdbcType=VARCHAR}, " + "#{row.lastName,jdbcType=VARCHAR}, "
+                + "#{row.occupation,jdbcType=VARCHAR})";
         assertThat(insertStatement.getInsertStatement()).isEqualTo(expected);
     }
 
@@ -71,8 +71,8 @@ class InsertStatementTest {
                 .render(RenderingStrategies.MYBATIS3);
 
         String expected = "insert into foo (last_name, occupation) "
-                + "values (#{record.lastName,jdbcType=VARCHAR}, "
-                + "#{record.occupation,jdbcType=VARCHAR})";
+                + "values (#{row.lastName,jdbcType=VARCHAR}, "
+                + "#{row.occupation,jdbcType=VARCHAR})";
         assertThat(insertStatement.getInsertStatement()).isEqualTo(expected);
     }
 

@@ -1,11 +1,11 @@
 /*
- *    Copyright 2016-2020 the original author or authors.
+ *    Copyright 2016-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,7 +25,6 @@ import org.mybatis.dynamic.sql.render.TableAliasCalculator;
  * are typically not bound.
  *
  * @author Jeff Butler
- *
  */
 public interface BasicColumn {
 
@@ -39,7 +38,9 @@ public interface BasicColumn {
     /**
      * Returns a new instance of a BasicColumn with the alias set.
      *
-     * @param alias the column alias to set
+     * @param alias
+     *            the column alias to set
+     *
      * @return new instance with alias set
      */
     BasicColumn as(String alias);
@@ -74,7 +75,7 @@ public interface BasicColumn {
      * @param columns list of BasicColumn
      * @return an array of BasicColumn
      */
-    static BasicColumn[] columnList(BasicColumn...columns) {
+    static BasicColumn[] columnList(BasicColumn... columns) {
         return columns;
     }
 }

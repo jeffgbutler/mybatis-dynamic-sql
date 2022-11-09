@@ -1,11 +1,11 @@
 /*
- *    Copyright 2016-2020 the original author or authors.
+ *    Copyright 2016-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,22 +16,21 @@
 package examples.joins;
 
 import java.sql.JDBCType;
-import java.util.Date;
 
+import org.mybatis.dynamic.sql.AliasableSqlTable;
 import org.mybatis.dynamic.sql.SqlColumn;
-import org.mybatis.dynamic.sql.SqlTable;
 
 public final class ItemMasterDynamicSQLSupport {
     public static final ItemMaster itemMaster = new ItemMaster();
     public static final SqlColumn<Integer> itemId = itemMaster.itemId;
-    public static final SqlColumn<Date> description = itemMaster.description;
+    public static final SqlColumn<String> description = itemMaster.description;
 
-    public static final class ItemMaster extends SqlTable {
+    public static final class ItemMaster extends AliasableSqlTable<ItemMaster> {
         public final SqlColumn<Integer> itemId = column("item_id", JDBCType.INTEGER);
-        public final SqlColumn<Date> description = column("description", JDBCType.DATE);
+        public final SqlColumn<String> description = column("description", JDBCType.VARCHAR);
 
         public ItemMaster() {
-            super("ItemMaster");
+            super("ItemMaster", ItemMaster::new);
         }
     }
 }

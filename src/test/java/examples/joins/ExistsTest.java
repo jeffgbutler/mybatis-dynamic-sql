@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,6 +14,18 @@
  *    limitations under the License.
  */
 package examples.joins;
+
+import static examples.joins.ItemMasterDynamicSQLSupport.itemMaster;
+import static examples.joins.OrderLineDynamicSQLSupport.orderLine;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mybatis.dynamic.sql.SqlBuilder.*;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSource;
 import org.apache.ibatis.jdbc.ScriptRunner;
@@ -25,21 +37,13 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mybatis.dynamic.sql.delete.render.DeleteStatementProvider;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
+import org.mybatis.dynamic.sql.update.render.UpdateStatementProvider;
+import org.mybatis.dynamic.sql.util.mybatis3.CommonDeleteMapper;
 import org.mybatis.dynamic.sql.util.mybatis3.CommonSelectMapper;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.util.List;
-import java.util.Map;
-
-import static examples.joins.ItemMasterDynamicSQLSupport.itemMaster;
-import static examples.joins.OrderLineDynamicSQLSupport.orderLine;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mybatis.dynamic.sql.SqlBuilder.*;
+import org.mybatis.dynamic.sql.util.mybatis3.CommonUpdateMapper;
 
 class ExistsTest {
 
@@ -62,7 +66,9 @@ class ExistsTest {
         Environment environment = new Environment("test", new JdbcTransactionFactory(), ds);
         Configuration config = new Configuration(environment);
         config.addMapper(JoinMapper.class);
+        config.addMapper(CommonDeleteMapper.class);
         config.addMapper(CommonSelectMapper.class);
+        config.addMapper(CommonUpdateMapper.class);
         sqlSessionFactory = new SqlSessionFactoryBuilder().build(config);
     }
 
@@ -377,6 +383,102 @@ class ExistsTest {
             Map<String, Object> row = rows.get(0);
             assertThat(row).containsEntry("ITEM_ID", 22);
             assertThat(row).containsEntry("DESCRIPTION", "Helmet");
+        }
+    }
+
+    @Test
+    void testDeleteWithHardAlias() {
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            CommonDeleteMapper mapper = session.getMapper(CommonDeleteMapper.class);
+
+            ItemMasterDynamicSQLSupport.ItemMaster im = itemMaster.withAlias("im");
+
+            DeleteStatementProvider deleteStatement = deleteFrom(im)
+                    .where(notExists(select(orderLine.allColumns())
+                            .from(orderLine, "ol")
+                            .where(orderLine.itemId, isEqualTo(im.itemId)))
+                    )
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+
+            String expectedStatement = "delete from ItemMaster im where not exists "
+                    + "(select ol.* from OrderLine ol where ol.item_id = im.item_id)";
+            assertThat(deleteStatement.getDeleteStatement()).isEqualTo(expectedStatement);
+
+            int rows = mapper.delete(deleteStatement);
+            assertThat(rows).isEqualTo(1);
+        }
+    }
+
+    @Test
+    void testDeleteWithSoftAlias() {
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            CommonDeleteMapper mapper = session.getMapper(CommonDeleteMapper.class);
+
+            DeleteStatementProvider deleteStatement = deleteFrom(itemMaster, "im")
+                    .where(notExists(select(orderLine.allColumns())
+                            .from(orderLine, "ol")
+                            .where(orderLine.itemId, isEqualTo(itemMaster.itemId)))
+                    )
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+
+            String expectedStatement = "delete from ItemMaster im where not exists "
+                    + "(select ol.* from OrderLine ol where ol.item_id = im.item_id)";
+            assertThat(deleteStatement.getDeleteStatement()).isEqualTo(expectedStatement);
+
+            int rows = mapper.delete(deleteStatement);
+            assertThat(rows).isEqualTo(1);
+        }
+    }
+
+    @Test
+    void testUpdateWithHardAlias() {
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            CommonUpdateMapper mapper = session.getMapper(CommonUpdateMapper.class);
+
+            ItemMasterDynamicSQLSupport.ItemMaster im = itemMaster.withAlias("im");
+
+            UpdateStatementProvider updateStatement = update(im)
+                    .set(im.description).equalTo("No Orders")
+                    .where(notExists(select(orderLine.allColumns())
+                            .from(orderLine, "ol")
+                            .where(orderLine.itemId, isEqualTo(im.itemId)))
+                    )
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+
+            String expectedStatement = "update ItemMaster im "
+                    + "set im.description = #{parameters.p1,jdbcType=VARCHAR} "
+                    + "where not exists (select ol.* from OrderLine ol where ol.item_id = im.item_id)";
+            assertThat(updateStatement.getUpdateStatement()).isEqualTo(expectedStatement);
+
+            int rows = mapper.update(updateStatement);
+            assertThat(rows).isEqualTo(1);
+        }
+    }
+
+    @Test
+    void testUpdateWithSoftAlias() {
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            CommonUpdateMapper mapper = session.getMapper(CommonUpdateMapper.class);
+
+            UpdateStatementProvider updateStatement = update(itemMaster, "im")
+                    .set(itemMaster.description).equalTo("No Orders")
+                    .where(notExists(select(orderLine.allColumns())
+                            .from(orderLine, "ol")
+                            .where(orderLine.itemId, isEqualTo(itemMaster.itemId)))
+                    )
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+
+            String expectedStatement = "update ItemMaster im "
+                    + "set im.description = #{parameters.p1,jdbcType=VARCHAR} "
+                    + "where not exists (select ol.* from OrderLine ol where ol.item_id = im.item_id)";
+            assertThat(updateStatement.getUpdateStatement()).isEqualTo(expectedStatement);
+
+            int rows = mapper.update(updateStatement);
+            assertThat(rows).isEqualTo(1);
         }
     }
 }

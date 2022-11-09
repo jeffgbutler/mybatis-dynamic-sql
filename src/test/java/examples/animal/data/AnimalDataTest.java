@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSource;
 import org.apache.ibatis.jdbc.ScriptRunner;
@@ -75,6 +76,7 @@ class AnimalDataTest {
     void setup() throws Exception {
         Class.forName(JDBC_DRIVER);
         InputStream is = getClass().getResourceAsStream("/examples/animal/data/CreateAnimalData.sql");
+        assert is != null;
         try (Connection connection = DriverManager.getConnection(JDBC_URL, "sa", "")) {
             ScriptRunner sr = new ScriptRunner(connection);
             sr.setLogWriter(null);
@@ -297,13 +299,15 @@ class AnimalDataTest {
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
             AnimalDataMapper mapper = sqlSession.getMapper(AnimalDataMapper.class);
 
-            WhereClauseProvider whereClause = where(id, isNotBetween(10).and(60))
+            Optional<WhereClauseProvider> whereClause = where(id, isNotBetween(10).and(60))
                     .or(id, isIn(25, 27))
                     .build()
                     .render(RenderingStrategies.MYBATIS3);
 
-            List<AnimalData> animals = mapper.selectWithWhereClause(whereClause);
-            assertThat(animals).hasSize(16);
+            assertThat(whereClause).hasValueSatisfying(wc -> {
+                List<AnimalData> animals = mapper.selectWithWhereClause(wc);
+                assertThat(animals).hasSize(16);
+            });
         }
     }
 
@@ -312,14 +316,15 @@ class AnimalDataTest {
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
             AnimalDataMapper mapper = sqlSession.getMapper(AnimalDataMapper.class);
 
-            WhereClauseProvider whereClause = where(id, isEqualTo(1), or(bodyWeight, isGreaterThan(1.0)))
+            Optional<WhereClauseProvider> whereClause = where(id, isEqualTo(1), or(bodyWeight, isGreaterThan(1.0)))
                     .build()
                     .render(RenderingStrategies.MYBATIS3, ExplicitTableAliasCalculator.of(animalData, "a"));
 
-            assertThat(whereClause.getWhereClause()).isEqualTo("where (a.id = #{parameters.p1,jdbcType=INTEGER} or a.body_weight > #{parameters.p2,jdbcType=DOUBLE})");
-
-            List<AnimalData> animals = mapper.selectWithWhereClauseAndAlias(whereClause);
-            assertThat(animals).hasSize(59);
+            assertThat(whereClause).hasValueSatisfying(wc -> {
+                assertThat(wc.getWhereClause()).isEqualTo("where (a.id = #{parameters.p1,jdbcType=INTEGER} or a.body_weight > #{parameters.p2,jdbcType=DOUBLE})");
+                List<AnimalData> animals = mapper.selectWithWhereClauseAndAlias(wc);
+                assertThat(animals).hasSize(59);
+            });
         }
     }
 
@@ -328,15 +333,15 @@ class AnimalDataTest {
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
             AnimalDataMapper mapper = sqlSession.getMapper(AnimalDataMapper.class);
 
-            WhereClauseProvider whereClause = where(id, isLessThan(60))
+            Optional<WhereClauseProvider> whereClause = where(id, isLessThan(60))
                     .build()
                     .render(RenderingStrategies.MYBATIS3, "whereClauseProvider");
 
-            List<AnimalData> animals = mapper.selectWithWhereClauseLimitAndOffset(whereClause, 5, 15);
-            assertAll(
-                    () -> assertThat(animals).hasSize(5),
-                    () -> assertThat(animals.get(0).getId()).isEqualTo(16)
-            );
+            assertThat(whereClause).hasValueSatisfying(wc -> {
+                List<AnimalData> animals = mapper.selectWithWhereClauseLimitAndOffset(wc, 5, 15);
+                assertThat(animals).hasSize(5);
+                assertThat(animals.get(0).getId()).isEqualTo(16);
+            });
         }
     }
 
@@ -345,16 +350,17 @@ class AnimalDataTest {
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
             AnimalDataMapper mapper = sqlSession.getMapper(AnimalDataMapper.class);
 
-            WhereClauseProvider whereClause = where(id, isLessThan(60))
+            Optional<WhereClauseProvider> whereClause = where(id, isLessThan(60))
                     .build()
                     .render(RenderingStrategies.MYBATIS3, ExplicitTableAliasCalculator.of(animalData, "b"),
                             "whereClauseProvider");
 
-            List<AnimalData> animals = mapper.selectWithWhereClauseAliasLimitAndOffset(whereClause, 3, 24);
-            assertAll(
-                    () -> assertThat(animals).hasSize(3),
-                    () -> assertThat(animals.get(0).getId()).isEqualTo(25)
-            );
+            assertThat(whereClause).hasValueSatisfying(wc -> {
+                List<AnimalData> animals = mapper.selectWithWhereClauseAliasLimitAndOffset(wc, 3, 24);
+                assertThat(animals).hasSize(3);
+                assertThat(animals.get(0).getId()).isEqualTo(25);
+            });
+
         }
     }
 
@@ -651,6 +657,7 @@ class AnimalDataTest {
             SelectStatementProvider selectStatement = select(id, animalName, bodyWeight, brainWeight)
                     .from(animalData)
                     .where(id, isIn(null, 22, null).filter(Objects::nonNull).filter(i -> i != 22))
+                    .configureStatement(c -> c.setNonRenderingWhereClauseAllowed(true))
                     .build()
                     .render(RenderingStrategies.MYBATIS3);
 
@@ -766,6 +773,7 @@ class AnimalDataTest {
             SelectStatementProvider selectStatement = select(id, animalName, bodyWeight, brainWeight)
                     .from(animalData)
                     .where(id, isNotIn(null, 22, null).filter(Objects::nonNull).filter(i -> i != 22))
+                    .configureStatement(c -> c.setNonRenderingWhereClauseAllowed(true))
                     .build()
                     .render(RenderingStrategies.MYBATIS3);
 

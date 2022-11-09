@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -63,7 +63,7 @@ fun countFrom(mapper: (SelectStatementProvider) -> Long, table: SqlTable, comple
 fun deleteFrom(mapper: (DeleteStatementProvider) -> Int, table: SqlTable, completer: DeleteCompleter): Int =
     deleteFrom(table, completer).run(mapper)
 
-fun <T> insert(
+fun <T : Any> insert(
     mapper: (InsertStatementProvider<T>) -> Int,
     row: T,
     table: SqlTable,
@@ -81,7 +81,7 @@ fun <T> insert(
  * list will be [org.apache.ibatis.executor.BatchExecutor.BATCH_UPDATE_RETURN_VALUE]).
  * To retrieve update counts, execute [org.apache.ibatis.session.SqlSession.flushStatements].
  */
-fun <T> insertBatch(
+fun <T : Any> insertBatch(
     mapper: (InsertStatementProvider<T>) -> Int,
     records: Collection<T>,
     table: SqlTable,
@@ -99,7 +99,7 @@ fun insertInto(
 ): Int =
     insertInto(table, completer).run(mapper)
 
-fun <T> insertMultiple(
+fun <T : Any> insertMultiple(
     mapper: (MultiRowInsertStatementProvider<T>) -> Int,
     records: Collection<T>,
     table: SqlTable,
@@ -110,7 +110,7 @@ fun <T> insertMultiple(
         run(completer)
     }.run(mapper)
 
-fun <T> insertMultipleWithGeneratedKeys(
+fun <T : Any> insertMultipleWithGeneratedKeys(
     mapper: (String, List<T>) -> Int,
     records: Collection<T>,
     table: SqlTable,
@@ -128,7 +128,10 @@ fun insertSelect(
     table: SqlTable,
     completer: InsertSelectCompleter
 ): Int =
-    insertSelect(table, completer).run(mapper)
+    insertSelect {
+        into(table)
+        run(completer)
+    }.run(mapper)
 
 fun <T> selectDistinct(
     mapper: (SelectStatementProvider) -> List<T>,

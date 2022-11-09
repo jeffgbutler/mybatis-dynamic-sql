@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,6 +28,8 @@ import examples.kotlin.spring.canonical.PersonDynamicSqlSupport.occupation
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Test
+import org.mybatis.dynamic.sql.exception.InvalidSqlException
+import org.mybatis.dynamic.sql.util.Messages
 import org.mybatis.dynamic.sql.util.kotlin.KInvalidSQLException
 import org.mybatis.dynamic.sql.util.kotlin.elements.`as`
 import org.mybatis.dynamic.sql.util.kotlin.elements.add
@@ -510,7 +512,8 @@ open class CanonicalSpringKotlinTest {
 
     @Test
     fun testInsertSelect() {
-        val insertStatement = insertSelect(person) {
+        val insertStatement = insertSelect {
+            into(person)
             columns(id, firstName, lastName, birthDate, employed, occupation, addressId)
             select(add(id, constant<Int>("100")), firstName, lastName, birthDate, employed, occupation, addressId) {
                 from(person)
@@ -546,15 +549,85 @@ open class CanonicalSpringKotlinTest {
     }
 
     @Test
-    fun testInsertSelectNoColumns() {
+    fun testInsertSelectNoTable() {
         assertThatExceptionOfType(KInvalidSQLException::class.java).isThrownBy {
-            insertSelect(person) {
+            insertSelect {
+                columns(id, firstName, lastName, birthDate, employed, occupation, addressId)
                 select(add(id, constant<Int>("100")), firstName, lastName, birthDate, employed, occupation, addressId) {
                     from(person)
                     orderBy(id)
                 }
             }
-        }.withMessage("You must specify a column list in an insert select statement")
+        }.withMessage(Messages.getString("ERROR.29"))
+    }
+
+    @Test
+    fun testDeprecatedInsertSelect() {
+        val insertStatement = insertSelect(person) {
+            columns(id, firstName, lastName, birthDate, employed, occupation, addressId)
+            select(add(id, constant<Int>("100")), firstName, lastName, birthDate, employed, occupation, addressId) {
+                from(person)
+                orderBy(id)
+            }
+        }
+
+        assertThat(insertStatement.insertStatement).isEqualTo(
+            "insert into Person (id, first_name, last_name, birth_date, employed, occupation, address_id) " +
+                    "select (id + 100), first_name, last_name, birth_date, employed, occupation, address_id " +
+                    "from Person " +
+                    "order by id"
+        )
+        val rows = template.insertSelect(insertStatement)
+        assertThat(rows).isEqualTo(6)
+
+        val records = template.select(id, firstName, lastName, birthDate, employed, occupation, addressId) {
+            from(person)
+            where { id isGreaterThanOrEqualTo 100 }
+            orderBy(id)
+        }.withRowMapper(personRowMapper)
+
+        assertThat(records).hasSize(6)
+        with(records[1]) {
+            assertThat(id).isEqualTo(102)
+            assertThat(firstName).isEqualTo("Wilma")
+            assertThat(lastName).isEqualTo(LastName("Flintstone"))
+            assertThat(birthDate).isNotNull
+            assertThat(employed).isTrue
+            assertThat(occupation).isEqualTo("Accountant")
+            assertThat(addressId).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun testInsertSelectNoColumns() {
+        val insertStatement = insertSelect(person) {
+            select(add(id, constant<Int>("100")), firstName, lastName, birthDate, employed, occupation, addressId) {
+                from(person)
+                orderBy(id)
+            }
+        }
+
+        assertThat(insertStatement.insertStatement).isEqualTo(
+            "insert into Person " +
+                    "select (id + 100), first_name, last_name, birth_date, employed, occupation, address_id " +
+                    "from Person " +
+                    "order by id"
+        )
+        val rows = template.insertSelect(insertStatement)
+        assertThat(rows).isEqualTo(6)
+    }
+
+    @Test
+    fun testInsertSelectEmptyColumnList() {
+        assertThatExceptionOfType(InvalidSqlException::class.java).isThrownBy {
+            insertSelect(person) {
+                columns()
+                select(add(id, constant<Int>("100")), firstName, lastName, birthDate, employed, occupation, addressId) {
+                    from(person)
+                    orderBy(id)
+                }
+            }
+        }.withMessage(Messages.getString("ERROR.4")) //$NON-NLS-1$
     }
 
     @Test
@@ -563,7 +636,7 @@ open class CanonicalSpringKotlinTest {
             insertSelect(person) {
                 columns(id, firstName, lastName, birthDate, employed, occupation, addressId)
             }
-        }.withMessage("You must specify a select statement in a sub query")
+        }.withMessage(Messages.getString("ERROR.28")) //$NON-NLS-1$
     }
 
     @Test
@@ -575,7 +648,7 @@ open class CanonicalSpringKotlinTest {
             insertBatch(listOf(record1, record2)) {
                 map(person.firstName) toProperty "firstName"
             }
-        }.withMessage("Batch Insert Statements Must Contain an \"into\" phrase.")
+        }.withMessage(Messages.getString("ERROR.23")) //$NON-NLS-1$
     }
 
     @Test
@@ -586,7 +659,7 @@ open class CanonicalSpringKotlinTest {
             insert(record) {
                 map(person.firstName) toProperty "firstName"
             }
-        }.withMessage("Insert Statements Must Contain an \"into\" phrase.")
+        }.withMessage(Messages.getString("ERROR.25")) //$NON-NLS-1$
     }
 
     @Test
@@ -598,7 +671,7 @@ open class CanonicalSpringKotlinTest {
             insertMultiple(listOf(record1, record2)) {
                 map(person.firstName) toProperty "firstName"
             }
-        }.withMessage("Multi Row Insert Statements Must Contain an \"into\" phrase.")
+        }.withMessage(Messages.getString("ERROR.26")) //$NON-NLS-1$
     }
 
     @Test

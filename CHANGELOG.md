@@ -2,13 +2,57 @@
 
 This log will detail notable changes to MyBatis Dynamic SQL. Full details are available on the GitHub milestone pages.
 
-## Release 1.4.1 - Unreleased
+## Release 1.5.0 - Unreleased
+
+GitHub milestone: [https://github.com/mybatis/mybatis-dynamic-sql/milestone/12](https://github.com/mybatis/mybatis-dynamic-sql/milestone/12)
+
+Added:
+
+1. Added support for specifying "limit" and "order by" on the DELETE and UPDATE statements. Not all databases support
+   this SQL extension, and different databases have different levels of support. For example, MySQL/MariaDB have full
+   support but HSQLDB only supports limit as an extension to the WHERE clause. If you choose to use this new capability,
+   please test to make sure it is supported in your database. ([#544](https://github.com/mybatis/mybatis-dynamic-sql/pull/544))
+
+
+## Release 1.4.1 - October 7, 2022
 
 GitHub milestone: [https://github.com/mybatis/mybatis-dynamic-sql/issues?q=milestone%3A1.4.1+](https://github.com/mybatis/mybatis-dynamic-sql/issues?q=milestone%3A1.4.1+)
+
+### Potentially Breaking Change
+
+In this release we have changed the default behavior of the library in one key area. If a where clause is coded,
+but fails to render because all the optional conditionals drop out of the where clause, then the library will now
+throw a `NonRenderingWhereClauseException`. We have made this change out of an abundance of caution. The prior
+behavior would allow generation of statements that inadvertently affected all rows in a table.
+
+We have also deprecated the "empty callback" functions in the "in" conditions in favor of this new configuration
+strategy. The "empty callback" methods were effective for "in" conditions that failed to render, but they offered
+no help for other conditions that failed to render, or if all conditions fail to render - which is arguably a more
+dangerous outcome. If you were using any of these methods, you should remove the calls to those methods and catch the
+new `NonRenderingWhereClauseException`.
+
+If you desire the prior behavior where non rendering where clauses are allowed, you can change the global configuration
+of the library or - even better - change the configuration of individual statements where this behavior should be allowed.
+
+For examples of global and statement configuration, see the "Configuration of the Library" page.
+
+### Other Changes
 
 1. Added support for criteria groups without an initial criteria. This makes it possible to create an independent list
    of pre-created criteria and then add the list to a where clause. See the tests in the related pull request for
    usage examples. ([#462](https://github.com/mybatis/mybatis-dynamic-sql/pull/462))
+2. Added the ability to specify a table alias on DELETE and UPDATE statements.
+   This is especially useful when working with a sub-query with an exists or not exists condition.
+   ([#489](https://github.com/mybatis/mybatis-dynamic-sql/pull/489))
+3. Updated the Kotlin DSL to use Kotlin 1.7's new "definitely non-null" types where appropriate. This helps us to more
+   accurately represent the nullable/non-nullable expectations for API method calls.
+   ([#496](https://github.com/mybatis/mybatis-dynamic-sql/pull/496))
+4. Added the ability to configure the library and change some default behaviors. Currently, this is limited to changing
+   the behavior of the library in regard to where clauses that will not render. See the "Configuration of the Library"
+   page for details. ([#515](https://github.com/mybatis/mybatis-dynamic-sql/pull/515))
+5. Added several checks for invalid SQL ([#516](https://github.com/mybatis/mybatis-dynamic-sql/pull/516))
+6. Added documentation for the various exceptions thrown by the library ([#517](https://github.com/mybatis/mybatis-dynamic-sql/pull/517))
+7. Update the "insertSelect" method in the Kotlin DSL to make it consistent with the other insert methods ([#524](https://github.com/mybatis/mybatis-dynamic-sql/pull/524))
 
 ## Release 1.4.0 - March 3, 2022
 

@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,26 +18,30 @@ package org.mybatis.dynamic.sql.where;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mybatis.dynamic.sql.AndOrCriteriaGroup;
 import org.mybatis.dynamic.sql.SqlCriterion;
+import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.render.TableAliasCalculator;
+import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 import org.mybatis.dynamic.sql.where.render.WhereClauseProvider;
 import org.mybatis.dynamic.sql.where.render.WhereRenderer;
 
 public class WhereModel {
-    private static final WhereClauseProvider EMPTY_WHERE_CLAUSE =
-            new WhereClauseProvider.Builder().withWhereClause("").build(); //$NON-NLS-1$
-
     private final SqlCriterion initialCriterion;
     private final List<AndOrCriteriaGroup> subCriteria = new ArrayList<>();
 
-    public WhereModel(SqlCriterion initialCriterion, List<AndOrCriteriaGroup> subCriteria) {
+    private final StatementConfiguration statementConfiguration;
+
+    public WhereModel(SqlCriterion initialCriterion, List<AndOrCriteriaGroup> subCriteria,
+                      StatementConfiguration statementConfiguration) {
         this.initialCriterion = initialCriterion;
         this.subCriteria.addAll(subCriteria);
+        this.statementConfiguration = Objects.requireNonNull(statementConfiguration);
     }
 
     public Optional<SqlCriterion> initialCriterion() {
@@ -48,23 +52,29 @@ public class WhereModel {
         return Collections.unmodifiableList(subCriteria);
     }
 
+    public boolean isNonRenderingClauseAllowed() {
+        return statementConfiguration.isNonRenderingWhereClauseAllowed();
+    }
+
     /**
      * Renders a where clause without table aliases.
      *
-     * @param renderingStrategy rendering strategy
+     * @param renderingStrategy
+     *            rendering strategy
+     *
      * @return rendered where clause
      */
-    public WhereClauseProvider render(RenderingStrategy renderingStrategy) {
+    public Optional<WhereClauseProvider> render(RenderingStrategy renderingStrategy) {
         return WhereRenderer.withWhereModel(this)
                 .withRenderingStrategy(renderingStrategy)
                 .withSequence(new AtomicInteger(1))
                 .withTableAliasCalculator(TableAliasCalculator.empty())
                 .build()
                 .render()
-                .orElse(EMPTY_WHERE_CLAUSE);
+                .map(this::toWhereClauseProvider);
     }
 
-    public WhereClauseProvider render(RenderingStrategy renderingStrategy,
+    public Optional<WhereClauseProvider> render(RenderingStrategy renderingStrategy,
             TableAliasCalculator tableAliasCalculator) {
         return WhereRenderer.withWhereModel(this)
                 .withRenderingStrategy(renderingStrategy)
@@ -72,10 +82,10 @@ public class WhereModel {
                 .withTableAliasCalculator(tableAliasCalculator)
                 .build()
                 .render()
-                .orElse(EMPTY_WHERE_CLAUSE);
+                .map(this::toWhereClauseProvider);
     }
 
-    public WhereClauseProvider render(RenderingStrategy renderingStrategy,
+    public Optional<WhereClauseProvider> render(RenderingStrategy renderingStrategy,
             String parameterName) {
         return WhereRenderer.withWhereModel(this)
                 .withRenderingStrategy(renderingStrategy)
@@ -84,10 +94,10 @@ public class WhereModel {
                 .withParameterName(parameterName)
                 .build()
                 .render()
-                .orElse(EMPTY_WHERE_CLAUSE);
+                .map(this::toWhereClauseProvider);
     }
 
-    public WhereClauseProvider render(RenderingStrategy renderingStrategy,
+    public Optional<WhereClauseProvider> render(RenderingStrategy renderingStrategy,
             TableAliasCalculator tableAliasCalculator, String parameterName) {
         return WhereRenderer.withWhereModel(this)
                 .withRenderingStrategy(renderingStrategy)
@@ -96,6 +106,12 @@ public class WhereModel {
                 .withParameterName(parameterName)
                 .build()
                 .render()
-                .orElse(EMPTY_WHERE_CLAUSE);
+                .map(this::toWhereClauseProvider);
+    }
+
+    private WhereClauseProvider toWhereClauseProvider(FragmentAndParameters fragmentAndParameters) {
+        return WhereClauseProvider.withWhereClause(fragmentAndParameters.fragment())
+                .withParameters(fragmentAndParameters.parameters())
+                .build();
     }
 }

@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,15 +34,34 @@ public class IsInCaseInsensitive extends AbstractListValueCondition<String> {
         return EMPTY;
     }
 
+    /**
+     * Build an empty condition.
+     *
+     * @return a new empty condition
+     *
+     * @deprecated in favor of the statement configuration functions
+     */
+    @Deprecated
     private IsInCaseInsensitive emptyWithCallback() {
         return new IsInCaseInsensitive(Collections.emptyList(), emptyCallback);
     }
 
-    protected  IsInCaseInsensitive(Collection<String> values) {
+    protected IsInCaseInsensitive(Collection<String> values) {
         super(values);
     }
 
-    protected  IsInCaseInsensitive(Collection<String> values, Callback emptyCallback) {
+    /**
+     * Build a new instance with a callback.
+     *
+     * @param values
+     *            values
+     * @param emptyCallback
+     *            empty callback
+     *
+     * @deprecated in favor of the statement configuration functions
+     */
+    @Deprecated
+    protected IsInCaseInsensitive(Collection<String> values, Callback emptyCallback) {
         super(values, emptyCallback);
     }
 
@@ -53,6 +72,17 @@ public class IsInCaseInsensitive extends AbstractListValueCondition<String> {
                         Collectors.joining(",", "in (", ")")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
+    /**
+     * Build a new instance with a callback.
+     *
+     * @param callback
+     *            a callback function - typically throws an exception to block the statement from executing
+     *
+     * @return this condition
+     *
+     * @deprecated in favor of the statement configuration functions
+     */
+    @Deprecated
     @Override
     public IsInCaseInsensitive withListEmptyCallback(Callback callback) {
         return new IsInCaseInsensitive(values, callback);

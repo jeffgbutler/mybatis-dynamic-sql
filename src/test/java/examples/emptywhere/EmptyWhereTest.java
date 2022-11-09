@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -119,6 +119,7 @@ class EmptyWhereTest {
 
         builder.and(firstName, isEqualTo(variation.firstName).filter(Objects::nonNull));
         builder.or(PersonDynamicSqlSupport.lastName, isEqualTo(variation.lastName).filter(Objects::nonNull));
+        builder.configureStatement(c -> c.setNonRenderingWhereClauseAllowed(true));
 
         DeleteStatementProvider deleteStatement = builder.build().render(RenderingStrategies.MYBATIS3);
 
@@ -159,6 +160,7 @@ class EmptyWhereTest {
 
         builder.and(firstName, isEqualTo(variation.firstName).filter(Objects::nonNull));
         builder.or(PersonDynamicSqlSupport.lastName, isEqualTo(variation.lastName).filter(Objects::nonNull));
+        builder.configureStatement(c -> c.setNonRenderingWhereClauseAllowed(true));
 
         SelectStatementProvider selectStatement = builder.build().render(RenderingStrategies.MYBATIS3);
 
@@ -200,6 +202,7 @@ class EmptyWhereTest {
 
         builder.and(firstName, isEqualTo(variation.firstName).filter(Objects::nonNull));
         builder.or(PersonDynamicSqlSupport.lastName, isEqualTo(variation.lastName).filter(Objects::nonNull));
+        builder.configureStatement(c -> c.setNonRenderingWhereClauseAllowed(true));
 
         SelectStatementProvider selectStatement = builder.build().render(RenderingStrategies.MYBATIS3);
 
@@ -243,6 +246,7 @@ class EmptyWhereTest {
 
         builder.and(firstName, isEqualTo(variation.firstName).filter(Objects::nonNull));
         builder.or(PersonDynamicSqlSupport.lastName, isEqualTo(variation.lastName).filter(Objects::nonNull));
+        builder.configureStatement(c -> c.setNonRenderingWhereClauseAllowed(true));
 
         UpdateStatementProvider updateStatement = builder.build().render(RenderingStrategies.MYBATIS3);
 
@@ -263,13 +267,15 @@ class EmptyWhereTest {
         builder.and(firstName, isEqualTo(fName).filter(Objects::nonNull));
         builder.and(PersonDynamicSqlSupport.lastName, isEqualTo(lName).filter(Objects::nonNull));
 
-        WhereClauseProvider whereClause = builder.build().render(RenderingStrategies.MYBATIS3);
+        Optional<WhereClauseProvider> whereClause = builder.build().render(RenderingStrategies.MYBATIS3);
 
         String expected = "where id = #{parameters.p1}"
                 + " and first_name = #{parameters.p2}"
                 + " and last_name = #{parameters.p3}";
 
-        assertThat(whereClause.getWhereClause()).isEqualTo(expected);
+        assertThat(whereClause.map(WhereClauseProvider::getWhereClause)).hasValueSatisfying(wc ->
+            assertThat(wc).isEqualTo(expected)
+        );
     }
 
     @ParameterizedTest
@@ -279,10 +285,17 @@ class EmptyWhereTest {
 
         builder.and(firstName, isEqualTo(variation.firstName).filter(Objects::nonNull));
         builder.or(PersonDynamicSqlSupport.lastName, isEqualTo(variation.lastName).filter(Objects::nonNull));
+        builder.configureStatement(c -> c.setNonRenderingWhereClauseAllowed(true));
 
-        WhereClauseProvider whereClause = builder.build().render(RenderingStrategies.MYBATIS3);
+        Optional<WhereClauseProvider> whereClause = builder.build().render(RenderingStrategies.MYBATIS3);
 
-        assertThat(whereClause.getWhereClause()).isEqualTo(variation.whereClause);
+        if (variation.firstName == null && variation.lastName == null) {
+            assertThat(whereClause).isEmpty();
+        } else {
+            assertThat(whereClause.map(WhereClauseProvider::getWhereClause)).hasValueSatisfying(wc ->
+                    assertThat(wc).isEqualTo(variation.whereClause)
+            );
+        }
     }
 
     private static class Variation {

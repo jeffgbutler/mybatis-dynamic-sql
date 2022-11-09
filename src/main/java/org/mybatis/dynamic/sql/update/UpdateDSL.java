@@ -1,11 +1,11 @@
 /*
- *    Copyright 2016-2021 the original author or authors.
+ *    Copyright 2016-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,15 +16,21 @@
 package org.mybatis.dynamic.sql.update;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.jetbrains.annotations.NotNull;
 import org.mybatis.dynamic.sql.BasicColumn;
+import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.SqlTable;
+import org.mybatis.dynamic.sql.common.OrderByModel;
+import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping;
 import org.mybatis.dynamic.sql.util.Buildable;
@@ -40,15 +46,21 @@ import org.mybatis.dynamic.sql.where.AbstractWhereDSL;
 import org.mybatis.dynamic.sql.where.AbstractWhereSupport;
 import org.mybatis.dynamic.sql.where.WhereModel;
 
-public class UpdateDSL<R> extends AbstractWhereSupport<UpdateDSL<R>.UpdateWhereBuilder> implements Buildable<R> {
+public class UpdateDSL<R> extends AbstractWhereSupport<UpdateDSL<R>.UpdateWhereBuilder, UpdateDSL<R>>
+        implements Buildable<R> {
 
     private final Function<UpdateModel, R> adapterFunction;
     private final List<AbstractColumnMapping> columnMappings = new ArrayList<>();
     private final SqlTable table;
-    private final UpdateWhereBuilder whereBuilder = new UpdateWhereBuilder();
+    private final String tableAlias;
+    private UpdateWhereBuilder whereBuilder;
+    private final StatementConfiguration statementConfiguration = new StatementConfiguration();
+    private Long limit;
+    private OrderByModel orderByModel;
 
-    private UpdateDSL(SqlTable table, Function<UpdateModel, R> adapterFunction) {
+    private UpdateDSL(SqlTable table, String tableAlias, Function<UpdateModel, R> adapterFunction) {
         this.table = Objects.requireNonNull(table);
+        this.tableAlias = tableAlias;
         this.adapterFunction = Objects.requireNonNull(adapterFunction);
     }
 
@@ -58,7 +70,25 @@ public class UpdateDSL<R> extends AbstractWhereSupport<UpdateDSL<R>.UpdateWhereB
 
     @Override
     public UpdateWhereBuilder where() {
+        if (whereBuilder == null) {
+            whereBuilder = new UpdateWhereBuilder();
+        }
+
         return whereBuilder;
+    }
+
+    public UpdateDSL<R> limit(long limit) {
+        this.limit = limit;
+        return this;
+    }
+
+    public UpdateDSL<R> orderBy(SortSpecification... columns) {
+        return orderBy(Arrays.asList(columns));
+    }
+
+    public UpdateDSL<R> orderBy(Collection<SortSpecification> columns) {
+        orderByModel = OrderByModel.of(columns);
+        return this;
     }
 
     /**
@@ -70,19 +100,35 @@ public class UpdateDSL<R> extends AbstractWhereSupport<UpdateDSL<R>.UpdateWhereB
     @NotNull
     @Override
     public R build() {
-        UpdateModel updateModel = UpdateModel.withTable(table)
+        UpdateModel.Builder updateModelBuilder = UpdateModel.withTable(table)
+                .withTableAlias(tableAlias)
                 .withColumnMappings(columnMappings)
-                .withWhereModel(whereBuilder.buildWhereModel())
-                .build();
-        return adapterFunction.apply(updateModel);
+                .withLimit(limit)
+                .withOrderByModel(orderByModel);
+
+        if (whereBuilder != null) {
+            updateModelBuilder.withWhereModel(whereBuilder.buildWhereModel());
+        }
+
+        return adapterFunction.apply(updateModelBuilder.build());
     }
 
-    public static <R> UpdateDSL<R> update(Function<UpdateModel, R> adapterFunction, SqlTable table) {
-        return new UpdateDSL<>(table, adapterFunction);
+    @Override
+    public UpdateDSL<R> configureStatement(Consumer<StatementConfiguration> consumer) {
+        consumer.accept(statementConfiguration);
+        return this;
+    }
+
+    public static <R> UpdateDSL<R> update(Function<UpdateModel, R> adapterFunction, SqlTable table, String tableAlias) {
+        return new UpdateDSL<>(table, tableAlias, adapterFunction);
     }
 
     public static UpdateDSL<UpdateModel> update(SqlTable table) {
-        return update(Function.identity(), table);
+        return update(Function.identity(), table, null);
+    }
+
+    public static UpdateDSL<UpdateModel> update(SqlTable table, String tableAlias) {
+        return update(Function.identity(), table, tableAlias);
     }
 
     public class SetClauseFinisher<T> {
@@ -148,7 +194,22 @@ public class UpdateDSL<R> extends AbstractWhereSupport<UpdateDSL<R>.UpdateWhereB
 
     public class UpdateWhereBuilder extends AbstractWhereDSL<UpdateWhereBuilder> implements Buildable<R> {
 
-        private UpdateWhereBuilder() {}
+        private UpdateWhereBuilder() {
+            super(statementConfiguration);
+        }
+
+        public UpdateDSL<R> limit(long limit) {
+            return UpdateDSL.this.limit(limit);
+        }
+
+        public UpdateDSL<R> orderBy(SortSpecification... columns) {
+            return orderBy(Arrays.asList(columns));
+        }
+
+        public UpdateDSL<R> orderBy(Collection<SortSpecification> columns) {
+            orderByModel = OrderByModel.of(columns);
+            return UpdateDSL.this;
+        }
 
         @NotNull
         @Override

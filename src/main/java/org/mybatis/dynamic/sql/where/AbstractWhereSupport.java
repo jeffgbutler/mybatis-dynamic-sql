@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import org.mybatis.dynamic.sql.BindableColumn;
 import org.mybatis.dynamic.sql.ExistsPredicate;
 import org.mybatis.dynamic.sql.SqlCriterion;
 import org.mybatis.dynamic.sql.VisitableCondition;
+import org.mybatis.dynamic.sql.util.ConfigurableStatement;
 
 /**
  * Base class for DSLs that support where clauses - which is every DSL except Insert.
@@ -33,11 +34,12 @@ import org.mybatis.dynamic.sql.VisitableCondition;
  *
  * @param <W> the implementation of the Where DSL customized for a particular SQL statement.
  */
-public abstract class AbstractWhereSupport<W extends AbstractWhereDSL<?>> {
+public abstract class AbstractWhereSupport<W extends AbstractWhereDSL<?>, D extends AbstractWhereSupport<W, D>>
+        implements ConfigurableStatement<D> {
 
     public abstract W where();
 
-    public <T> W where(BindableColumn<T> column, VisitableCondition<T> condition, AndOrCriteriaGroup...subCriteria) {
+    public <T> W where(BindableColumn<T> column, VisitableCondition<T> condition, AndOrCriteriaGroup... subCriteria) {
         return where(column, condition, Arrays.asList(subCriteria));
     }
 
@@ -46,7 +48,7 @@ public abstract class AbstractWhereSupport<W extends AbstractWhereDSL<?>> {
         return apply(w -> w.where(column, condition, subCriteria));
     }
 
-    public W where(ExistsPredicate existsPredicate, AndOrCriteriaGroup...subCriteria) {
+    public W where(ExistsPredicate existsPredicate, AndOrCriteriaGroup... subCriteria) {
         return where(existsPredicate, Arrays.asList(subCriteria));
     }
 
@@ -54,7 +56,7 @@ public abstract class AbstractWhereSupport<W extends AbstractWhereDSL<?>> {
         return apply(w -> w.where(existsPredicate, subCriteria));
     }
 
-    public W where(SqlCriterion initialCriterion, AndOrCriteriaGroup...subCriteria) {
+    public W where(SqlCriterion initialCriterion, AndOrCriteriaGroup... subCriteria) {
         return where(initialCriterion, Arrays.asList(subCriteria));
     }
 

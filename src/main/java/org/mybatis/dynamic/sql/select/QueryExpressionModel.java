@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +27,9 @@ import java.util.stream.Stream;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.TableExpression;
+import org.mybatis.dynamic.sql.exception.InvalidSqlException;
 import org.mybatis.dynamic.sql.select.join.JoinModel;
+import org.mybatis.dynamic.sql.util.Messages;
 import org.mybatis.dynamic.sql.where.WhereModel;
 
 public class QueryExpressionModel {
@@ -49,6 +51,10 @@ public class QueryExpressionModel {
         tableAliases = builder.tableAliases;
         whereModel = builder.whereModel;
         groupByModel = builder.groupByModel;
+
+        if (selectList.isEmpty()) {
+            throw new InvalidSqlException(Messages.getString("ERROR.13")); //$NON-NLS-1$
+        }
     }
 
     public Optional<String> connector() {

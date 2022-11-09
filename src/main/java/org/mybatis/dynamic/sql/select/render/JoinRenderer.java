@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,6 @@
  */
 package org.mybatis.dynamic.sql.select.render;
 
-import static org.mybatis.dynamic.sql.util.StringUtilities.spaceAfter;
 import static org.mybatis.dynamic.sql.util.StringUtilities.spaceBefore;
 
 import java.util.Objects;
@@ -52,8 +51,7 @@ public class JoinRenderer {
     private FragmentAndParameters renderJoinSpecification(JoinSpecification joinSpecification) {
         FragmentAndParameters renderedTable = joinSpecification.table().accept(tableExpressionRenderer);
 
-        String fragment = spaceAfter(joinSpecification.joinType().shortType())
-                + "join" //$NON-NLS-1$
+        String fragment = joinSpecification.joinType().type()
                 + spaceBefore(renderedTable.fragment())
                 + spaceBefore(renderConditions(joinSpecification));
 

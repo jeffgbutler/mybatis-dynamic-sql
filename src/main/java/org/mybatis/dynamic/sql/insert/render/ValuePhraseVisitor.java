@@ -1,11 +1,11 @@
 /*
- *    Copyright 2016-2020 the original author or authors.
+ *    Copyright 2016-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,7 +26,7 @@ import org.mybatis.dynamic.sql.util.PropertyMapping;
 import org.mybatis.dynamic.sql.util.PropertyWhenPresentMapping;
 import org.mybatis.dynamic.sql.util.StringConstantMapping;
 
-public class ValuePhraseVisitor extends InsertMappingVisitor<Optional<FieldAndValue>> {
+public class ValuePhraseVisitor extends InsertMappingVisitor<Optional<FieldAndValueAndParameters>> {
 
     protected final RenderingStrategy renderingStrategy;
 
@@ -35,35 +35,35 @@ public class ValuePhraseVisitor extends InsertMappingVisitor<Optional<FieldAndVa
     }
 
     @Override
-    public Optional<FieldAndValue> visit(NullMapping mapping) {
-        return FieldAndValue.withFieldName(mapping.columnName())
+    public Optional<FieldAndValueAndParameters> visit(NullMapping mapping) {
+        return FieldAndValueAndParameters.withFieldName(mapping.columnName())
                 .withValuePhrase("null") //$NON-NLS-1$
                 .buildOptional();
     }
 
     @Override
-    public Optional<FieldAndValue> visit(ConstantMapping mapping) {
-        return FieldAndValue.withFieldName(mapping.columnName())
+    public Optional<FieldAndValueAndParameters> visit(ConstantMapping mapping) {
+        return FieldAndValueAndParameters.withFieldName(mapping.columnName())
                 .withValuePhrase(mapping.constant())
                 .buildOptional();
     }
 
     @Override
-    public Optional<FieldAndValue> visit(StringConstantMapping mapping) {
-        return FieldAndValue.withFieldName(mapping.columnName())
+    public Optional<FieldAndValueAndParameters> visit(StringConstantMapping mapping) {
+        return FieldAndValueAndParameters.withFieldName(mapping.columnName())
                 .withValuePhrase("'" + mapping.constant() + "'") //$NON-NLS-1$ //$NON-NLS-2$
                 .buildOptional();
     }
 
     @Override
-    public Optional<FieldAndValue> visit(PropertyMapping mapping) {
-        return FieldAndValue.withFieldName(mapping.columnName())
+    public Optional<FieldAndValueAndParameters> visit(PropertyMapping mapping) {
+        return FieldAndValueAndParameters.withFieldName(mapping.columnName())
                 .withValuePhrase(mapping.mapColumn(c -> calculateJdbcPlaceholder(c, mapping.property())))
                 .buildOptional();
     }
 
     @Override
-    public Optional<FieldAndValue> visit(PropertyWhenPresentMapping mapping) {
+    public Optional<FieldAndValueAndParameters> visit(PropertyWhenPresentMapping mapping) {
         if (mapping.shouldRender()) {
             return visit((PropertyMapping) mapping);
         } else {
@@ -73,6 +73,6 @@ public class ValuePhraseVisitor extends InsertMappingVisitor<Optional<FieldAndVa
 
     private String calculateJdbcPlaceholder(SqlColumn<?> column, String parameterName) {
         return column.renderingStrategy().orElse(renderingStrategy)
-                .getFormattedJdbcPlaceholder(column, "record", parameterName); //$NON-NLS-1$
+                .getFormattedJdbcPlaceholder(column, "row", parameterName); //$NON-NLS-1$
     }
 }

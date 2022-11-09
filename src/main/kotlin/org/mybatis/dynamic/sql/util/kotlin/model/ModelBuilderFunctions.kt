@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -62,25 +62,31 @@ fun countFrom(table: SqlTable, completer: CountCompleter): SelectModel =
 fun deleteFrom(table: SqlTable, completer: DeleteCompleter): DeleteModel =
     KotlinDeleteBuilder(SqlBuilder.deleteFrom(table)).apply(completer).build()
 
-fun <T> insert(row: T, completer: KotlinInsertCompleter<T>): InsertModel<T> =
+fun deleteFrom(table: SqlTable, tableAlias: String, completer: DeleteCompleter): DeleteModel =
+    KotlinDeleteBuilder(SqlBuilder.deleteFrom(table, tableAlias)).apply(completer).build()
+
+fun <T : Any> insert(row: T, completer: KotlinInsertCompleter<T>): InsertModel<T> =
     KotlinInsertBuilder(row).apply(completer).build()
 
-fun <T> insertBatch(rows: Collection<T>, completer: KotlinBatchInsertCompleter<T>): BatchInsertModel<T> =
+fun <T : Any> insertBatch(rows: Collection<T>, completer: KotlinBatchInsertCompleter<T>): BatchInsertModel<T> =
     KotlinBatchInsertBuilder(rows).apply(completer).build()
 
 fun insertInto(table: SqlTable, completer: GeneralInsertCompleter): GeneralInsertModel =
     KotlinGeneralInsertBuilder(table).apply(completer).build()
 
-fun <T> insertMultiple(rows: Collection<T>, completer: KotlinMultiRowInsertCompleter<T>): MultiRowInsertModel<T> =
+fun <T : Any> insertMultiple(rows: Collection<T>, completer: KotlinMultiRowInsertCompleter<T>): MultiRowInsertModel<T> =
     KotlinMultiRowInsertBuilder(rows).apply(completer).build()
 
+@Deprecated("Please use the new form - move the table into the lambda with into(table)")
 fun insertSelect(table: SqlTable, completer: InsertSelectCompleter): InsertSelectModel =
-    with(KotlinInsertSelectSubQueryBuilder().apply(completer)) {
-        SqlBuilder.insertInto(table)
-            .withColumnList(columnList())
-            .withSelectStatement(this)
-            .build()
+    with(KotlinInsertSelectSubQueryBuilder()) {
+        into(table)
+        apply(completer)
+        build()
     }
+
+fun insertSelect(completer: InsertSelectCompleter): InsertSelectModel =
+    KotlinInsertSelectSubQueryBuilder().apply(completer).build()
 
 @Deprecated("Please switch to the insertBatch statement in the model package")
 fun <T> BatchInsertDSL.IntoGatherer<T>.into(
@@ -114,3 +120,6 @@ fun selectDistinct(columns: List<BasicColumn>, completer: SelectCompleter): Sele
 
 fun update(table: SqlTable, completer: UpdateCompleter): UpdateModel =
     KotlinUpdateBuilder(SqlBuilder.update(table)).apply(completer).build()
+
+fun update(table: SqlTable, tableAlias: String, completer: UpdateCompleter): UpdateModel =
+    KotlinUpdateBuilder(SqlBuilder.update(table, tableAlias)).apply(completer).build()

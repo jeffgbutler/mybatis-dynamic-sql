@@ -1,11 +1,11 @@
 /*
- *    Copyright 2016-2020 the original author or authors.
+ *    Copyright 2016-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -28,17 +29,21 @@ import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.TableExpression;
+import org.mybatis.dynamic.sql.common.OrderByModel;
+import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.select.QueryExpressionDSL.FromGatherer;
 import org.mybatis.dynamic.sql.util.Buildable;
+import org.mybatis.dynamic.sql.util.ConfigurableStatement;
 
 /**
  * Implements a SQL DSL for building select statements.
  *
  * @author Jeff Butler
  *
- * @param <R> the type of model produced by this builder, typically SelectModel
+ * @param <R>
+ *            the type of model produced by this builder, typically SelectModel
  */
-public class SelectDSL<R> implements Buildable<R> {
+public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectDSL<R>> {
 
     private final Function<SelectModel, R> adapterFunction;
     private final List<QueryExpressionDSL<R>> queryExpressions = new ArrayList<>();
@@ -51,7 +56,7 @@ public class SelectDSL<R> implements Buildable<R> {
         this.adapterFunction = Objects.requireNonNull(adapterFunction);
     }
 
-    public static QueryExpressionDSL.FromGatherer<SelectModel> select(BasicColumn...selectList) {
+    public static QueryExpressionDSL.FromGatherer<SelectModel> select(BasicColumn... selectList) {
         return select(Arrays.asList(selectList));
     }
 
@@ -60,7 +65,7 @@ public class SelectDSL<R> implements Buildable<R> {
     }
 
     public static <R> QueryExpressionDSL.FromGatherer<R> select(Function<SelectModel, R> adapterFunction,
-            BasicColumn...selectList) {
+            BasicColumn... selectList) {
         return select(adapterFunction, Arrays.asList(selectList));
     }
 
@@ -72,7 +77,7 @@ public class SelectDSL<R> implements Buildable<R> {
                 .build();
     }
 
-    public static QueryExpressionDSL.FromGatherer<SelectModel> selectDistinct(BasicColumn...selectList) {
+    public static QueryExpressionDSL.FromGatherer<SelectModel> selectDistinct(BasicColumn... selectList) {
         return selectDistinct(Function.identity(), selectList);
     }
 
@@ -81,7 +86,7 @@ public class SelectDSL<R> implements Buildable<R> {
     }
 
     public static <R> QueryExpressionDSL.FromGatherer<R> selectDistinct(Function<SelectModel, R> adapterFunction,
-            BasicColumn...selectList) {
+            BasicColumn... selectList) {
         return selectDistinct(adapterFunction, Arrays.asList(selectList));
     }
 
@@ -125,6 +130,12 @@ public class SelectDSL<R> implements Buildable<R> {
         return new FetchFirstFinisher();
     }
 
+    @Override
+    public SelectDSL<R> configureStatement(Consumer<StatementConfiguration> consumer) {
+        queryExpressions.forEach(q -> q.configureStatement(consumer));
+        return this;
+    }
+
     @NotNull
     @Override
     public R build() {
@@ -142,6 +153,10 @@ public class SelectDSL<R> implements Buildable<R> {
     }
 
     private PagingModel buildPagingModel() {
+        if (limit == null && offset == null && fetchFirstRows == null) {
+            return  null;
+        }
+
         return new PagingModel.Builder()
                 .withLimit(limit)
                 .withOffset(offset)
@@ -151,7 +166,7 @@ public class SelectDSL<R> implements Buildable<R> {
 
     public class LimitFinisher implements Buildable<R> {
         public OffsetFinisher offset(long offset) {
-            SelectDSL.this.offset = offset;
+            SelectDSL.this.offset(offset);
             return new OffsetFinisher();
         }
 
@@ -172,7 +187,7 @@ public class SelectDSL<R> implements Buildable<R> {
 
     public class OffsetFirstFinisher implements Buildable<R> {
         public FetchFirstFinisher fetchFirst(long fetchFirstRows) {
-            SelectDSL.this.fetchFirstRows = fetchFirstRows;
+            SelectDSL.this.fetchFirst(fetchFirstRows);
             return new FetchFirstFinisher();
         }
 

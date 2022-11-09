@@ -1,11 +1,11 @@
 /*
- *    Copyright 2016-2021 the original author or authors.
+ *    Copyright 2016-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,10 +38,10 @@ import org.mybatis.dynamic.sql.update.UpdateDSL;
 import org.mybatis.dynamic.sql.update.UpdateDSLCompleter;
 import org.mybatis.dynamic.sql.update.UpdateModel;
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
-
-import examples.generated.always.GeneratedAlwaysRecord;
 import org.mybatis.dynamic.sql.util.mybatis3.CommonUpdateMapper;
 import org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils;
+
+import examples.generated.always.GeneratedAlwaysRecord;
 
 public interface GeneratedAlwaysMapper extends CommonUpdateMapper {
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
@@ -58,7 +58,7 @@ public interface GeneratedAlwaysMapper extends CommonUpdateMapper {
     Optional<GeneratedAlwaysRecord> selectOne(SelectStatementProvider selectStatement);
 
     @InsertProvider(type=SqlProviderAdapter.class, method="insert")
-    @Options(useGeneratedKeys=true, keyProperty="record.fullName")
+    @Options(useGeneratedKeys=true, keyProperty="row.fullName")
     int insert(InsertStatementProvider<GeneratedAlwaysRecord> insertStatement);
 
     @InsertProvider(type=SqlProviderAdapter.class, method="insertMultipleWithGeneratedKeys")

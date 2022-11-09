@@ -1,11 +1,11 @@
 /*
- *    Copyright 2016-2021 the original author or authors.
+ *    Copyright 2016-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,6 +47,7 @@ import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.QueryExpressionDSL;
 import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
+import org.mybatis.dynamic.sql.util.Messages;
 import org.mybatis.dynamic.sql.util.mybatis3.CommonSelectMapper;
 
 class JoinMapperTest {
@@ -60,6 +61,7 @@ class JoinMapperTest {
     void setup() throws Exception {
         Class.forName(JDBC_DRIVER);
         InputStream is = getClass().getResourceAsStream("/examples/joins/CreateJoinDB.sql");
+        assert is != null;
         try (Connection connection = DriverManager.getConnection(JDBC_URL, "sa", "")) {
             ScriptRunner sr = new ScriptRunner(connection);
             sr.setLogWriter(null);
@@ -162,6 +164,7 @@ class JoinMapperTest {
         SelectStatementProvider selectStatement = select(orderMaster.orderId, orderDate, orderDetail.lineNumber, orderDetail.description, orderDetail.quantity)
                 .from(orderMaster, "om")
                 .join(orderDetail, "od").on(orderMaster.orderId, equalTo(orderDetail.orderId))
+                .configureStatement(c -> c.setNonRenderingWhereClauseAllowed(true))
                 .and(orderMaster.orderId, equalTo(orderDetail.orderId))
                 .build()
                 .render(RenderingStrategies.MYBATIS3);
@@ -680,36 +683,36 @@ class JoinMapperTest {
             SelectStatementProvider selectStatement = select(orderLine.orderId, orderLine.quantity, orderLine.itemId.as("ol_itemid"), itemMaster.itemId.as("im_itemid"), itemMaster.description)
                     .from(itemMaster, "im")
                     .fullJoin(orderLine, "ol").on(itemMaster.itemId, equalTo(orderLine.itemId))
-                    .orderBy(sortColumn("im_itemid"))
+                    .orderBy(orderLine.orderId, sortColumn("im_itemid"))
                     .build()
                     .render(RenderingStrategies.MYBATIS3);
 
             String expectedStatement = "select ol.order_id, ol.quantity, ol.item_id as ol_itemid, im.item_id as im_itemid, im.description"
                     + " from ItemMaster im full join OrderLine ol on im.item_id = ol.item_id"
-                    + " order by im_itemid";
+                    + " order by order_id, im_itemid";
             assertThat(selectStatement.getSelectStatement()).isEqualTo(expectedStatement);
 
             List<Map<String, Object>> rows = mapper.selectManyMappedRows(selectStatement);
 
             assertThat(rows).hasSize(6);
             Map<String, Object> row = rows.get(0);
-            assertThat(row).containsEntry("ORDER_ID", 2);
-            assertThat(row).containsEntry("QUANTITY", 6);
-            assertThat(row).containsEntry("OL_ITEMID", 66);
-            assertThat(row).doesNotContainKey("DESCRIPTION");
-            assertThat(row).doesNotContainKey("IM_ITEMID");
+            assertThat(row).doesNotContainKey("ORDER_ID");
+            assertThat(row).doesNotContainKey("QUANTITY");
+            assertThat(row).containsEntry("DESCRIPTION", "Catcher Glove");
+            assertThat(row).containsEntry("IM_ITEMID", 55);
 
-            row = rows.get(3);
+            row = rows.get(2);
             assertThat(row).containsEntry("ORDER_ID", 1);
             assertThat(row).containsEntry("QUANTITY", 1);
             assertThat(row).containsEntry("DESCRIPTION", "First Base Glove");
             assertThat(row).containsEntry("IM_ITEMID", 33);
 
-            row = rows.get(5);
-            assertThat(row).doesNotContainKey("ORDER_ID");
-            assertThat(row).doesNotContainKey("QUANTITY");
-            assertThat(row).containsEntry("DESCRIPTION", "Catcher Glove");
-            assertThat(row).containsEntry("IM_ITEMID", 55);
+            row = rows.get(3);
+            assertThat(row).containsEntry("ORDER_ID", 2);
+            assertThat(row).containsEntry("QUANTITY", 6);
+            assertThat(row).containsEntry("OL_ITEMID", 66);
+            assertThat(row).doesNotContainKey("DESCRIPTION");
+            assertThat(row).doesNotContainKey("IM_ITEMID");
         }
     }
 
@@ -954,7 +957,7 @@ class JoinMapperTest {
                 .from(user, "u1");
 
         assertThatExceptionOfType(DuplicateTableAliasException.class).isThrownBy(() -> dsl.join(user, "u2"))
-                .withMessage("Table \"User\" with requested alias \"u2\" is already aliased in this query with alias \"u1\". Attempting to re-alias a table in the same query is not supported.");
+                .withMessage(Messages.getString("ERROR.1", user.tableNameAtRuntime(), "u2", "u1"));
     }
 
     @Test

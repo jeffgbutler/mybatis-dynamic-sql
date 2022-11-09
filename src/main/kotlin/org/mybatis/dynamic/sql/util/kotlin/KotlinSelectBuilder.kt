@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,7 @@ import org.mybatis.dynamic.sql.SqlTable
 import org.mybatis.dynamic.sql.select.QueryExpressionDSL
 import org.mybatis.dynamic.sql.select.SelectModel
 import org.mybatis.dynamic.sql.util.Buildable
+import org.mybatis.dynamic.sql.util.Messages
 
 typealias SelectCompleter = KotlinSelectBuilder.() -> Unit
 
@@ -72,7 +73,6 @@ class KotlinSelectBuilder(private val fromGatherer: QueryExpressionDSL.FromGathe
     override fun build(): SelectModel = getDsl().build()
 
     override fun getDsl(): QueryExpressionDSL<SelectModel> {
-        return dsl?: throw KInvalidSQLException(
-            "You must specify a \"from\" clause before any other clauses in a select statement")
+        return dsl?: throw KInvalidSQLException(Messages.getString("ERROR.27")) //$NON-NLS-1$
     }
 }

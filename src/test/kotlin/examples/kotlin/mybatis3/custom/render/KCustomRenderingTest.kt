@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,29 +15,27 @@
  */
 package examples.kotlin.mybatis3.custom.render
 
+import config.TestContainersConfiguration
+import examples.kotlin.mybatis3.TestUtils
 import examples.kotlin.mybatis3.custom.render.KJsonTestDynamicSqlSupport.description
 import examples.kotlin.mybatis3.custom.render.KJsonTestDynamicSqlSupport.id
 import examples.kotlin.mybatis3.custom.render.KJsonTestDynamicSqlSupport.info
 import examples.kotlin.mybatis3.custom.render.KJsonTestDynamicSqlSupport.jsonTest
-import org.apache.ibatis.mapping.Environment
-import org.apache.ibatis.session.Configuration
+import org.apache.ibatis.datasource.unpooled.UnpooledDataSource
 import org.apache.ibatis.session.SqlSessionFactory
-import org.apache.ibatis.session.SqlSessionFactoryBuilder
-import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.mybatis.dynamic.sql.SqlColumn
 import org.mybatis.dynamic.sql.util.kotlin.elements.`as`
-import org.mybatis.dynamic.sql.util.kotlin.mybatis3.deleteFrom
 import org.mybatis.dynamic.sql.util.kotlin.mybatis3.insert
 import org.mybatis.dynamic.sql.util.kotlin.mybatis3.insertInto
 import org.mybatis.dynamic.sql.util.kotlin.mybatis3.insertMultiple
 import org.mybatis.dynamic.sql.util.kotlin.mybatis3.select
 import org.mybatis.dynamic.sql.util.kotlin.mybatis3.update
 import org.mybatis.dynamic.sql.util.mybatis3.CommonSelectMapper
+import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.sql.JDBCType
@@ -50,33 +48,22 @@ class KCustomRenderingTest {
 
     @BeforeAll
     fun setUp() {
-        val configuration = Configuration()
-        val environment = Environment(
-            "development",
-            JdbcTransactionFactory(),
-            postgres.unPooledDataSource
-        )
-        configuration.environment = environment
-        configuration.addMapper(KJsonTestMapper::class.java)
-        configuration.addMapper(CommonSelectMapper::class.java)
-        sqlSessionFactory = SqlSessionFactoryBuilder().build(configuration)
-    }
-
-    @BeforeEach
-    fun resetDatabase() {
-        sqlSessionFactory.openSession().use { sqlSession ->
-            val mapper = sqlSession.getMapper(KJsonTestMapper::class.java)
-            val deleteStatement = deleteFrom(jsonTest) {
-                allRows()
-            }
-            mapper.delete(deleteStatement)
+        sqlSessionFactory = TestUtils.buildSqlSessionFactory {
+            withDataSource(UnpooledDataSource(
+                postgres.driverClassName,
+                postgres.jdbcUrl,
+                postgres.username,
+                postgres.password
+            ))
+            withMapper(KJsonTestMapper::class)
+            withMapper(CommonSelectMapper::class)
         }
     }
 
     @Test
     fun testInsertRecord() {
-        sqlSessionFactory.openSession().use { sqlSession ->
-            val mapper = sqlSession.getMapper(KJsonTestMapper::class.java)
+        sqlSessionFactory.openSession().use {
+            val mapper = it.getMapper(KJsonTestMapper::class.java)
             var record = KJsonTestRecord(
                 id = 1,
                 description = "Fred",
@@ -90,8 +77,8 @@ class KCustomRenderingTest {
                 map(info) toProperty "info"
             }
             val expected = "insert into JsonTest (id, description, info) " +
-                "values (#{record.id,jdbcType=INTEGER}, #{record.description,jdbcType=VARCHAR}, " +
-                "#{record.info,jdbcType=VARCHAR}::json)"
+                "values (#{row.id,jdbcType=INTEGER}, #{row.description,jdbcType=VARCHAR}, " +
+                "#{row.info,jdbcType=VARCHAR}::json)"
             assertThat(insertStatement.insertStatement).isEqualTo(expected)
             var rows = mapper.insert(insertStatement)
             assertThat(rows).isEqualTo(1)
@@ -124,8 +111,8 @@ class KCustomRenderingTest {
 
     @Test
     fun testGeneralInsert() {
-        sqlSessionFactory.openSession().use { sqlSession ->
-            val mapper = sqlSession.getMapper(KJsonTestMapper::class.java)
+        sqlSessionFactory.openSession().use {
+            val mapper = it.getMapper(KJsonTestMapper::class.java)
             var insertStatement = insertInto(jsonTest) {
                 set(id) toValue 1
                 set(description) toValue "Fred"
@@ -159,8 +146,8 @@ class KCustomRenderingTest {
 
     @Test
     fun testInsertMultiple() {
-        sqlSessionFactory.openSession().use { sqlSession ->
-            val mapper = sqlSession.getMapper(KJsonTestMapper::class.java)
+        sqlSessionFactory.openSession().use {
+            val mapper = it.getMapper(KJsonTestMapper::class.java)
             val record1 = KJsonTestRecord(
                 id = 1,
                 description = "Fred",
@@ -200,8 +187,8 @@ class KCustomRenderingTest {
 
     @Test
     fun testUpdate() {
-        sqlSessionFactory.openSession().use { sqlSession ->
-            val mapper = sqlSession.getMapper(KJsonTestMapper::class.java)
+        sqlSessionFactory.openSession().use {
+            val mapper = it.getMapper(KJsonTestMapper::class.java)
             val record1 = KJsonTestRecord(
                 id = 1,
                 description = "Fred",
@@ -245,8 +232,8 @@ class KCustomRenderingTest {
 
     @Test
     fun testDeReference() {
-        sqlSessionFactory.openSession().use { sqlSession ->
-            val mapper = sqlSession.getMapper(KJsonTestMapper::class.java)
+        sqlSessionFactory.openSession().use {
+            val mapper = it.getMapper(KJsonTestMapper::class.java)
             val record1 = KJsonTestRecord(
                 id = 1,
                 description = "Fred",
@@ -283,8 +270,8 @@ class KCustomRenderingTest {
 
     @Test
     fun testDereference2() {
-        sqlSessionFactory.openSession().use { sqlSession ->
-            val mapper = sqlSession.getMapper(KJsonTestMapper::class.java)
+        sqlSessionFactory.openSession().use {
+            val mapper = it.getMapper(KJsonTestMapper::class.java)
             val record1 = KJsonTestRecord(
                 id = 1,
                 description = "Fred",
@@ -322,6 +309,7 @@ class KCustomRenderingTest {
 
     companion object {
         @Container
-        private val postgres = KPgContainer("examples/custom_render/dbInit.sql")
+        private val postgres = PostgreSQLContainer(TestContainersConfiguration.POSTGRES_LATEST)
+            .withInitScript("examples/custom_render/dbInit.sql")
     }
 }

@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -65,23 +65,30 @@ fun countFrom(table: SqlTable, completer: CountCompleter): SelectStatementProvid
 fun deleteFrom(table: SqlTable, completer: DeleteCompleter): DeleteStatementProvider =
     deleteFrom(table, completer).render(RenderingStrategies.SPRING_NAMED_PARAMETER)
 
-fun <T> insert(row: T, completer: KotlinInsertCompleter<T>): InsertStatementProvider<T> =
+fun deleteFrom(table: SqlTable, tableAlias: String, completer: DeleteCompleter): DeleteStatementProvider =
+    deleteFrom(table, tableAlias, completer).render(RenderingStrategies.SPRING_NAMED_PARAMETER)
+
+fun <T : Any> insert(row: T, completer: KotlinInsertCompleter<T>): InsertStatementProvider<T> =
     insert(row, completer).render(RenderingStrategies.SPRING_NAMED_PARAMETER)
 
-fun <T> insertBatch(rows: Collection<T>, completer: KotlinBatchInsertCompleter<T>): BatchInsert<T> =
+fun <T : Any> insertBatch(rows: Collection<T>, completer: KotlinBatchInsertCompleter<T>): BatchInsert<T> =
     insertBatch(rows, completer).render(RenderingStrategies.SPRING_NAMED_PARAMETER)
 
 fun insertInto(table: SqlTable, completer: GeneralInsertCompleter): GeneralInsertStatementProvider =
     insertInto(table, completer).render(RenderingStrategies.SPRING_NAMED_PARAMETER)
 
-fun <T> insertMultiple(
+fun <T : Any> insertMultiple(
     rows: Collection<T>,
     completer: KotlinMultiRowInsertCompleter<T>
 ): MultiRowInsertStatementProvider<T> =
     insertMultiple(rows, completer).render(RenderingStrategies.SPRING_NAMED_PARAMETER)
 
+@Deprecated("Please use the new form - move the table into the lambda with into(table)")
 fun insertSelect(table: SqlTable, completer: InsertSelectCompleter): InsertSelectStatementProvider =
     insertSelect(table, completer).render(RenderingStrategies.SPRING_NAMED_PARAMETER)
+
+fun insertSelect(completer: InsertSelectCompleter): InsertSelectStatementProvider =
+    insertSelect(completer).render(RenderingStrategies.SPRING_NAMED_PARAMETER)
 
 @Deprecated("Please switch to the insertBatch statement in the spring package")
 fun <T> BatchInsertDSL.IntoGatherer<T>.into(table: SqlTable, completer: BatchInsertDSL<T>.() -> Unit): BatchInsert<T> =
@@ -115,3 +122,6 @@ fun selectDistinct(columns: List<BasicColumn>, completer: SelectCompleter): Sele
 
 fun update(table: SqlTable, completer: UpdateCompleter): UpdateStatementProvider =
     update(table, completer).render(RenderingStrategies.SPRING_NAMED_PARAMETER)
+
+fun update(table: SqlTable, tableAlias: String, completer: UpdateCompleter): UpdateStatementProvider =
+    update(table, tableAlias, completer).render(RenderingStrategies.SPRING_NAMED_PARAMETER)

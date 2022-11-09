@@ -1,11 +1,11 @@
 /*
- *    Copyright 2016-2021 the original author or authors.
+ *    Copyright 2016-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package org.mybatis.dynamic.sql.exception;
 import java.util.Objects;
 
 import org.mybatis.dynamic.sql.SqlTable;
+import org.mybatis.dynamic.sql.util.Messages;
 
 /**
  * This exception is thrown when a query is built that attempts to specify more than one
@@ -28,9 +29,12 @@ import org.mybatis.dynamic.sql.SqlTable;
  * a second instance of the SqlTable object to use in the self-join.
  *
  * @since 1.3.1
+ *
  * @author Jeff Butler
  */
-public class DuplicateTableAliasException extends RuntimeException {
+public class DuplicateTableAliasException extends DynamicSqlException {
+
+    private static final long serialVersionUID = -2631664872557787391L;
 
     public DuplicateTableAliasException(SqlTable table, String newAlias, String existingAlias) {
         super(generateMessage(Objects.requireNonNull(table),
@@ -39,9 +43,6 @@ public class DuplicateTableAliasException extends RuntimeException {
     }
 
     private static String generateMessage(SqlTable table, String newAlias, String existingAlias) {
-        return "Table \"" + table.tableNameAtRuntime() //$NON-NLS-1$
-                + "\" with requested alias \"" + newAlias //$NON-NLS-1$
-                + "\" is already aliased in this query with alias \"" + existingAlias //$NON-NLS-1$
-                + "\". Attempting to re-alias a table in the same query is not supported."; //$NON-NLS-1$
+        return Messages.getString("ERROR.1", table.tableNameAtRuntime(), newAlias, existingAlias); //$NON-NLS-1$
     }
 }

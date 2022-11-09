@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,12 +29,12 @@ public interface TableAliasCalculator {
         return new TableAliasCalculator() {
             @Override
             public Optional<String> aliasForColumn(SqlTable table) {
-                return Optional.empty();
+                return table.tableAlias();
             }
 
             @Override
             public Optional<String> aliasForTable(SqlTable table) {
-                return Optional.empty();
+                return table.tableAlias();
             }
         };
     }

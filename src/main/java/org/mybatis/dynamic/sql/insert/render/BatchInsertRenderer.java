@@ -1,11 +1,11 @@
 /*
- *    Copyright 2016-2020 the original author or authors.
+ *    Copyright 2016-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,11 +15,7 @@
  */
 package org.mybatis.dynamic.sql.insert.render;
 
-import static org.mybatis.dynamic.sql.util.StringUtilities.spaceBefore;
-
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.mybatis.dynamic.sql.insert.BatchInsertModel;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
@@ -35,33 +31,15 @@ public class BatchInsertRenderer<T> {
     }
 
     public BatchInsert<T> render() {
-        BatchValuePhraseVisitor visitor = new BatchValuePhraseVisitor(renderingStrategy, "record"); //$NON-NLS-1$)
-        List<FieldAndValue> fieldsAndValues = model
-                .mapColumnMappings(m -> m.accept(visitor))
-                .collect(Collectors.toList());
+        BatchValuePhraseVisitor visitor = new BatchValuePhraseVisitor(renderingStrategy, "row"); //$NON-NLS-1$)
+        FieldAndValueCollector collector = model.mapColumnMappings(m -> m.accept(visitor))
+                .collect(FieldAndValueCollector.collect());
+
+        String insertStatement = InsertRenderingUtilities.calculateInsertStatement(model.table(), collector);
 
         return BatchInsert.withRecords(model.records())
-                .withInsertStatement(calculateInsertStatement(fieldsAndValues))
+                .withInsertStatement(insertStatement)
                 .build();
-    }
-
-    private String calculateInsertStatement(List<FieldAndValue> fieldsAndValues) {
-        return "insert into" //$NON-NLS-1$
-                + spaceBefore(model.table().tableNameAtRuntime())
-                + spaceBefore(calculateColumnsPhrase(fieldsAndValues))
-                + spaceBefore(calculateValuesPhrase(fieldsAndValues));
-    }
-
-    private String calculateColumnsPhrase(List<FieldAndValue> fieldsAndValues) {
-        return fieldsAndValues.stream()
-                .map(FieldAndValue::fieldName)
-                .collect(Collectors.joining(", ", "(", ")")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    }
-
-    private String calculateValuesPhrase(List<FieldAndValue> fieldsAndValues) {
-        return fieldsAndValues.stream()
-                .map(FieldAndValue::valuePhrase)
-                .collect(Collectors.joining(", ", "values (", ")")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
     public static <T> Builder<T> withBatchInsertModel(BatchInsertModel<T> model) {

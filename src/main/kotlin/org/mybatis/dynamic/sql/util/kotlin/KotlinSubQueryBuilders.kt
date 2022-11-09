@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,11 +18,14 @@ package org.mybatis.dynamic.sql.util.kotlin
 import org.mybatis.dynamic.sql.BasicColumn
 import org.mybatis.dynamic.sql.SqlBuilder
 import org.mybatis.dynamic.sql.SqlColumn
+import org.mybatis.dynamic.sql.SqlTable
+import org.mybatis.dynamic.sql.insert.InsertSelectModel
 import org.mybatis.dynamic.sql.select.SelectModel
 import org.mybatis.dynamic.sql.util.Buildable
+import org.mybatis.dynamic.sql.util.Messages
 
 @MyBatisDslMarker
-sealed class KotlinBaseSubQueryBuilder : Buildable<SelectModel> {
+sealed class KotlinBaseSubQueryBuilder {
     private var selectBuilder: KotlinSelectBuilder? = null
 
     fun select(vararg selectList: BasicColumn, completer: SelectCompleter): Unit =
@@ -39,31 +42,54 @@ sealed class KotlinBaseSubQueryBuilder : Buildable<SelectModel> {
         selectBuilder = KotlinSelectBuilder(SqlBuilder.selectDistinct(selectList)).apply(completer)
     }
 
-    override fun build(): SelectModel =
-        selectBuilder?.build()?: throw KInvalidSQLException("You must specify a select statement in a sub query")
+    internal fun buildSelectModel(): SelectModel =
+        (selectBuilder?: throw KInvalidSQLException(Messages.getString("ERROR.28"))).build() //$NON-NLS-1$
 }
 
-class KotlinSubQueryBuilder : KotlinBaseSubQueryBuilder()
+class KotlinSubQueryBuilder : KotlinBaseSubQueryBuilder(), Buildable<SelectModel> {
+    override fun build(): SelectModel = buildSelectModel()
+}
 
-class KotlinQualifiedSubQueryBuilder : KotlinBaseSubQueryBuilder() {
+class KotlinQualifiedSubQueryBuilder : KotlinBaseSubQueryBuilder(), Buildable<SelectModel> {
     var correlationName: String? = null
 
     operator fun String.unaryPlus() {
         correlationName = this
     }
+
+    override fun build(): SelectModel = buildSelectModel()
 }
 
 typealias InsertSelectCompleter = KotlinInsertSelectSubQueryBuilder.() -> Unit
 
-class KotlinInsertSelectSubQueryBuilder : KotlinBaseSubQueryBuilder() {
+class KotlinInsertSelectSubQueryBuilder : KotlinBaseSubQueryBuilder(), Buildable<InsertSelectModel> {
     private var columnList: List<SqlColumn<*>>? = null
+    private var table: SqlTable? = null
 
-    internal fun columnList(): List<SqlColumn<*>> =
-        columnList?: throw KInvalidSQLException("You must specify a column list in an insert select statement")
+    fun into(table: SqlTable) {
+        this.table = table
+    }
 
     fun columns(vararg columnList: SqlColumn<*>): Unit = columns(columnList.asList())
 
     fun columns(columnList: List<SqlColumn<*>>) {
         this.columnList = columnList
+    }
+
+    override fun build(): InsertSelectModel {
+        if (table == null) {
+            throw KInvalidSQLException(Messages.getString("ERROR.29")) //$NON-NLS-1$
+        }
+
+        return if (columnList == null) {
+            SqlBuilder.insertInto(table)
+                .withSelectStatement { buildSelectModel() }
+                .build()
+        } else {
+            SqlBuilder.insertInto(table)
+                .withColumnList(columnList)
+                .withSelectStatement { buildSelectModel() }
+                .build()
+        }
     }
 }

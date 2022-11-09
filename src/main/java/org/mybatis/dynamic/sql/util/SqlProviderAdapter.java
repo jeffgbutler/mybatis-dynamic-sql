@@ -1,11 +1,11 @@
 /*
- *    Copyright 2016-2021 the original author or authors.
+ *    Copyright 2016-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,7 +31,6 @@ import org.mybatis.dynamic.sql.update.render.UpdateStatementProvider;
  * Adapter for use with MyBatis SQL provider annotations.
  *
  * @author Jeff Butler
- *
  */
 public class SqlProviderAdapter {
 
@@ -53,8 +52,8 @@ public class SqlProviderAdapter {
 
     /**
      * This adapter method is intended for use with MyBatis' &#064;InsertProvider annotation when there are generated
-     * values expected from executing the insert statement. The canonical method signature for using this
-     * adapter method is as follows:
+     * values expected from executing the insert statement. The canonical method signature for using this adapter method
+     * is as follows:
      *
      * <pre>
      * public interface FooMapper {
@@ -64,10 +63,12 @@ public class SqlProviderAdapter {
      * }
      * </pre>
      *
-     * @param parameterMap The parameter map is automatically created by MyBatis when there are multiple
-     *     parameters in the insert method.
-     * @return the SQL statement contained in the parameter map. This is assumed to be the one
-     *     and only map entry of type String.
+     * @param parameterMap
+     *            The parameter map is automatically created by MyBatis when there are multiple parameters in the insert
+     *            method.
+     *
+     * @return the SQL statement contained in the parameter map. This is assumed to be the one and only map entry of
+     *         type String.
      */
     public String insertMultipleWithGeneratedKeys(Map<String, Object> parameterMap) {
         List<String> entries = parameterMap.entrySet().stream()
@@ -80,8 +81,7 @@ public class SqlProviderAdapter {
         if (entries.size() == 1) {
             return entries.get(0);
         } else {
-            throw new IllegalArgumentException("The parameters for insertMultipleWithGeneratedKeys" //$NON-NLS-1$
-                    + " must contain exactly one parameter of type String"); //$NON-NLS-1$
+            throw new IllegalArgumentException(Messages.getString("ERROR.30")); //$NON-NLS-1$
         }
     }
 

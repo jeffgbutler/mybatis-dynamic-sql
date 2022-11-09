@@ -5,7 +5,7 @@
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,8 @@ package org.mybatis.dynamic.sql.where;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 import org.jetbrains.annotations.NotNull;
 import org.mybatis.dynamic.sql.AndOrCriteriaGroup;
@@ -28,14 +30,28 @@ import org.mybatis.dynamic.sql.ExistsCriterion;
 import org.mybatis.dynamic.sql.ExistsPredicate;
 import org.mybatis.dynamic.sql.SqlCriterion;
 import org.mybatis.dynamic.sql.VisitableCondition;
+import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
+import org.mybatis.dynamic.sql.util.ConfigurableStatement;
 
-public abstract class AbstractWhereDSL<T extends AbstractWhereDSL<T>> {
+public abstract class AbstractWhereDSL<T extends AbstractWhereDSL<T>> implements ConfigurableStatement<T> {
     private SqlCriterion initialCriterion; // WARNING - may be null!
     private final List<AndOrCriteriaGroup> subCriteria = new ArrayList<>();
 
+    private final StatementConfiguration statementConfiguration;
+
+    protected AbstractWhereDSL(StatementConfiguration statementConfiguration) {
+        this.statementConfiguration = Objects.requireNonNull(statementConfiguration);
+    }
+
+    @Override
+    public T configureStatement(Consumer<StatementConfiguration> consumer) {
+        consumer.accept(statementConfiguration);
+        return getThis();
+    }
+
     @NotNull
     public <S> T where(BindableColumn<S> column, VisitableCondition<S> condition,
-                       AndOrCriteriaGroup...subCriteria) {
+                       AndOrCriteriaGroup... subCriteria) {
         return where(column, condition, Arrays.asList(subCriteria));
     }
 
@@ -50,7 +66,7 @@ public abstract class AbstractWhereDSL<T extends AbstractWhereDSL<T>> {
     }
 
     @NotNull
-    public T where(ExistsPredicate existsPredicate, AndOrCriteriaGroup...subCriteria) {
+    public T where(ExistsPredicate existsPredicate, AndOrCriteriaGroup... subCriteria) {
         return where(existsPredicate, Arrays.asList(subCriteria));
     }
 
@@ -62,7 +78,7 @@ public abstract class AbstractWhereDSL<T extends AbstractWhereDSL<T>> {
     }
 
     @NotNull
-    public T where(SqlCriterion initialCriterion, AndOrCriteriaGroup...subCriteria) {
+    public T where(SqlCriterion initialCriterion, AndOrCriteriaGroup... subCriteria) {
         return where(initialCriterion, Arrays.asList(subCriteria));
     }
 
@@ -91,7 +107,7 @@ public abstract class AbstractWhereDSL<T extends AbstractWhereDSL<T>> {
 
     @NotNull
     public <S> T and(BindableColumn<S> column, VisitableCondition<S> condition,
-                     AndOrCriteriaGroup...subCriteria) {
+                     AndOrCriteriaGroup... subCriteria) {
         return and(column, condition, Arrays.asList(subCriteria));
     }
 
@@ -103,7 +119,7 @@ public abstract class AbstractWhereDSL<T extends AbstractWhereDSL<T>> {
     }
 
     @NotNull
-    public T and(ExistsPredicate existsPredicate, AndOrCriteriaGroup...subCriteria) {
+    public T and(ExistsPredicate existsPredicate, AndOrCriteriaGroup... subCriteria) {
         return and(existsPredicate, Arrays.asList(subCriteria));
     }
 
@@ -114,7 +130,7 @@ public abstract class AbstractWhereDSL<T extends AbstractWhereDSL<T>> {
     }
 
     @NotNull
-    public T and(SqlCriterion initialCriterion, AndOrCriteriaGroup...subCriteria) {
+    public T and(SqlCriterion initialCriterion, AndOrCriteriaGroup... subCriteria) {
         return and(initialCriterion, Arrays.asList(subCriteria));
     }
 
@@ -132,7 +148,7 @@ public abstract class AbstractWhereDSL<T extends AbstractWhereDSL<T>> {
 
     @NotNull
     public <S> T or(BindableColumn<S> column, VisitableCondition<S> condition,
-                    AndOrCriteriaGroup...subCriteria) {
+                    AndOrCriteriaGroup... subCriteria) {
         return or(column, condition, Arrays.asList(subCriteria));
     }
 
@@ -144,7 +160,7 @@ public abstract class AbstractWhereDSL<T extends AbstractWhereDSL<T>> {
     }
 
     @NotNull
-    public T or(ExistsPredicate existsPredicate, AndOrCriteriaGroup...subCriteria) {
+    public T or(ExistsPredicate existsPredicate, AndOrCriteriaGroup... subCriteria) {
         return or(existsPredicate, Arrays.asList(subCriteria));
     }
 
@@ -155,7 +171,7 @@ public abstract class AbstractWhereDSL<T extends AbstractWhereDSL<T>> {
     }
 
     @NotNull
-    public T or(SqlCriterion initialCriterion, AndOrCriteriaGroup...subCriteria) {
+    public T or(SqlCriterion initialCriterion, AndOrCriteriaGroup... subCriteria) {
         return or(initialCriterion, Arrays.asList(subCriteria));
     }
 
@@ -172,7 +188,7 @@ public abstract class AbstractWhereDSL<T extends AbstractWhereDSL<T>> {
     }
 
     protected WhereModel internalBuild() {
-        return new WhereModel(initialCriterion, subCriteria);
+        return new WhereModel(initialCriterion, subCriteria, statementConfiguration);
     }
 
     private <R> SqlCriterion buildCriterion(BindableColumn<R> column, VisitableCondition<R> condition) {

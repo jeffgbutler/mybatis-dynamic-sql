@@ -1,11 +1,11 @@
 /*
- *    Copyright 2016-2020 the original author or authors.
+ *    Copyright 2016-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,7 @@
  */
 package org.mybatis.dynamic.sql.select.render;
 
-import java.util.Optional;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
@@ -31,31 +31,31 @@ public class LimitAndOffsetPagingModelRenderer {
     public LimitAndOffsetPagingModelRenderer(RenderingStrategy renderingStrategy,
             Long limit, PagingModel pagingModel, AtomicInteger sequence) {
         this.renderingStrategy = renderingStrategy;
-        this.limit = limit;
+        this.limit = Objects.requireNonNull(limit);
         this.pagingModel = pagingModel;
         this.sequence = sequence;
     }
 
-    public Optional<FragmentAndParameters> render() {
+    public FragmentAndParameters render() {
         return pagingModel.offset().map(this::renderLimitAndOffset)
                 .orElseGet(this::renderLimitOnly);
     }
 
-    private Optional<FragmentAndParameters> renderLimitOnly() {
+    private FragmentAndParameters renderLimitOnly() {
         String mapKey = RenderingStrategy.formatParameterMapKey(sequence);
         return FragmentAndParameters.withFragment("limit " + renderPlaceholder(mapKey)) //$NON-NLS-1$
                 .withParameter(mapKey, limit)
-                .buildOptional();
+                .build();
     }
 
-    private Optional<FragmentAndParameters> renderLimitAndOffset(Long offset) {
+    private FragmentAndParameters renderLimitAndOffset(Long offset) {
         String mapKey1 = RenderingStrategy.formatParameterMapKey(sequence);
         String mapKey2 = RenderingStrategy.formatParameterMapKey(sequence);
         return FragmentAndParameters.withFragment("limit " + renderPlaceholder(mapKey1) //$NON-NLS-1$
                     + " offset " + renderPlaceholder(mapKey2)) //$NON-NLS-1$
                 .withParameter(mapKey1, limit)
                 .withParameter(mapKey2, offset)
-                .buildOptional();
+                .build();
     }
 
     private String renderPlaceholder(String parameterName) {

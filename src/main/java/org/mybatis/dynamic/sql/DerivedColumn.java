@@ -1,11 +1,11 @@
 /*
- *    Copyright 2016-2020 the original author or authors.
+ *    Copyright 2016-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,8 +28,8 @@ import org.mybatis.dynamic.sql.render.TableAliasCalculator;
  * qualifier set in a query. If a table qualifier is required it can be set directly in the
  * builder for this class.
  *
- * @param <T> The Java type that corresponds to this column - not used except for compiler type checking
- *           for conditions
+ * @param <T>
+ *            The Java type that corresponds to this column - not used except for compiler type checking for conditions
  */
 public class DerivedColumn<T> implements BindableColumn<T> {
     private final String name;

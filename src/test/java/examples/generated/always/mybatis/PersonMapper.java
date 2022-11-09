@@ -1,11 +1,11 @@
 /*
- *    Copyright 2016-2021 the original author or authors.
+ *    Copyright 2016-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,9 +37,9 @@ import org.mybatis.dynamic.sql.insert.render.MultiRowInsertStatementProvider;
 import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
+import org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils;
 
 import examples.generated.always.PersonRecord;
-import org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils;
 
 public interface PersonMapper {
 
@@ -48,7 +48,7 @@ public interface PersonMapper {
     int insertSelect(InsertSelectStatementProvider insertSelectStatement);
 
     @InsertProvider(type = SqlProviderAdapter.class, method = "insert")
-    @Options(useGeneratedKeys = true, keyProperty = "record.id")
+    @Options(useGeneratedKeys = true, keyProperty = "row.id")
     int insert(InsertStatementProvider<PersonRecord> insertStatement);
 
     @InsertProvider(type=SqlProviderAdapter.class, method="insertMultipleWithGeneratedKeys")

@@ -1,11 +1,11 @@
 /*
- *    Copyright 2016-2021 the original author or authors.
+ *    Copyright 2016-2022 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,6 +14,30 @@
  *    limitations under the License.
  */
 package examples.simple;
+
+import static examples.simple.AddressDynamicSqlSupport.address;
+import static examples.simple.PersonDynamicSqlSupport.addressId;
+import static examples.simple.PersonDynamicSqlSupport.birthDate;
+import static examples.simple.PersonDynamicSqlSupport.employed;
+import static examples.simple.PersonDynamicSqlSupport.firstName;
+import static examples.simple.PersonDynamicSqlSupport.id;
+import static examples.simple.PersonDynamicSqlSupport.lastName;
+import static examples.simple.PersonDynamicSqlSupport.occupation;
+import static examples.simple.PersonDynamicSqlSupport.person;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mybatis.dynamic.sql.SqlBuilder.*;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSource;
 import org.apache.ibatis.jdbc.ScriptRunner;
@@ -33,30 +57,6 @@ import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.CountDSLCompleter;
 import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import static examples.simple.AddressDynamicSqlSupport.address;
-import static examples.simple.PersonDynamicSqlSupport.addressId;
-import static examples.simple.PersonDynamicSqlSupport.birthDate;
-import static examples.simple.PersonDynamicSqlSupport.employed;
-import static examples.simple.PersonDynamicSqlSupport.firstName;
-import static examples.simple.PersonDynamicSqlSupport.id;
-import static examples.simple.PersonDynamicSqlSupport.lastName;
-import static examples.simple.PersonDynamicSqlSupport.occupation;
-import static examples.simple.PersonDynamicSqlSupport.person;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mybatis.dynamic.sql.SqlBuilder.*;
 
 class PersonMapperTest {
 
