@@ -22,7 +22,7 @@ create table Person (
   first_name varchar(30) not null,
   last_name varchar(30) not null,
   primary key(id)
-)
+);
 
 create table GeneratedAlways (
    id int not null,
