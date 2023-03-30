@@ -7,24 +7,29 @@ import static examples.animal.data.AnimalDataDynamicSqlSupport.brainWeight;
 import static examples.animal.data.AnimalDataDynamicSqlSupport.id;
 import static examples.generated.always.spring.GeneratedAlwaysDynamicSqlSupport.generatedAlways;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mybatis.dynamic.sql.SqlBuilder.add;
+import static org.mybatis.dynamic.sql.SqlBuilder.concat;
 import static org.mybatis.dynamic.sql.SqlBuilder.deleteFrom;
 import static org.mybatis.dynamic.sql.SqlBuilder.insertInto;
 import static org.mybatis.dynamic.sql.SqlBuilder.isEqualTo;
+import static org.mybatis.dynamic.sql.SqlBuilder.isLessThan;
 import static org.mybatis.dynamic.sql.SqlBuilder.select;
+import static org.mybatis.dynamic.sql.SqlBuilder.stringConstant;
+import static org.mybatis.dynamic.sql.SqlBuilder.update;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import examples.animal.data.AnimalData;
-import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
 import org.junit.jupiter.api.Test;
+import org.mybatis.dynamic.sql.StringConstant;
 import org.mybatis.dynamic.sql.delete.DeleteModel;
 import org.mybatis.dynamic.sql.insert.GeneralInsertModel;
 import org.mybatis.dynamic.sql.select.SelectModel;
+import org.mybatis.dynamic.sql.update.UpdateModel;
 import org.mybatis.dynamic.sql.util.Buildable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.r2dbc.core.DatabaseClient;
@@ -33,11 +38,11 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @SpringJUnitConfig(classes = SpringConfiguration.class)
 class SpringR2DBCTest {
-    private DatabaseClient db;
+    private R2DBCMyBatisDSQLTemplate template;
 
     @Autowired
     private void setConnectionFactory(ConnectionFactory connectionFactory) {
-        db = DatabaseClient.builder().connectionFactory(connectionFactory).build();
+        template = new R2DBCMyBatisDSQLTemplate(connectionFactory);
     }
 
     @Test
@@ -46,9 +51,7 @@ class SpringR2DBCTest {
                 .from(animalData)
                 .orderBy(id);
 
-        List<AnimalData> animals  = db.sql(OperationFactory.fromSelectModel(selectStatement))
-                .map(this::rowMapper)
-                .all()
+        List<AnimalData> animals  = template.selectMany(selectStatement, this::rowMapper)
                 .collectList()
                 .block();
 
@@ -63,10 +66,7 @@ class SpringR2DBCTest {
                 .where(id, isEqualTo(3))
                 .and(animalName, isEqualTo("Big brown bat"));
 
-        AnimalData animal = db.sql(OperationFactory.fromSelectModel(selectStatement))
-                .map(this::rowMapper)
-                .one()
-                .block();
+        AnimalData animal = template.selectOne(selectStatement, this::rowMapper).block();
 
         assertThat(animal).isNotNull();
     }
@@ -77,10 +77,7 @@ class SpringR2DBCTest {
         Buildable<DeleteModel> deleteStatement = deleteFrom(animalData)
                 .where(id, isEqualTo(3));
 
-        Long rows = db.sql(OperationFactory.fromDeleteModel(deleteStatement))
-                .fetch()
-                .rowsUpdated()
-                .block();
+        Long rows = template.delete(deleteStatement).block();
 
         assertThat(rows).isEqualTo(1);
     }
@@ -93,10 +90,7 @@ class SpringR2DBCTest {
                 .set(generatedAlways.firstName).toValue("Tom")
                 .set(generatedAlways.lastName).toValue("Jones");
 
-        Long rows = db.sql(OperationFactory.fromGeneralInsertModel(insertStatement))
-                .fetch()
-                .rowsUpdated()
-                .block();
+        Long rows = template.generalInsert(insertStatement).block();
 
         assertThat(rows).isEqualTo(1);
     }
@@ -109,13 +103,44 @@ class SpringR2DBCTest {
                 .set(generatedAlways.firstName).toValue("Tom")
                 .set(generatedAlways.lastName).toValue("Jones");
 
-        Map<String, Object> generatedValues = db.sql(OperationFactory.fromGeneralInsertModel(insertStatement))
+        Map<String, Object> generatedValues = template.prepareGeneralInsert(insertStatement)
                 .filter(s -> s.returnGeneratedValues(generatedAlways.fullName.name()))
-                .map(this::rawMapper)
+                .map(R2DBCMyBatisDSQLTemplate::rawMapper)
                 .first()
                 .block();
 
         assertThat(generatedValues).containsEntry("FULL_NAME", "Tom Jones");
+    }
+
+    @Test
+    @DirtiesContext
+    void testUpdate() {
+        Buildable<UpdateModel> updateStatement = update(generatedAlways)
+                .set(generatedAlways.lastName).equalTo(concat(generatedAlways.lastName, stringConstant("-DDD")))
+                .where(generatedAlways.id, isLessThan(4));
+
+        Long rows = template.update(updateStatement).block();
+
+        assertThat(rows).isEqualTo(3);
+    }
+
+    @Test
+    @DirtiesContext
+    void testUpdateWithReturnedValues() {
+        Buildable<UpdateModel> updateStatement = update(generatedAlways)
+                .set(generatedAlways.lastName).equalTo(concat(generatedAlways.lastName, stringConstant("-DDD")))
+                .where(generatedAlways.id, isLessThan(4));
+
+        List<Map<String, Object>> generatedValues = template.prepareUpdate(updateStatement)
+                .filter(s -> s.returnGeneratedValues(generatedAlways.id.name(), generatedAlways.fullName.name()))
+                .map(R2DBCMyBatisDSQLTemplate::rawMapper)
+                .all()
+                .collectList()
+                .block();
+
+        assertThat(generatedValues).hasSize(3);
+        assertThat(generatedValues.get(0)).containsEntry("ID", 1);
+        assertThat(generatedValues.get(0)).containsEntry("FULL_NAME", "Fred Flintstone-DDD");
     }
 
     private AnimalData rowMapper(Row row, RowMetadata rowMetadata) {
@@ -130,17 +155,5 @@ class SpringR2DBCTest {
         animal.setBodyWeight(bodyWeight);
         animal.setBrainWeight(brainWeight);
         return animal;
-    }
-
-    private Map<String, Object> rawMapper(Row row, RowMetadata rowMetadata) {
-        List<? extends ColumnMetadata> columnMetadataList = rowMetadata.getColumnMetadatas();
-        Map<String, Object> answer = new HashMap<>(columnMetadataList.size());
-
-        for (ColumnMetadata columnMetadata : columnMetadataList) {
-            String name = columnMetadata.getName();
-            answer.put(name, row.get(name));
-        }
-
-        return answer;
     }
 }
