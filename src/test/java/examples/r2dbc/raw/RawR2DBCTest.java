@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.delete.render.DeleteStatementProvider;
 import org.mybatis.dynamic.sql.insert.render.GeneralInsertStatementProvider;
 import org.mybatis.dynamic.sql.insert.render.MultiRowInsertStatementProvider;
-import org.mybatis.dynamic.sql.render.RenderingStrategies;
+import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.update.render.UpdateStatementProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +50,8 @@ class RawR2DBCTest {
 
     @Autowired
     private ConnectionFactoryExtensions connectionFactory;
+
+    private static final RenderingStrategy R2DBC = new R2DBCRenderingStrategy();
 
     private AnimalData rowMapper(Row row, RowMetadata rowMetadata) {
         Integer id = row.get("id", Integer.class);
@@ -82,7 +84,7 @@ class RawR2DBCTest {
         SelectStatementProvider selectStatement = select(id, animalName, bodyWeight, brainWeight)
                 .from(animalData)
                 .build()
-                .render(RenderingStrategies.R2DBC);
+                .render(R2DBC);
 
         List<AnimalData> animals = connectionFactory.selectMany(selectStatement, this::rowMapper).collectList().block();
 
@@ -96,7 +98,7 @@ class RawR2DBCTest {
                 .from(animalData)
                 .orderBy(id.descending())
                 .build()
-                .render(RenderingStrategies.R2DBC);
+                .render(R2DBC);
         List<AnimalData> animals = connectionFactory.selectMany(selectStatement, this::rowMapper).collectList().block();
         assertThat(animals).hasSize(65);
         assertThat(animals.get(0).getId()).isEqualTo(65);
@@ -108,7 +110,7 @@ class RawR2DBCTest {
                 .from(animalData)
                 .orderBy(id.descending())
                 .build()
-                .render(RenderingStrategies.R2DBC);
+                .render(R2DBC);
         List<AnimalData> animals = connectionFactory.selectMany(selectStatement, this::rowMapper).collectList().block();
         assertThat(selectStatement.getSelectStatement()).isEqualTo("select * from AnimalData order by id DESC");
         assertThat(animals).hasSize(65);
@@ -121,7 +123,7 @@ class RawR2DBCTest {
                 .from(animalData, "ad")
                 .orderBy(id.descending())
                 .build()
-                .render(RenderingStrategies.R2DBC);
+                .render(R2DBC);
         List<AnimalData> animals = connectionFactory.selectMany(selectStatement, this::rowMapper).collectList().block();
         assertThat(selectStatement.getSelectStatement()).isEqualTo("select ad.* from AnimalData ad order by id DESC");
         assertThat(animals).hasSize(65);
@@ -134,7 +136,7 @@ class RawR2DBCTest {
                 .from(animalData)
                 .where(id, isLessThan(20))
                 .build()
-                .render(RenderingStrategies.R2DBC);
+                .render(R2DBC);
 
         String expected = "select id, animal_name, body_weight, brain_weight from AnimalData where id < $1";
         assertThat(selectStatement.getSelectStatement()).isEqualTo(expected);
@@ -151,7 +153,7 @@ class RawR2DBCTest {
                 .from(animalData)
                 .where(id, isBetween(30).and(40))
                 .build()
-                .render(RenderingStrategies.R2DBC);
+                .render(R2DBC);
 
         List<AnimalData> animals = connectionFactory.selectMany(selectStatement, this::rowMapper).collectList().block();
         assertThat(animals).hasSize(11);
@@ -163,7 +165,7 @@ class RawR2DBCTest {
                 .from(animalData)
                 .where(id, isNotBetween(10).and(60))
                 .build()
-                .render(RenderingStrategies.R2DBC);
+                .render(R2DBC);
 
         List<AnimalData> animals = connectionFactory.selectMany(selectStatement, this::rowMapper).collectList().block();
         assertThat(animals).hasSize(14);
@@ -175,7 +177,7 @@ class RawR2DBCTest {
                 .from(animalData)
                 .where(not(id, isBetween(10).and(60)))
                 .build()
-                .render(RenderingStrategies.R2DBC);
+                .render(R2DBC);
 
         String expected = "select id, animal_name, body_weight, brain_weight"
                 + " from AnimalData"
@@ -193,7 +195,7 @@ class RawR2DBCTest {
                 .where(not(id, isBetween(10).and(60),
                         or(animalName, isEqualTo("Little brown bat"))))
                 .build()
-                .render(RenderingStrategies.R2DBC);
+                .render(R2DBC);
 
         String expected = "select id, animal_name, body_weight, brain_weight"
                 + " from AnimalData"
@@ -212,7 +214,7 @@ class RawR2DBCTest {
                 .where(not(group(id, isBetween(10).and(60),
                         or(animalName, isEqualTo("Little brown bat")))))
                 .build()
-                .render(RenderingStrategies.R2DBC);
+                .render(R2DBC);
 
         String expected = "select id, animal_name, body_weight, brain_weight"
                 + " from AnimalData"
@@ -234,7 +236,7 @@ class RawR2DBCTest {
                 .from(animalData)
                 .where(id, isGreaterThan(40))
                 .build()
-                .render(RenderingStrategies.R2DBC);
+                .render(R2DBC);
 
         String expected = "select id, animal_name, body_weight, brain_weight "
                 + "from AnimalData "
@@ -1193,7 +1195,7 @@ class RawR2DBCTest {
                 .from(animalData, "a")
                 .where(add(bodyWeight, brainWeight), isGreaterThan(10000.0))
                 .build()
-                .render(RenderingStrategies.R2DBC);
+                .render(R2DBC);
 
         String expected = "select a.id, a.animal_name, ((a.body_weight * 5.5) + (a.brain_weight - 2)) as calculated_weight "
                 + "from AnimalData a "
@@ -1249,7 +1251,7 @@ class RawR2DBCTest {
         DeleteStatementProvider deleteStatement = deleteFrom(animalData)
                 .where(id, isIn(5, 8, 10))
                 .build()
-                .render(RenderingStrategies.R2DBC);
+                .render(R2DBC);
 
         Long rowCount = connectionFactory.delete(deleteStatement).block();
         assertThat(rowCount).isEqualTo(3);
@@ -1334,7 +1336,7 @@ class RawR2DBCTest {
                 .or(id, isGreaterThan(60))
                 .and(bodyWeight, isBetween(1.0).and(3.0))
                 .build()
-                .render(RenderingStrategies.R2DBC);
+                .render(R2DBC);
 
         Long rows = connectionFactory.update(updateStatement).block();
         assertThat(rows).isEqualTo(4);
@@ -1347,7 +1349,7 @@ class RawR2DBCTest {
                 .set(animalName).equalToOrNull("fred")
                 .where(id, isEqualTo(1))
                 .build()
-                .render(RenderingStrategies.R2DBC);
+                .render(R2DBC);
 
         assertThat(updateStatement.getUpdateStatement()).isEqualTo(
                 "update AnimalData set animal_name = $1 where id = $2");
@@ -1362,7 +1364,7 @@ class RawR2DBCTest {
                 .set(animalName).equalToOrNull((String) null)
                 .where(id, isEqualTo(1))
                 .build()
-                .render(RenderingStrategies.R2DBC);
+                .render(R2DBC);
 
         assertThat(updateStatement.getUpdateStatement()).isEqualTo(
                 "update AnimalData set animal_name = null where id = $1");
@@ -1488,9 +1490,9 @@ class RawR2DBCTest {
                 .map(bodyWeight).toProperty("bodyWeight")
                 .map(brainWeight).toConstant("1.2")
                 .build()
-                .render(RenderingStrategies.R2DBC);
+                .render(R2DBC);
 
-        String expected = "insert into AnimalData (id, animal_name, body_weight, brain_weight) values ($1,$2,$3,$4) ($5,$6,$7,$8)";
+        String expected = "insert into AnimalData (id, animal_name, body_weight, brain_weight) values ($1, null, $2, 1.2) ($3, null, $4, 1.2)";
         assertThat(multiRowInsert.getInsertStatement()).isEqualTo(expected);
 //        batchInsert.insertStatements().forEach(mapper::insert);
 //        sqlSession.commit();
@@ -1500,7 +1502,7 @@ class RawR2DBCTest {
                 .where(id, isIn(100, 101))
                 .orderBy(id)
                 .build()
-                .render(RenderingStrategies.R2DBC);
+                .render(R2DBC);
 
         List<AnimalData> animals = connectionFactory.selectMany(selectStatement, this::rowMapper).collectList().block();
 
@@ -1986,7 +1988,7 @@ class RawR2DBCTest {
                 .set(brainWeight).toConstant("2.2")
                 .set(bodyWeight).toValue(4.5)
                 .build()
-                .render(RenderingStrategies.R2DBC);
+                .render(R2DBC);
 
         String expected = "insert into AnimalData (id, animal_name, brain_weight, body_weight) "
                 + "values ($1, 'Fred', 2.2, $2)";

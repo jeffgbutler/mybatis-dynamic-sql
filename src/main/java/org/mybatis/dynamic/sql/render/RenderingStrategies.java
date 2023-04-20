@@ -21,6 +21,4 @@ public class RenderingStrategies {
     public static final RenderingStrategy MYBATIS3 = new MyBatis3RenderingStrategy();
 
     public static final RenderingStrategy SPRING_NAMED_PARAMETER = new SpringNamedParameterRenderingStrategy();
-
-    public static final RenderingStrategy R2DBC = new R2DBCRenderingStrategy();
 }
