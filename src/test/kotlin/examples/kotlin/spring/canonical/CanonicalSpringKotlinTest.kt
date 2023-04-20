@@ -49,6 +49,7 @@ import org.mybatis.dynamic.sql.util.kotlin.spring.insertBatch
 import org.mybatis.dynamic.sql.util.kotlin.spring.insertInto
 import org.mybatis.dynamic.sql.util.kotlin.spring.insertMultiple
 import org.mybatis.dynamic.sql.util.kotlin.spring.insertSelect
+import org.mybatis.dynamic.sql.util.kotlin.spring.multiSelect
 import org.mybatis.dynamic.sql.util.kotlin.spring.select
 import org.mybatis.dynamic.sql.util.kotlin.spring.selectDistinct
 import org.mybatis.dynamic.sql.util.kotlin.spring.selectList
@@ -141,8 +142,10 @@ open class CanonicalSpringKotlinTest {
     @Test
     fun testRawDelete2() {
         val deleteStatement = deleteFrom(person) {
-            where { id isLessThan 4 }
-            and { occupation.isNotNull() }
+            where {
+                id isLessThan 4
+                and { occupation.isNotNull() }
+            }
         }
 
         assertThat(deleteStatement.deleteStatement).isEqualTo(
@@ -158,8 +161,10 @@ open class CanonicalSpringKotlinTest {
     fun testRawDelete3() {
 
         val deleteStatement = deleteFrom(person) {
-            where { id isLessThan 4 }
-            or { occupation.isNotNull() }
+            where {
+                id isLessThan 4
+                or { occupation.isNotNull() }
+            }
         }
 
         assertThat(deleteStatement.deleteStatement).isEqualTo(
@@ -176,10 +181,12 @@ open class CanonicalSpringKotlinTest {
 
         val deleteStatement = deleteFrom(person) {
             where {
-                id isLessThan 4
-                or { occupation.isNotNull() }
+                group {
+                    id isLessThan 4
+                    or { occupation.isNotNull() }
+                }
+                and { employed isEqualTo true }
             }
-            and { employed isEqualTo true }
         }
 
         val expected = "delete from Person" +
@@ -198,10 +205,12 @@ open class CanonicalSpringKotlinTest {
     @Test
     fun testRawDelete5() {
         val deleteStatement = deleteFrom(person) {
-            where { id isLessThan 4 }
-            or {
-                occupation.isNotNull()
-                and { employed isEqualTo true }
+            where {
+                id isLessThan 4
+                or {
+                    occupation.isNotNull()
+                    and { employed isEqualTo true }
+                }
             }
         }
 
@@ -220,10 +229,12 @@ open class CanonicalSpringKotlinTest {
     @Test
     fun testRawDelete6() {
         val deleteStatement = deleteFrom(person) {
-            where { id isLessThan 4 }
-            and {
-                occupation.isNotNull()
-                and { employed isEqualTo true }
+            where {
+                id isLessThan 4
+                and {
+                    occupation.isNotNull()
+                    and { employed isEqualTo true }
+                }
             }
         }
 
@@ -257,10 +268,10 @@ open class CanonicalSpringKotlinTest {
         val expected =
             "insert into Person (id, first_name, last_name, birth_date, employed, occupation, address_id)" +
                 " values" +
-                " (:id, :firstName," +
-                " :lastNameAsString," +
-                " :birthDate, :employedAsString," +
-                " :occupation, :addressId)"
+                " (:row.id, :row.firstName," +
+                " :row.lastNameAsString," +
+                " :row.birthDate, :row.employedAsString," +
+                " :row.occupation, :row.addressId)"
 
         assertThat(insertStatement.insertStatement).isEqualTo(expected)
 
@@ -626,10 +637,12 @@ open class CanonicalSpringKotlinTest {
         ) {
             from(person)
             where {
-                id isLessThan 4
+                group {
+                    id isLessThan 4
+                    and { occupation.isNotNull() }
+                }
                 and { occupation.isNotNull() }
             }
-            and { occupation.isNotNull() }
             orderBy(id)
             limit(3)
         }
@@ -756,6 +769,169 @@ open class CanonicalSpringKotlinTest {
             assertThat(occupation).isNull()
             assertThat(addressId).isEqualTo(1)
         }
+    }
+
+    @Test
+    fun testRawMultiSelectWithUnion() {
+        val selectStatement = multiSelect {
+            select(id, firstName, lastName, birthDate, employed, occupation, addressId) {
+                from(person, "p1")
+                where { id isLessThanOrEqualTo 2 }
+                orderBy(id)
+                limit(1)
+            }
+            union {
+                select(id, firstName, lastName, birthDate, employed, occupation, addressId) {
+                    from(person, "p2")
+                    where { id isGreaterThanOrEqualTo 4 }
+                    orderBy(id.descending())
+                    limit(1)
+                }
+            }
+            orderBy(id)
+            limit(2)
+        }
+
+        val expected =
+            "(select p1.id, p1.first_name, p1.last_name, p1.birth_date, p1.employed, p1.occupation, p1.address_id " +
+                "from Person p1 " +
+                "where p1.id <= :p1 " +
+                "order by id limit :p2) " +
+                "union " +
+                "(select p2.id, p2.first_name, p2.last_name, p2.birth_date, p2.employed, p2.occupation, p2.address_id " +
+                "from Person p2 " +
+                "where p2.id >= :p3 " +
+                "order by id DESC limit :p4) " +
+                "order by id limit :p5"
+
+        assertThat(selectStatement.selectStatement).isEqualTo(expected)
+
+        val records = template.selectList(selectStatement, personRowMapper)
+
+        assertThat(records).hasSize(2)
+        with(records[0]) {
+            assertThat(id).isEqualTo(1)
+            assertThat(firstName).isEqualTo("Fred")
+            assertThat(lastName!!.name).isEqualTo("Flintstone")
+            assertThat(birthDate).isNotNull
+            assertThat(employed).isTrue
+            assertThat(occupation).isEqualTo("Brontosaurus Operator")
+            assertThat(addressId).isEqualTo(1)
+        }
+
+        with(records[1]) {
+            assertThat(id).isEqualTo(6)
+            assertThat(firstName).isEqualTo("Bamm Bamm")
+            assertThat(lastName!!.name).isEqualTo("Rubble")
+            assertThat(birthDate).isNotNull
+            assertThat(employed).isFalse
+            assertThat(occupation).isNull()
+            assertThat(addressId).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun testRawMultiSelectWithUnionAll() {
+        val selectStatement = multiSelect {
+            selectDistinct(id, firstName, lastName, birthDate, employed, occupation, addressId) {
+                from(person, "p1")
+                where { id isLessThanOrEqualTo 2 }
+                orderBy(id)
+                limit(1)
+            }
+            unionAll {
+                select(id, firstName, lastName, birthDate, employed, occupation, addressId) {
+                    from(person, "p2")
+                    where { id isGreaterThanOrEqualTo 4 }
+                    orderBy(id.descending())
+                    limit(1)
+                }
+            }
+            orderBy(id)
+            fetchFirst(1)
+            offset(1)
+        }
+
+        val expected =
+            "(select distinct p1.id, p1.first_name, p1.last_name, p1.birth_date, p1.employed, p1.occupation, p1.address_id " +
+                    "from Person p1 " +
+                    "where p1.id <= :p1 " +
+                    "order by id limit :p2) " +
+                    "union all " +
+                    "(select p2.id, p2.first_name, p2.last_name, p2.birth_date, p2.employed, p2.occupation, p2.address_id " +
+                    "from Person p2 " +
+                    "where p2.id >= :p3 " +
+                    "order by id DESC limit :p4) " +
+                    "order by id offset :p5 rows fetch first :p6 rows only"
+
+        assertThat(selectStatement.selectStatement).isEqualTo(expected)
+
+        val records = template.selectList(selectStatement, personRowMapper)
+
+        assertThat(records).hasSize(1)
+        with(records[0]) {
+            assertThat(id).isEqualTo(6)
+            assertThat(firstName).isEqualTo("Bamm Bamm")
+            assertThat(lastName!!.name).isEqualTo("Rubble")
+            assertThat(birthDate).isNotNull
+            assertThat(employed).isFalse
+            assertThat(occupation).isNull()
+            assertThat(addressId).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun testRawMultiSelectWithoutUnion() {
+        assertThatExceptionOfType(InvalidSqlException::class.java).isThrownBy {
+            multiSelect {
+                selectDistinct(id, firstName, lastName, birthDate, employed, occupation, addressId) {
+                    from(person, "p1")
+                    where { id isLessThanOrEqualTo 2 }
+                    orderBy(id)
+                    limit(1)
+                }
+                orderBy(id)
+                fetchFirst(1)
+                offset(1)
+            }
+        }.withMessage(Messages.getString("ERROR.35")) //$NON-NLS-1$
+    }
+
+    @Test
+    fun testInvalidDoubleSelect() {
+        assertThatExceptionOfType(KInvalidSQLException::class.java).isThrownBy {
+            multiSelect {
+                selectDistinct(id, firstName, lastName, birthDate, employed, occupation, addressId) {
+                    from(person, "p1")
+                    where { id isLessThanOrEqualTo 2 }
+                    orderBy(id)
+                    limit(1)
+                }
+                select(id, firstName, lastName, birthDate, employed, occupation, addressId) {
+                    from(person, "p2")
+                    where { id isGreaterThanOrEqualTo 4 }
+                    orderBy(id.descending())
+                    limit(1)
+                }
+            }
+        }.withMessage(Messages.getString("ERROR.33")) //$NON-NLS-1$
+    }
+
+    @Test
+    fun testInvalidMissingInitialSelect() {
+        assertThatExceptionOfType(KInvalidSQLException::class.java).isThrownBy {
+            multiSelect {
+                union {
+                    select(id, firstName, lastName, birthDate, employed, occupation, addressId) {
+                        from(person, "p2")
+                        where { id isGreaterThanOrEqualTo 4 }
+                        orderBy(id.descending())
+                        limit(1)
+                    }
+                }
+            }
+        }.withMessage(Messages.getString("ERROR.34")) //$NON-NLS-1$
+
     }
 
     @Test
@@ -983,12 +1159,14 @@ open class CanonicalSpringKotlinTest {
             id `as` "A_ID", firstName, lastName, birthDate, employed, occupation, addressId
         ) {
             from(person)
-            where { id isLessThan 5 }
-            and {
-                id isLessThan 4
+            where {
+                id isLessThan 5
                 and {
-                    id isLessThan 3
-                    and { id isLessThan 2 }
+                    id isLessThan 4
+                    and {
+                        id isLessThan 3
+                        and { id isLessThan 2 }
+                    }
                 }
             }
             orderBy(id)
@@ -1024,12 +1202,14 @@ open class CanonicalSpringKotlinTest {
             id `as` "A_ID", firstName, lastName, birthDate, employed, occupation, addressId
         ) {
             from(person)
-            where { id isEqualTo 5 }
-            or {
-                id isEqualTo 4
+            where {
+                id isEqualTo 5
                 or {
-                    id isEqualTo 3
-                    or { id isEqualTo 2 }
+                    id isEqualTo 4
+                    or {
+                        id isEqualTo 3
+                        or { id isEqualTo 2 }
+                    }
                 }
             }
             orderBy(id)
@@ -1104,10 +1284,12 @@ open class CanonicalSpringKotlinTest {
     fun testRawUpdate3() {
         val updateStatement = update(person) {
             set(firstName) equalTo "Sam"
-            where { firstName isEqualTo "Fred" }
-            or {
-                id isEqualTo 5
-                or { id isEqualTo 6 }
+            where {
+                firstName isEqualTo "Fred"
+                or {
+                    id isEqualTo 5
+                    or { id isEqualTo 6 }
+                }
             }
         }
 
@@ -1127,10 +1309,12 @@ open class CanonicalSpringKotlinTest {
     fun testRawUpdate4() {
         val updateStatement = update(person) {
             set(firstName) equalTo "Sam"
-            where { firstName isEqualTo "Fred" }
-            and {
-                id isEqualTo 1
-                or { id isEqualTo 6 }
+            where {
+                firstName isEqualTo "Fred"
+                and {
+                    id isEqualTo 1
+                    or { id isEqualTo 6 }
+                }
             }
         }
 
@@ -1150,8 +1334,10 @@ open class CanonicalSpringKotlinTest {
     fun testRawUpdate5() {
         val updateStatement = update(person) {
             set(firstName) equalTo "Sam"
-            where { firstName isEqualTo "Fred" }
-            or { id isEqualTo 3 }
+            where {
+                firstName isEqualTo "Fred"
+                or { id isEqualTo 3 }
+            }
         }
 
         assertThat(updateStatement.updateStatement).isEqualTo(
@@ -1170,8 +1356,10 @@ open class CanonicalSpringKotlinTest {
     fun testRawUpdate6() {
         val updateStatement = update(person) {
             set(occupation) equalToOrNull  null
-            where { firstName isEqualTo "Fred" }
-            or { id isEqualTo 3 }
+            where {
+                firstName isEqualTo "Fred"
+                or { id isEqualTo 3 }
+            }
         }
 
         assertThat(updateStatement.updateStatement).isEqualTo(
@@ -1416,21 +1604,23 @@ open class CanonicalSpringKotlinTest {
             id, firstName, lastName, birthDate, employed, occupation, addressId
         ) {
             from(person)
-            where { id isEqualToWhenPresent search1.id }
-            and {
-                upper(firstName) (isLikeWhenPresent(search1.firstName)
+            where {
+                id isEqualToWhenPresent search1.id
+                and {
+                    upper(firstName) (isLikeWhenPresent(search1.firstName)
                         .map(String::trim)
                         .filter(String::isNotEmpty)
                         .map(String::uppercase)
                         .map { "%$it%" }
-                )
-            }
-            and {
-                upper(lastName) (isLikeWhenPresent(search1.lastName)
+                    )
+                }
+                and {
+                    upper(lastName) (isLikeWhenPresent(search1.lastName)
                         .map(String::trim)
                         .filter(String::isNotEmpty)
                         .map(String::uppercase)
                         .map { LastName("%$it%") })
+                }
             }
             orderBy(id)
             limit(3)

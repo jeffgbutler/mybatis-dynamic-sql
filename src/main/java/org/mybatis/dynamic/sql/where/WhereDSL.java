@@ -15,23 +15,46 @@
  */
 package org.mybatis.dynamic.sql.where;
 
-import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
+import java.util.function.Consumer;
 
-public class WhereDSL extends AbstractWhereDSL<WhereDSL> {
-    private WhereDSL() {
-        super(new StatementConfiguration());
+import org.jetbrains.annotations.NotNull;
+import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
+import org.mybatis.dynamic.sql.util.Buildable;
+
+public class WhereDSL extends AbstractWhereStarter<WhereDSL.StandaloneWhereFinisher, WhereDSL> {
+    private final StatementConfiguration statementConfiguration = new StatementConfiguration();
+    private final StandaloneWhereFinisher whereBuilder = new StandaloneWhereFinisher();
+
+    @Override
+    public StandaloneWhereFinisher where() {
+        return whereBuilder;
     }
 
     @Override
-    protected WhereDSL getThis() {
+    public WhereDSL configureStatement(Consumer<StatementConfiguration> consumer) {
+        consumer.accept(statementConfiguration);
         return this;
     }
 
-    public static WhereDSL where() {
-        return new WhereDSL();
-    }
+    public class StandaloneWhereFinisher extends AbstractWhereFinisher<StandaloneWhereFinisher>
+            implements Buildable<WhereModel> {
+        private StandaloneWhereFinisher() {
+            super(statementConfiguration);
+        }
 
-    public WhereModel build() {
-        return internalBuild();
+        @Override
+        protected StandaloneWhereFinisher getThis() {
+            return this;
+        }
+
+        @NotNull
+        @Override
+        public WhereModel build() {
+            return buildModel();
+        }
+
+        public WhereApplier toWhereApplier() {
+            return d -> d.initialize(getInitialCriterion(), subCriteria);
+        }
     }
 }

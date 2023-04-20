@@ -35,8 +35,10 @@ import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.mybatis.dynamic.sql.util.kotlin.elements.add
 import org.mybatis.dynamic.sql.util.kotlin.elements.constant
 import org.mybatis.dynamic.sql.util.kotlin.elements.isIn
+import org.mybatis.dynamic.sql.util.kotlin.elements.sortColumn
 import org.mybatis.dynamic.sql.util.kotlin.mybatis3.insertInto
 import org.mybatis.dynamic.sql.util.kotlin.mybatis3.insertSelect
+import org.mybatis.dynamic.sql.util.kotlin.mybatis3.multiSelect
 import org.mybatis.dynamic.sql.util.kotlin.mybatis3.select
 import java.util.*
 
@@ -61,8 +63,10 @@ class PersonMapperTest {
             val mapper = session.getMapper(PersonMapper::class.java)
 
             val rows = mapper.select {
-                where { id isEqualTo 1 }
-                or { occupation.isNull() }
+                where {
+                    id isEqualTo 1
+                    or { occupation.isNull() }
+                }
             }
 
             assertThat(rows).hasSize(3)
@@ -104,8 +108,10 @@ class PersonMapperTest {
             val mapper = session.getMapper(PersonMapper::class.java)
 
             val rows = mapper.selectDistinct {
-                where { id isGreaterThan 1 }
-                or { occupation.isNull() }
+                where {
+                    id isGreaterThan 1
+                    or { occupation.isNull() }
+                }
             }
 
             assertThat(rows).hasSize(5)
@@ -373,8 +379,10 @@ class PersonMapperTest {
 
             rows = mapper.update {
                 set(occupation) equalTo "Programmer"
-                where { id isEqualTo 100 }
-                and { firstName isEqualTo "Joe" }
+                where {
+                    id isEqualTo 100
+                    and { firstName isEqualTo "Joe" }
+                }
             }
 
             assertThat(rows).isEqualTo(1)
@@ -492,8 +500,10 @@ class PersonMapperTest {
             val mapper = session.getMapper(PersonMapper::class.java)
 
             val rows = mapper.count {
-                where { employed.isTrue() }
-                and { occupation isEqualTo "Brontosaurus Operator" }
+                where {
+                    employed.isTrue()
+                    and { occupation isEqualTo "Brontosaurus Operator" }
+                }
             }
 
             assertThat(rows).isEqualTo(2L)
@@ -522,10 +532,12 @@ class PersonMapperTest {
             val mapper = session.getMapper(PersonMapper::class.java)
 
             val rows = mapper.count {
-                where { id isEqualTo 1 }
-                or {
-                    id isEqualTo 2
-                    or { id isEqualTo 3 }
+                where {
+                    id isEqualTo 1
+                    or {
+                        id isEqualTo 2
+                        or { id isEqualTo 3 }
+                    }
                 }
             }
 
@@ -539,10 +551,12 @@ class PersonMapperTest {
             val mapper = session.getMapper(PersonMapper::class.java)
 
             val rows = mapper.count {
-                where { id isLessThan 5 }
-                and {
-                    id isLessThan 3
-                    and { id isEqualTo 1 }
+                where {
+                    id isLessThan 5
+                    and {
+                        id isLessThan 3
+                        and { id isEqualTo 1 }
+                    }
                 }
             }
 
@@ -755,6 +769,59 @@ class PersonMapperTest {
             val type = mapper.selectOptionalInteger(selectStatement)
 
             assertThat(type).hasValueSatisfying { assertThat(it).isEqualTo(0) }
+        }
+    }
+
+    @Test
+    fun testRawMultiSelectWithUnion() {
+        sqlSessionFactory.openSession().use { session ->
+            val mapper = session.getMapper(PersonMapper::class.java)
+            val selectStatement = multiSelect {
+                select(id.`as`("A_ID"), firstName, lastName, birthDate, employed, occupation, addressId) {
+                    from(person)
+                    where { id isLessThanOrEqualTo 2 }
+                    orderBy(id)
+                    limit(1)
+                }
+                union {
+                    select(id.`as`("A_ID"), firstName, lastName, birthDate, employed, occupation, addressId) {
+                        from(person)
+                        where { id isGreaterThanOrEqualTo 4 }
+                        orderBy(id.descending())
+                        limit(1)
+                    }
+                }
+                orderBy(sortColumn("A_ID"))
+                limit(2)
+                offset(1)
+            }
+
+            val expected =
+                "(select id as A_ID, first_name, last_name, birth_date, employed, occupation, address_id " +
+                        "from Person " +
+                        "where id <= #{parameters.p1,jdbcType=INTEGER} " +
+                        "order by id limit #{parameters.p2}) " +
+                        "union " +
+                        "(select id as A_ID, first_name, last_name, birth_date, employed, occupation, address_id " +
+                        "from Person " +
+                        "where id >= #{parameters.p3,jdbcType=INTEGER} " +
+                        "order by id DESC limit #{parameters.p4}) " +
+                        "order by A_ID limit #{parameters.p5} offset #{parameters.p6}"
+
+            assertThat(selectStatement.selectStatement).isEqualTo(expected)
+
+            val records = mapper.selectMany(selectStatement)
+
+            assertThat(records).hasSize(1)
+            with(records[0]) {
+                assertThat(id).isEqualTo(6)
+                assertThat(firstName).isEqualTo("Bamm Bamm")
+                assertThat(lastName!!.name).isEqualTo("Rubble")
+                assertThat(birthDate).isNotNull
+                assertThat(employed).isFalse
+                assertThat(occupation).isNull()
+                assertThat(addressId).isEqualTo(2)
+            }
         }
     }
 }

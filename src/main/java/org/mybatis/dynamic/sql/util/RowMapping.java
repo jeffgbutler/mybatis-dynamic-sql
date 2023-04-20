@@ -13,20 +13,21 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.mybatis.dynamic.sql.insert.render;
+package org.mybatis.dynamic.sql.util;
 
 import org.mybatis.dynamic.sql.SqlColumn;
-import org.mybatis.dynamic.sql.render.RenderingStrategy;
 
-public class BatchValuePhraseVisitor extends AbstractMultiRowValuePhraseVisitor {
+public class RowMapping extends AbstractColumnMapping {
+    private RowMapping(SqlColumn<?> column) {
+        super(column);
+    }
 
-    public BatchValuePhraseVisitor(RenderingStrategy renderingStrategy, String prefix) {
-        super(renderingStrategy, prefix);
+    public static RowMapping of(SqlColumn<?> column) {
+        return new RowMapping(column);
     }
 
     @Override
-    String calculateJdbcPlaceholder(SqlColumn<?> column, String parameterName) {
-        return column.renderingStrategy().orElse(renderingStrategy)
-                .getFormattedJdbcPlaceholder(column, prefix, parameterName);
+    public <R> R accept(ColumnMappingVisitor<R> visitor) {
+        return visitor.visit(this);
     }
 }

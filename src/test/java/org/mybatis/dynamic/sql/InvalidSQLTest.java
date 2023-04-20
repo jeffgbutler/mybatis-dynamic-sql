@@ -18,7 +18,6 @@ package org.mybatis.dynamic.sql;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mybatis.dynamic.sql.SqlBuilder.insert;
 import static org.mybatis.dynamic.sql.SqlBuilder.insertInto;
-import static org.mybatis.dynamic.sql.SqlBuilder.isEqualTo;
 import static org.mybatis.dynamic.sql.SqlBuilder.update;
 
 import java.util.ArrayList;
@@ -44,10 +43,9 @@ import org.mybatis.dynamic.sql.select.join.JoinModel;
 import org.mybatis.dynamic.sql.select.join.JoinSpecification;
 import org.mybatis.dynamic.sql.select.join.JoinType;
 import org.mybatis.dynamic.sql.select.render.PagingModelRenderer;
-import org.mybatis.dynamic.sql.update.UpdateDSL;
 import org.mybatis.dynamic.sql.update.UpdateModel;
+import org.mybatis.dynamic.sql.util.InternalError;
 import org.mybatis.dynamic.sql.util.Messages;
-import org.mybatis.dynamic.sql.where.condition.IsEqualTo;
 
 class InvalidSQLTest {
 
@@ -244,22 +242,9 @@ class InvalidSQLTest {
 
         assertThatExceptionOfType(InvalidSqlException.class)
                 .isThrownBy(renderer::render)
-                .withMessage(Messages.getInternalErrorString(13));
+                .withMessage(Messages.getInternalErrorString(InternalError.INTERNAL_ERROR_13));
     }
 
-
-    @Test
-    void testInvalidMultipleWhereClauses() {
-        UpdateDSL<UpdateModel>.UpdateWhereBuilder builder = update(person)
-                .set(id).equalTo(3)
-                .where(id, isEqualTo(2));
-
-        IsEqualTo<Integer> condition = isEqualTo(5);
-        assertThatExceptionOfType(InvalidSqlException.class)
-                .isThrownBy(() -> builder.where(id, condition))
-                .withMessage(Messages.getString("ERROR.32"));
-
-    }
 
     static class TestRow {
         private Integer id;
