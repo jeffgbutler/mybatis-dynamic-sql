@@ -7,7 +7,6 @@ import static examples.animal.data.AnimalDataDynamicSqlSupport.brainWeight;
 import static examples.animal.data.AnimalDataDynamicSqlSupport.id;
 import static examples.generated.always.spring.GeneratedAlwaysDynamicSqlSupport.generatedAlways;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mybatis.dynamic.sql.SqlBuilder.add;
 import static org.mybatis.dynamic.sql.SqlBuilder.concat;
 import static org.mybatis.dynamic.sql.SqlBuilder.deleteFrom;
 import static org.mybatis.dynamic.sql.SqlBuilder.insertInto;
@@ -25,14 +24,12 @@ import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
 import org.junit.jupiter.api.Test;
-import org.mybatis.dynamic.sql.StringConstant;
 import org.mybatis.dynamic.sql.delete.DeleteModel;
 import org.mybatis.dynamic.sql.insert.GeneralInsertModel;
 import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.update.UpdateModel;
 import org.mybatis.dynamic.sql.util.Buildable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
@@ -105,7 +102,7 @@ class SpringR2DBCTest {
 
         Map<String, Object> generatedValues = template.prepareGeneralInsert(insertStatement)
                 .filter(s -> s.returnGeneratedValues(generatedAlways.fullName.name()))
-                .map(R2DBCMyBatisDSQLTemplate::rawMapper)
+                .map(R2DBCUtils::rawMapper)
                 .first()
                 .block();
 
@@ -133,7 +130,7 @@ class SpringR2DBCTest {
 
         List<Map<String, Object>> generatedValues = template.prepareUpdate(updateStatement)
                 .filter(s -> s.returnGeneratedValues(generatedAlways.id.name(), generatedAlways.fullName.name()))
-                .map(R2DBCMyBatisDSQLTemplate::rawMapper)
+                .map(R2DBCUtils::rawMapper)
                 .all()
                 .collectList()
                 .block();

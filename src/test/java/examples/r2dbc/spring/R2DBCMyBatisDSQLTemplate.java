@@ -64,7 +64,7 @@ public class R2DBCMyBatisDSQLTemplate {
 
         GenericExecuteSpec spec = databaseClient.sql(selectStatement.getSelectStatement());
 
-        return bindParameters(spec, selectStatement.getParameters()).map(R2DBCMyBatisDSQLTemplate::rawMapper).one();
+        return bindParameters(spec, selectStatement.getParameters()).map(R2DBCUtils::rawMapper).one();
     }
 
     public <R> Flux<R> selectMany(Buildable<SelectModel> selectModel, BiFunction<Row, RowMetadata, R> rowMapper) {
@@ -80,7 +80,7 @@ public class R2DBCMyBatisDSQLTemplate {
 
         GenericExecuteSpec spec = databaseClient.sql(selectStatement.getSelectStatement());
 
-        return bindParameters(spec, selectStatement.getParameters()).map(R2DBCMyBatisDSQLTemplate::rawMapper).all();
+        return bindParameters(spec, selectStatement.getParameters()).map(R2DBCUtils::rawMapper).all();
     }
 
     public GenericExecuteSpec prepareUpdate(Buildable<UpdateModel> updateModel) {
@@ -101,17 +101,5 @@ public class R2DBCMyBatisDSQLTemplate {
         }
 
         return spec;
-    }
-
-    public static Map<String, Object> rawMapper(Row row, RowMetadata rowMetadata) {
-        List<? extends ColumnMetadata> columnMetadataList = rowMetadata.getColumnMetadatas();
-        Map<String, Object> answer = new HashMap<>(columnMetadataList.size());
-
-        for (ColumnMetadata columnMetadata : columnMetadataList) {
-            String name = columnMetadata.getName();
-            answer.put(name, row.get(name));
-        }
-
-        return answer;
     }
 }
