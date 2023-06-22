@@ -34,12 +34,12 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @SpringJUnitConfig(classes = SpringConfiguration.class)
-class SpringR2DBCTest {
-    private R2DBCMyBatisDSQLTemplate template;
+class SpringR2dbcTest {
+    private R2dbcMyBatisDSQLTemplate template;
 
     @Autowired
     private void setConnectionFactory(ConnectionFactory connectionFactory) {
-        template = new R2DBCMyBatisDSQLTemplate(connectionFactory);
+        template = new R2dbcMyBatisDSQLTemplate(connectionFactory);
     }
 
     @Test

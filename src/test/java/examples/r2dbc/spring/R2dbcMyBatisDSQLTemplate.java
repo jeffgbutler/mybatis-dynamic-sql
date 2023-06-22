@@ -1,11 +1,8 @@
 package examples.r2dbc.spring;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import io.r2dbc.spi.ColumnMetadata;
 import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.Row;
 import io.r2dbc.spi.RowMetadata;
@@ -24,10 +21,10 @@ import org.springframework.r2dbc.core.DatabaseClient.GenericExecuteSpec;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class R2DBCMyBatisDSQLTemplate {
+public class R2dbcMyBatisDSQLTemplate {
     private final DatabaseClient databaseClient;
 
-    public R2DBCMyBatisDSQLTemplate(ConnectionFactory connectionFactory) {
+    public R2dbcMyBatisDSQLTemplate(ConnectionFactory connectionFactory) {
         databaseClient = DatabaseClient.create(connectionFactory);
     }
 
