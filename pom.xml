@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.mybatis</groupId>
     <artifactId>mybatis-parent</artifactId>
-    <version>37</version>
+    <version>38</version>
   </parent>
   <groupId>org.mybatis.dynamic-sql</groupId>
   <artifactId>mybatis-dynamic-sql</artifactId>
@@ -57,18 +57,18 @@
 
     <checkstyle.config>checkstyle-override.xml</checkstyle.config>
 
-    <clirr.comparisonVersion>1.2.0</clirr.comparisonVersion>
+    <clirr.comparisonVersion>1.5.0</clirr.comparisonVersion>
 
     <module.name>org.mybatis.dynamic.sql</module.name>
 
-    <kotlin.version>1.8.21</kotlin.version>
+    <kotlin.version>1.8.22</kotlin.version>
     <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
 
     <sonar.sources>pom.xml,src/main/java,src/main/kotlin</sonar.sources>
     <sonar.tests>src/test/java,src/test/kotlin</sonar.tests>
 
     <kotlin.code.style>official</kotlin.code.style>
-    <test.containers.version>1.18.1</test.containers.version>
+    <test.containers.version>1.18.3</test.containers.version>
     <osgi.export>org.mybatis.dynamic.sql.*;version=${project.version};-noimport:=true</osgi.export>
 
     <!-- Reproducible Builds -->
@@ -196,7 +196,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>3.4.0</version>
         <executions>
           <execution>
             <phase>generate-sources</phase>
@@ -225,7 +225,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>5.3.27</version>
+      <version>5.3.28</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
@@ -264,13 +264,13 @@
     <dependency>
       <groupId>org.mybatis</groupId>
       <artifactId>mybatis-spring</artifactId>
-      <version>2.1.0</version>
+      <version>2.1.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
-      <version>2.7.1</version>
+      <version>2.7.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -294,7 +294,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.4.7</version>
+      <version>1.4.8</version>
       <scope>test</scope>
     </dependency>
     <!-- Hamcrest is only here to make Infinitest happy. Not really used in the project. -->

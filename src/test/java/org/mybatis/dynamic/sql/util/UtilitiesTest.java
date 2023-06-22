@@ -13,18 +13,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.mybatis.dynamic.sql.select.join;
+package org.mybatis.dynamic.sql.util;
 
-import org.mybatis.dynamic.sql.BasicColumn;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class EqualTo<T> extends ColumnBasedJoinCondition<T> {
+import org.junit.jupiter.api.Test;
 
-    public EqualTo(BasicColumn rightColumn) {
-        super(rightColumn);
-    }
+class UtilitiesTest {
 
-    @Override
-    public String operator() {
-        return "="; //$NON-NLS-1$
+    @Test
+    void testUnboxWithNull() {
+        assertThat(Utilities.safelyUnbox(null)).isZero();
     }
 }

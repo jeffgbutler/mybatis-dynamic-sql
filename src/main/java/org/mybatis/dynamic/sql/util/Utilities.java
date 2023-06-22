@@ -13,18 +13,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.mybatis.dynamic.sql.select.join;
+package org.mybatis.dynamic.sql.util;
 
-import org.mybatis.dynamic.sql.BasicColumn;
+import java.util.function.Supplier;
 
-public class EqualTo<T> extends ColumnBasedJoinCondition<T> {
-
-    public EqualTo(BasicColumn rightColumn) {
-        super(rightColumn);
+public interface Utilities {
+    static <T> T buildIfNecessary(T current, Supplier<T> builder) {
+        return current == null ? builder.get() : current;
     }
 
-    @Override
-    public String operator() {
-        return "="; //$NON-NLS-1$
+    static long safelyUnbox(Long l) {
+        return l == null ? 0 : l;
     }
 }
