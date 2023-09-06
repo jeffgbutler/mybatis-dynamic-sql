@@ -19,12 +19,10 @@ import static org.mybatis.dynamic.sql.util.StringUtilities.spaceAfter;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.mybatis.dynamic.sql.SqlCriterion;
-import org.mybatis.dynamic.sql.render.RenderingStrategy;
-import org.mybatis.dynamic.sql.render.TableAliasCalculator;
+import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 import org.mybatis.dynamic.sql.util.FragmentCollector;
 import org.mybatis.dynamic.sql.where.render.CriterionRenderer;
@@ -38,23 +36,14 @@ public abstract class AbstractBooleanExpressionRenderer<M extends AbstractBoolea
     protected AbstractBooleanExpressionRenderer(String prefix, AbstractBuilder<M, ?> builder) {
         model = Objects.requireNonNull(builder.model);
         this.prefix = Objects.requireNonNull(prefix);
-
-        criterionRenderer = new CriterionRenderer.Builder()
-                .withSequence(builder.sequence)
-                .withRenderingStrategy(builder.renderingStrategy)
-                .withTableAliasCalculator(builder.tableAliasCalculator)
-                .withParameterName(builder.parameterName)
-                .build();
+        criterionRenderer = new CriterionRenderer(builder.renderingContext);
     }
 
     public Optional<FragmentAndParameters> render() {
         return model.initialCriterion()
                 .map(this::renderWithInitialCriterion)
                 .orElseGet(this::renderWithoutInitialCriterion)
-                .map(rc -> FragmentAndParameters.withFragment(rc.fragmentAndParameters().fragment())
-                        .withParameters(rc.fragmentAndParameters().parameters())
-                        .build()
-                );
+                .map(RenderedCriterion::fragmentAndParameters);
     }
 
     private Optional<RenderedCriterion> renderWithInitialCriterion(SqlCriterion initialCriterion) {
@@ -67,8 +56,8 @@ public abstract class AbstractBooleanExpressionRenderer<M extends AbstractBoolea
 
     private String calculateClause(FragmentCollector collector) {
         if (collector.hasMultipleFragments()) {
-            return collector.fragments()
-                    .collect(Collectors.joining(" ", spaceAfter(prefix), "")); //$NON-NLS-1$ //$NON-NLS-2$
+            return collector.collectFragments(
+                    Collectors.joining(" ", spaceAfter(prefix), "")); //$NON-NLS-1$ //$NON-NLS-2$
         } else {
             return collector.firstFragment()
                     .map(this::stripEnclosingParenthesesIfPresent)
@@ -93,32 +82,14 @@ public abstract class AbstractBooleanExpressionRenderer<M extends AbstractBoolea
 
     public abstract static class AbstractBuilder<M, B extends AbstractBuilder<M, B>> {
         private final M model;
-        private RenderingStrategy renderingStrategy;
-        private TableAliasCalculator tableAliasCalculator;
-        private AtomicInteger sequence;
-        private String parameterName;
+        private RenderingContext renderingContext;
 
         protected AbstractBuilder(M model) {
             this.model = model;
         }
 
-        public B withRenderingStrategy(RenderingStrategy renderingStrategy) {
-            this.renderingStrategy = renderingStrategy;
-            return getThis();
-        }
-
-        public B withTableAliasCalculator(TableAliasCalculator tableAliasCalculator) {
-            this.tableAliasCalculator = tableAliasCalculator;
-            return getThis();
-        }
-
-        public B withSequence(AtomicInteger sequence) {
-            this.sequence = sequence;
-            return getThis();
-        }
-
-        public B withParameterName(String parameterName) {
-            this.parameterName = parameterName;
+        public B withRenderingContext(RenderingContext renderingContext) {
+            this.renderingContext = renderingContext;
             return getThis();
         }
 

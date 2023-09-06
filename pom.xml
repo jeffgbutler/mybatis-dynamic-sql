@@ -52,8 +52,8 @@
   </distributionManagement>
 
   <properties>
-    <junit.jupiter.version>5.9.3</junit.jupiter.version>
-    <spring.batch.version>4.3.8</spring.batch.version>
+    <junit.jupiter.version>5.10.0</junit.jupiter.version>
+    <spring.batch.version>4.3.9</spring.batch.version>
 
     <checkstyle.config>checkstyle-override.xml</checkstyle.config>
 
@@ -61,14 +61,14 @@
 
     <module.name>org.mybatis.dynamic.sql</module.name>
 
-    <kotlin.version>1.8.22</kotlin.version>
+    <kotlin.version>1.9.10</kotlin.version>
     <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
 
     <sonar.sources>pom.xml,src/main/java,src/main/kotlin</sonar.sources>
     <sonar.tests>src/test/java,src/test/kotlin</sonar.tests>
 
     <kotlin.code.style>official</kotlin.code.style>
-    <test.containers.version>1.18.3</test.containers.version>
+    <test.containers.version>1.19.0</test.containers.version>
     <osgi.export>org.mybatis.dynamic.sql.*;version=${project.version};-noimport:=true</osgi.export>
 
     <!-- Reproducible Builds -->
@@ -225,7 +225,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>5.3.28</version>
+      <version>5.3.29</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
@@ -294,7 +294,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.4.8</version>
+      <version>1.4.11</version>
       <scope>test</scope>
     </dependency>
     <!-- Hamcrest is only here to make Infinitest happy. Not really used in the project. -->
@@ -332,7 +332,7 @@
     <dependency>
       <groupId>org.mariadb.jdbc</groupId>
       <artifactId>mariadb-java-client</artifactId>
-      <version>3.1.4</version>
+      <version>3.2.0</version>
       <scope>test</scope>
     </dependency>
 

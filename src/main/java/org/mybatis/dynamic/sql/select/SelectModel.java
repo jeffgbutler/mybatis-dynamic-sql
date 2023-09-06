@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.exception.InvalidSqlException;
+import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.select.render.SelectRenderer;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
@@ -59,8 +60,9 @@ public class SelectModel {
 
     @NotNull
     public SelectStatementProvider render(RenderingStrategy renderingStrategy) {
+        RenderingContext renderingContext = RenderingContext.withRenderingStrategy(renderingStrategy).build();
         return SelectRenderer.withSelectModel(this)
-                .withRenderingStrategy(renderingStrategy)
+                .withRenderingContext(renderingContext)
                 .build()
                 .render();
     }

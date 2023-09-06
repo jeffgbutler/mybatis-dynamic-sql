@@ -17,14 +17,14 @@ package org.mybatis.dynamic.sql.delete.render;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.common.OrderByRenderer;
 import org.mybatis.dynamic.sql.delete.DeleteModel;
 import org.mybatis.dynamic.sql.render.ExplicitTableAliasCalculator;
+import org.mybatis.dynamic.sql.render.RenderedParameterInfo;
+import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.render.TableAliasCalculator;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
@@ -34,16 +34,17 @@ import org.mybatis.dynamic.sql.where.render.WhereRenderer;
 
 public class DeleteRenderer {
     private final DeleteModel deleteModel;
-    private final RenderingStrategy renderingStrategy;
-    private final TableAliasCalculator tableAliasCalculator;
-    private final AtomicInteger sequence = new AtomicInteger(1);
+    private final RenderingContext renderingContext;
 
     private DeleteRenderer(Builder builder) {
         deleteModel = Objects.requireNonNull(builder.deleteModel);
-        renderingStrategy = Objects.requireNonNull(builder.renderingStrategy);
-        tableAliasCalculator = builder.deleteModel.tableAlias()
+        TableAliasCalculator tableAliasCalculator = builder.deleteModel.tableAlias()
                 .map(a -> ExplicitTableAliasCalculator.of(deleteModel.table(), a))
                 .orElseGet(TableAliasCalculator::empty);
+        renderingContext = RenderingContext
+                .withRenderingStrategy(Objects.requireNonNull(builder.renderingStrategy))
+                .withTableAliasCalculator(tableAliasCalculator)
+                .build();
     }
 
     public DeleteStatementProvider render() {
@@ -59,19 +60,14 @@ public class DeleteRenderer {
 
     private DeleteStatementProvider toDeleteStatementProvider(FragmentCollector fragmentCollector) {
         return DefaultDeleteStatementProvider
-                .withDeleteStatement(fragmentCollector.fragments().collect(Collectors.joining(" "))) //$NON-NLS-1$
+                .withDeleteStatement(fragmentCollector.collectFragments(Collectors.joining(" "))) //$NON-NLS-1$
                 .withParameters(fragmentCollector.parameters())
                 .build();
     }
 
     private FragmentAndParameters calculateDeleteStatementStart() {
-        SqlTable table = deleteModel.table();
-        String tableName = table.tableNameAtRuntime();
-        String aliasedTableName = tableAliasCalculator.aliasForTable(table)
-                .map(a -> tableName + " " + a).orElse(tableName); //$NON-NLS-1$
-
-        return FragmentAndParameters.withFragment("delete from " + aliasedTableName) //$NON-NLS-1$
-                .build();
+        String aliasedTableName = renderingContext.aliasedTableName(deleteModel.table());
+        return FragmentAndParameters.fromFragment("delete from " + aliasedTableName); //$NON-NLS-1$
     }
 
     private Optional<FragmentAndParameters> calculateWhereClause() {
@@ -80,9 +76,7 @@ public class DeleteRenderer {
 
     private Optional<FragmentAndParameters> renderWhereClause(WhereModel whereModel) {
         return WhereRenderer.withWhereModel(whereModel)
-                .withRenderingStrategy(renderingStrategy)
-                .withSequence(sequence)
-                .withTableAliasCalculator(tableAliasCalculator)
+                .withRenderingContext(renderingContext)
                 .build()
                 .render();
     }
@@ -92,12 +86,10 @@ public class DeleteRenderer {
     }
 
     private FragmentAndParameters renderLimitClause(Long limit) {
-        String mapKey = renderingStrategy.formatParameterMapKey(sequence);
-        String jdbcPlaceholder =
-                renderingStrategy.getFormattedJdbcPlaceholder(RenderingStrategy.DEFAULT_PARAMETER_PREFIX, mapKey);
+        RenderedParameterInfo parameterInfo = renderingContext.calculateParameterInfo();
 
-        return FragmentAndParameters.withFragment("limit " + jdbcPlaceholder) //$NON-NLS-1$
-                .withParameter(mapKey, limit)
+        return FragmentAndParameters.withFragment("limit " + parameterInfo.renderedPlaceHolder()) //$NON-NLS-1$
+                .withParameter(parameterInfo.parameterMapKey(), limit)
                 .build();
     }
 

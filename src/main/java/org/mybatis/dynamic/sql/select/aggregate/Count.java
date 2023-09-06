@@ -18,7 +18,8 @@ package org.mybatis.dynamic.sql.select.aggregate;
 import java.util.Objects;
 
 import org.mybatis.dynamic.sql.BasicColumn;
-import org.mybatis.dynamic.sql.render.TableAliasCalculator;
+import org.mybatis.dynamic.sql.render.RenderingContext;
+import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 
 public class Count extends AbstractCount {
 
@@ -34,8 +35,8 @@ public class Count extends AbstractCount {
     }
 
     @Override
-    public String renderWithTableAlias(TableAliasCalculator tableAliasCalculator) {
-        return "count(" + column.renderWithTableAlias(tableAliasCalculator) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+    public FragmentAndParameters render(RenderingContext renderingContext) {
+        return column.render(renderingContext).mapFragment(s -> "count(" + s + ")"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     @Override

@@ -13,28 +13,14 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.mybatis.dynamic.sql.select.aggregate;
+package org.mybatis.dynamic.sql.where.condition;
 
-import org.mybatis.dynamic.sql.render.RenderingContext;
-import org.mybatis.dynamic.sql.util.FragmentAndParameters;
+import org.mybatis.dynamic.sql.VisitableCondition;
 
-public class CountAll extends AbstractCount {
-
-    public CountAll() {
-        super();
-    }
-
-    private CountAll(String alias) {
-        super(alias);
-    }
+public interface CaseInsensitiveVisitableCondition extends VisitableCondition<String> {
 
     @Override
-    public FragmentAndParameters render(RenderingContext renderingContext) {
-        return FragmentAndParameters.fromFragment("count(*)"); //$NON-NLS-1$
-    }
-
-    @Override
-    public CountAll as(String alias) {
-        return new CountAll(alias);
+    default String overrideRenderedLeftColumn(String renderedLeftColumn) {
+        return "upper(" + renderedLeftColumn + ")"; //$NON-NLS-1$ //$NON-NLS-2$
     }
 }

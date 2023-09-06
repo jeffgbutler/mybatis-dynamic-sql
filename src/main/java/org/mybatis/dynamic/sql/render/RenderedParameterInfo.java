@@ -13,28 +13,24 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.mybatis.dynamic.sql.select.aggregate;
+package org.mybatis.dynamic.sql.render;
 
-import org.mybatis.dynamic.sql.render.RenderingContext;
-import org.mybatis.dynamic.sql.util.FragmentAndParameters;
+import java.util.Objects;
 
-public class CountAll extends AbstractCount {
+public class RenderedParameterInfo {
+    private final String parameterMapKey;
+    private final String renderedPlaceHolder;
 
-    public CountAll() {
-        super();
+    public RenderedParameterInfo(String parameterMapKey, String renderedPlaceHolder) {
+        this.parameterMapKey = Objects.requireNonNull(parameterMapKey);
+        this.renderedPlaceHolder = Objects.requireNonNull(renderedPlaceHolder);
     }
 
-    private CountAll(String alias) {
-        super(alias);
+    public String parameterMapKey() {
+        return parameterMapKey;
     }
 
-    @Override
-    public FragmentAndParameters render(RenderingContext renderingContext) {
-        return FragmentAndParameters.fromFragment("count(*)"); //$NON-NLS-1$
-    }
-
-    @Override
-    public CountAll as(String alias) {
-        return new CountAll(alias);
+    public String renderedPlaceHolder() {
+        return renderedPlaceHolder;
     }
 }

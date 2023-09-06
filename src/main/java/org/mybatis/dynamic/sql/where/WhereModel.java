@@ -18,12 +18,12 @@ package org.mybatis.dynamic.sql.where;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mybatis.dynamic.sql.AndOrCriteriaGroup;
 import org.mybatis.dynamic.sql.SqlCriterion;
 import org.mybatis.dynamic.sql.common.AbstractBooleanExpressionModel;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
+import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.render.TableAliasCalculator;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
@@ -52,45 +52,44 @@ public class WhereModel extends AbstractBooleanExpressionModel {
      * @return rendered where clause
      */
     public Optional<WhereClauseProvider> render(RenderingStrategy renderingStrategy) {
-        return WhereRenderer.withWhereModel(this)
-                .withRenderingStrategy(renderingStrategy)
-                .withSequence(new AtomicInteger(1))
-                .withTableAliasCalculator(TableAliasCalculator.empty())
-                .build()
-                .render()
-                .map(this::toWhereClauseProvider);
+        RenderingContext renderingContext = RenderingContext.withRenderingStrategy(renderingStrategy).build();
+
+        return render(renderingContext);
     }
 
     public Optional<WhereClauseProvider> render(RenderingStrategy renderingStrategy,
-            TableAliasCalculator tableAliasCalculator) {
-        return WhereRenderer.withWhereModel(this)
+                                                TableAliasCalculator tableAliasCalculator) {
+        RenderingContext renderingContext = RenderingContext
                 .withRenderingStrategy(renderingStrategy)
-                .withSequence(new AtomicInteger(1))
                 .withTableAliasCalculator(tableAliasCalculator)
-                .build()
-                .render()
-                .map(this::toWhereClauseProvider);
+                .build();
+
+        return render(renderingContext);
     }
 
-    public Optional<WhereClauseProvider> render(RenderingStrategy renderingStrategy,
-            String parameterName) {
-        return WhereRenderer.withWhereModel(this)
+    public Optional<WhereClauseProvider> render(RenderingStrategy renderingStrategy, String parameterName) {
+        RenderingContext renderingContext = RenderingContext
                 .withRenderingStrategy(renderingStrategy)
-                .withSequence(new AtomicInteger(1))
-                .withTableAliasCalculator(TableAliasCalculator.empty())
                 .withParameterName(parameterName)
-                .build()
-                .render()
-                .map(this::toWhereClauseProvider);
+                .build();
+
+        return render(renderingContext);
     }
 
     public Optional<WhereClauseProvider> render(RenderingStrategy renderingStrategy,
             TableAliasCalculator tableAliasCalculator, String parameterName) {
-        return WhereRenderer.withWhereModel(this)
+        RenderingContext renderingContext = RenderingContext
                 .withRenderingStrategy(renderingStrategy)
-                .withSequence(new AtomicInteger(1))
                 .withTableAliasCalculator(tableAliasCalculator)
                 .withParameterName(parameterName)
+                .build();
+
+        return render(renderingContext);
+    }
+
+    private Optional<WhereClauseProvider> render(RenderingContext renderingContext) {
+        return WhereRenderer.withWhereModel(this)
+                .withRenderingContext(renderingContext)
                 .build()
                 .render()
                 .map(this::toWhereClauseProvider);

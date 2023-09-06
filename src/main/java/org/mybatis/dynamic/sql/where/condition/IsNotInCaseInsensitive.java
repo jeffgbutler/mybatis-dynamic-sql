@@ -20,13 +20,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.mybatis.dynamic.sql.AbstractListValueCondition;
 import org.mybatis.dynamic.sql.util.StringUtilities;
 
-public class IsNotInCaseInsensitive extends AbstractListValueCondition<String> {
+public class IsNotInCaseInsensitive extends AbstractListValueCondition<String>
+        implements CaseInsensitiveVisitableCondition {
     private static final IsNotInCaseInsensitive EMPTY = new IsNotInCaseInsensitive(Collections.emptyList());
 
     public static IsNotInCaseInsensitive empty() {
@@ -38,10 +37,8 @@ public class IsNotInCaseInsensitive extends AbstractListValueCondition<String> {
     }
 
     @Override
-    public String renderCondition(String columnName, Stream<String> placeholders) {
-        return "upper(" + columnName + ") " //$NON-NLS-1$ //$NON-NLS-2$
-                + placeholders.collect(
-                        Collectors.joining(",", "not in (", ")")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    public String operator() {
+        return "not in"; //$NON-NLS-1$
     }
 
     @Override

@@ -17,11 +17,11 @@ package org.mybatis.dynamic.sql.select.render;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.common.OrderByRenderer;
+import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.select.MultiSelectModel;
 import org.mybatis.dynamic.sql.select.PagingModel;
@@ -31,12 +31,13 @@ import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 import org.mybatis.dynamic.sql.util.FragmentCollector;
 
 public class MultiSelectRenderer {
-    private final RenderingStrategy renderingStrategy;
-    private final AtomicInteger sequence = new AtomicInteger(1);
     private final MultiSelectModel multiSelectModel;
+    private final RenderingContext renderingContext;
 
     private MultiSelectRenderer(Builder builder) {
-        renderingStrategy = Objects.requireNonNull(builder.renderingStrategy);
+        renderingContext = RenderingContext
+                .withRenderingStrategy(Objects.requireNonNull(builder.renderingStrategy))
+                .build();
         multiSelectModel = Objects.requireNonNull(builder.multiSelectModel);
     }
 
@@ -55,15 +56,14 @@ public class MultiSelectRenderer {
 
     private SelectStatementProvider toSelectStatementProvider(FragmentCollector fragmentCollector) {
         return DefaultSelectStatementProvider
-                .withSelectStatement(fragmentCollector.fragments().collect(Collectors.joining(" "))) //$NON-NLS-1$
+                .withSelectStatement(fragmentCollector.collectFragments(Collectors.joining(" "))) //$NON-NLS-1$
                 .withParameters(fragmentCollector.parameters())
                 .build();
     }
 
     private FragmentAndParameters renderSelect(SelectModel selectModel) {
         SelectStatementProvider selectStatement = SelectRenderer.withSelectModel(selectModel)
-                .withRenderingStrategy(renderingStrategy)
-                .withSequence(sequence)
+                .withRenderingContext(renderingContext)
                 .build()
                 .render();
 
@@ -75,8 +75,7 @@ public class MultiSelectRenderer {
 
     private FragmentAndParameters renderSelect(UnionQuery unionQuery) {
         SelectStatementProvider selectStatement = SelectRenderer.withSelectModel(unionQuery.selectModel())
-                .withRenderingStrategy(renderingStrategy)
-                .withSequence(sequence)
+                .withRenderingContext(renderingContext)
                 .build()
                 .render();
 
@@ -101,8 +100,7 @@ public class MultiSelectRenderer {
     private FragmentAndParameters renderPagingModel(PagingModel pagingModel) {
         return new PagingModelRenderer.Builder()
                 .withPagingModel(pagingModel)
-                .withRenderingStrategy(renderingStrategy)
-                .withSequence(sequence)
+                .withRenderingContext(renderingContext)
                 .build()
                 .render();
     }
