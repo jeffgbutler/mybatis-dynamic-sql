@@ -15,17 +15,13 @@
  */
 package examples.paging;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import org.mybatis.dynamic.sql.render.ParameterBinding;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
+import org.mybatis.dynamic.sql.select.render.SelectStatementProviderAdapter;
 
 /**
  * This adapter modifies the generated SQL by adding a LIMIT and OFFSET clause at the end
@@ -71,32 +67,17 @@ public class LimitAndOffsetAdapter<R> {
         return new LimitAndOffsetAdapter<>(selectModel, mapperMethod, limit, offset);
     }
 
-    public class LimitAndOffsetDecorator implements SelectStatementProvider {
-        private final String selectStatement;
-        private final SelectStatementProvider delegate;
-
+    public class LimitAndOffsetDecorator extends SelectStatementProviderAdapter {
         public LimitAndOffsetDecorator(SelectStatementProvider delegate) {
-            this.delegate = Objects.requireNonNull(delegate);
-            this.delegate.getParameters().put("limit", limit);
-            this.delegate.getParameters().put("offset", offset);
-
-            selectStatement = delegate.getSelectStatement() +
-                    " LIMIT #{parameters.limit} OFFSET #{parameters.offset}";
-        }
-
-        @Override
-        public Map<String, Object> getParameters() {
-            return delegate.getParameters();
+            super(delegate);
+            super.getParameters().put("limit", limit);
+            super.getParameters().put("offset", offset);
         }
 
         @Override
         public String getSelectStatement() {
-            return selectStatement;
-        }
-
-        @Override
-        public List<ParameterBinding> getParameterBindings() {
-            return delegate.getParameterBindings();
+            return super.getSelectStatement() +
+                    " LIMIT #{parameters.limit} OFFSET #{parameters.offset}";
         }
     }
 }
