@@ -50,7 +50,7 @@ public class InsertSelectRenderer {
                 + spaceBefore(renderedSelectStatement);
 
         return DefaultGeneralInsertStatementProvider.withInsertStatement(insertStatement)
-                .withParameters(selectStatement.getParameters())
+                .withParameterBindings(selectStatement.getParameterBindings())
                 .build();
     }
 

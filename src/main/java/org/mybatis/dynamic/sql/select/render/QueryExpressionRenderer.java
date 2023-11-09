@@ -125,8 +125,8 @@ public class QueryExpressionRenderer {
         start += renderedTable.fragment();
 
         return FragmentAndParameters.withFragment(start)
-                .withParameters(renderedTable.parameters())
-                .withParameters(columnList.parameters())
+                .withParameterBindings(renderedTable.parameterBindings())
+                .withParameterBindings(columnList.parameterBindings())
                 .build();
     }
 
@@ -143,7 +143,7 @@ public class QueryExpressionRenderer {
                 .orElse(renderedColumn.fragment());
 
         return FragmentAndParameters.withFragment(nameAndTableAlias)
-                .withParameters(renderedColumn.parameters())
+                .withParameterBindings(renderedColumn.parameterBindings())
                 .build();
     }
 

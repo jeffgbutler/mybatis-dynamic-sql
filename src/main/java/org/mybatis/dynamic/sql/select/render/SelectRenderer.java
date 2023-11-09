@@ -51,7 +51,7 @@ public class SelectRenderer {
     private SelectStatementProvider toSelectStatementProvider(FragmentCollector fragmentCollector) {
         return DefaultSelectStatementProvider
                 .withSelectStatement(fragmentCollector.collectFragments(Collectors.joining(" "))) //$NON-NLS-1$
-                .withParameters(fragmentCollector.parameters())
+                .withParameterBindings(fragmentCollector.parameterBindings())
                 .build();
     }
 

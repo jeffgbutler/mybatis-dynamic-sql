@@ -16,11 +16,11 @@
 package org.mybatis.dynamic.sql.util;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collector;
+
+import org.mybatis.dynamic.sql.render.ParameterBinding;
 
 public class FragmentCollector {
     final List<FragmentAndParameters> fragments = new ArrayList<>();
@@ -52,14 +52,14 @@ public class FragmentCollector {
 
     public FragmentAndParameters toFragmentAndParameters(Collector<CharSequence, ?, String> fragmentCollector) {
         return FragmentAndParameters.withFragment(collectFragments(fragmentCollector))
-                .withParameters(parameters())
+                .withParameterBindings(parameterBindings())
                 .build();
     }
 
-    public Map<String, Object> parameters() {
+    public List<ParameterBinding> parameterBindings() {
         return fragments.stream()
-                .map(FragmentAndParameters::parameters)
-                .collect(HashMap::new, HashMap::putAll, HashMap::putAll);
+                .map(FragmentAndParameters::parameterBindings)
+                .collect(ArrayList::new, ArrayList::addAll, ArrayList::addAll);
     }
 
     public boolean hasMultipleFragments() {

@@ -42,7 +42,8 @@ public class JoinConditionRenderer<T> implements JoinConditionVisitor<T, Fragmen
 
         return FragmentAndParameters
                 .withFragment(condition.operator() + spaceBefore(parameterInfo.renderedPlaceHolder()))
-                .withParameter(parameterInfo.parameterMapKey(), condition.value())
+                .withParameterBinding(parameterInfo.toParameterBinding(condition.value(),
+                        leftColumn.jdbcType().orElse(null)))
                 .build();
     }
 

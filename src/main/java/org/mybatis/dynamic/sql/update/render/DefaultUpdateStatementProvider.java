@@ -15,27 +15,36 @@
  */
 package org.mybatis.dynamic.sql.update.render;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.mybatis.dynamic.sql.render.ParameterBinding;
+import org.mybatis.dynamic.sql.render.ParameterBindings;
+
 public class DefaultUpdateStatementProvider implements UpdateStatementProvider {
     private final String updateStatement;
-    private final Map<String, Object> parameters = new HashMap<>();
+    private final ParameterBindings parameterBindings;
 
     private DefaultUpdateStatementProvider(Builder builder) {
         updateStatement = Objects.requireNonNull(builder.updateStatement);
-        parameters.putAll(builder.parameters);
+        parameterBindings = new ParameterBindings(builder.parameterBindings);
     }
 
     @Override
     public Map<String, Object> getParameters() {
-        return parameters;
+        return parameterBindings;
     }
 
     @Override
     public String getUpdateStatement() {
         return updateStatement;
+    }
+
+    @Override
+    public List<ParameterBinding> getParameterBindings() {
+        return parameterBindings.getParameterBindings();
     }
 
     public static Builder withUpdateStatement(String updateStatement) {
@@ -44,15 +53,15 @@ public class DefaultUpdateStatementProvider implements UpdateStatementProvider {
 
     public static class Builder {
         private String updateStatement;
-        private final Map<String, Object> parameters = new HashMap<>();
+        private final List<ParameterBinding> parameterBindings = new ArrayList<>();
 
         public Builder withUpdateStatement(String updateStatement) {
             this.updateStatement = updateStatement;
             return this;
         }
 
-        public Builder withParameters(Map<String, Object> parameters) {
-            this.parameters.putAll(parameters);
+        public Builder withParameterBindings(List<ParameterBinding> parameterBindings) {
+            this.parameterBindings.addAll(parameterBindings);
             return this;
         }
 

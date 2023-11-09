@@ -17,13 +17,29 @@ package org.mybatis.dynamic.sql.select.render;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.mybatis.dynamic.sql.render.ParameterBinding;
 
-public interface SelectStatementProvider {
-    Map<String, Object> getParameters();
+public class SelectStatementProviderAdapter implements SelectStatementProvider {
+    private final SelectStatementProvider delegate;
 
-    String getSelectStatement();
+    public SelectStatementProviderAdapter(SelectStatementProvider delegate) {
+        this.delegate = Objects.requireNonNull(delegate);
+    }
 
-    List<ParameterBinding> getParameterBindings();
+    @Override
+    public Map<String, Object> getParameters() {
+        return delegate.getParameters();
+    }
+
+    @Override
+    public String getSelectStatement() {
+        return delegate.getSelectStatement();
+    }
+
+    @Override
+    public List<ParameterBinding> getParameterBindings() {
+        return delegate.getParameterBindings();
+    }
 }

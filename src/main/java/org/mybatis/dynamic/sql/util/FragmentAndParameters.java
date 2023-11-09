@@ -15,28 +15,30 @@
  */
 package org.mybatis.dynamic.sql.util;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.UnaryOperator;
 
+import org.mybatis.dynamic.sql.render.ParameterBinding;
+
 public class FragmentAndParameters {
 
     private final String fragment;
-    private final Map<String, Object> parameters;
+    private final List<ParameterBinding> parameterBindings;
 
     private FragmentAndParameters(Builder builder) {
         fragment = Objects.requireNonNull(builder.fragment);
-        parameters = Objects.requireNonNull(builder.parameters);
+        parameterBindings = builder.parameterBindings;
     }
 
     public String fragment() {
         return fragment;
     }
 
-    public Map<String, Object> parameters() {
-        return parameters;
+    public List<ParameterBinding> parameterBindings() {
+        return parameterBindings;
     }
 
     /**
@@ -47,7 +49,7 @@ public class FragmentAndParameters {
      */
     public FragmentAndParameters mapFragment(UnaryOperator<String> mapper) {
         return FragmentAndParameters.withFragment(mapper.apply(fragment))
-                .withParameters(parameters)
+                .withParameterBindings(parameterBindings)
                 .build();
     }
 
@@ -61,20 +63,20 @@ public class FragmentAndParameters {
 
     public static class Builder {
         private String fragment;
-        private final Map<String, Object> parameters = new HashMap<>();
+        private final List<ParameterBinding> parameterBindings = new ArrayList<>();
 
         public Builder withFragment(String fragment) {
             this.fragment = fragment;
             return this;
         }
 
-        public Builder withParameter(String key, Object value) {
-            parameters.put(key, value);
+        public Builder withParameterBinding(ParameterBinding parameterBinding) {
+            parameterBindings.add(parameterBinding);
             return this;
         }
 
-        public Builder withParameters(Map<String, Object> parameters) {
-            this.parameters.putAll(parameters);
+        public Builder withParameterBindings(List<ParameterBinding> parameterBindings) {
+            this.parameterBindings.addAll(parameterBindings);
             return this;
         }
 

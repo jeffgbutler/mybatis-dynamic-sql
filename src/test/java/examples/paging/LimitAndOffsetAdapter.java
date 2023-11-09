@@ -15,11 +15,14 @@
  */
 package examples.paging;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
+import org.mybatis.dynamic.sql.render.ParameterBinding;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
@@ -69,13 +72,13 @@ public class LimitAndOffsetAdapter<R> {
     }
 
     public class LimitAndOffsetDecorator implements SelectStatementProvider {
-        private final Map<String, Object> parameters = new HashMap<>();
         private final String selectStatement;
+        private final SelectStatementProvider delegate;
 
         public LimitAndOffsetDecorator(SelectStatementProvider delegate) {
-            parameters.putAll(delegate.getParameters());
-            parameters.put("limit", limit);
-            parameters.put("offset", offset);
+            this.delegate = Objects.requireNonNull(delegate);
+            this.delegate.getParameters().put("limit", limit);
+            this.delegate.getParameters().put("offset", offset);
 
             selectStatement = delegate.getSelectStatement() +
                     " LIMIT #{parameters.limit} OFFSET #{parameters.offset}";
@@ -83,12 +86,17 @@ public class LimitAndOffsetAdapter<R> {
 
         @Override
         public Map<String, Object> getParameters() {
-            return parameters;
+            return delegate.getParameters();
         }
 
         @Override
         public String getSelectStatement() {
             return selectStatement;
+        }
+
+        @Override
+        public List<ParameterBinding> getParameterBindings() {
+            return delegate.getParameterBindings();
         }
     }
 }

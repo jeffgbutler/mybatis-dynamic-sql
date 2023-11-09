@@ -16,31 +16,34 @@
 package org.mybatis.dynamic.sql.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
+import org.mybatis.dynamic.sql.render.ParameterBinding;
 
 class FragmentCollectorTest {
 
     @Test
     void testWhereFragmentCollectorMerge() {
+        ParameterBinding pb1 = ParameterBinding.withMapKey("p1").withValue(1).build();
+        ParameterBinding pb2 = ParameterBinding.withMapKey("p1").withValue(1).build();
+
         FragmentCollector fc1 = new FragmentCollector();
         FragmentAndParameters fp1 = FragmentAndParameters.withFragment(":p1")
-                .withParameter("p1", 1)
+                .withParameterBinding(pb1)
                 .build();
         fc1.add(fp1);
 
         FragmentCollector fc2 = new FragmentCollector();
         FragmentAndParameters fp2 = FragmentAndParameters.withFragment(":p2")
-                .withParameter("p2", 2)
+                .withParameterBinding(pb2)
                 .build();
         fc2.add(fp2);
 
         fc1.merge(fc2);
 
         assertThat(fc1.collectFragments(Collectors.joining(","))).isEqualTo(":p1,:p2");
-        assertThat(fc1.parameters()).containsExactly(entry("p1", 1), entry("p2", 2));
+        assertThat(fc1.parameterBindings()).containsExactly(pb1, pb2);
     }
 }

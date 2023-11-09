@@ -15,28 +15,36 @@
  */
 package org.mybatis.dynamic.sql.select.render;
 
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.mybatis.dynamic.sql.render.ParameterBinding;
+import org.mybatis.dynamic.sql.render.ParameterBindings;
+
 public class DefaultSelectStatementProvider implements SelectStatementProvider {
     private final String selectStatement;
-    private final Map<String, Object> parameters;
+    private final ParameterBindings parameterBindings;
 
     private DefaultSelectStatementProvider(Builder builder) {
         selectStatement = Objects.requireNonNull(builder.selectStatement);
-        parameters = Collections.unmodifiableMap(Objects.requireNonNull(builder.parameters));
+        parameterBindings = new ParameterBindings(builder.parameterBindings);
     }
 
     @Override
     public Map<String, Object> getParameters() {
-        return parameters;
+        return parameterBindings;
     }
 
     @Override
     public String getSelectStatement() {
         return selectStatement;
+    }
+
+    @Override
+    public List<ParameterBinding> getParameterBindings() {
+        return parameterBindings.getParameterBindings();
     }
 
     public static Builder withSelectStatement(String selectStatement) {
@@ -45,15 +53,15 @@ public class DefaultSelectStatementProvider implements SelectStatementProvider {
 
     public static class Builder {
         private String selectStatement;
-        private final Map<String, Object> parameters = new HashMap<>();
+        private final List<ParameterBinding> parameterBindings = new ArrayList<>();
 
         public Builder withSelectStatement(String selectStatement) {
             this.selectStatement = selectStatement;
             return this;
         }
 
-        public Builder withParameters(Map<String, Object> parameters) {
-            this.parameters.putAll(parameters);
+        public Builder withParameterBindings(List<ParameterBinding> parameterBindings) {
+            this.parameterBindings.addAll(parameterBindings);
             return this;
         }
 

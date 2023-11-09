@@ -42,7 +42,7 @@ public class LimitAndOffsetPagingModelRenderer {
     private FragmentAndParameters renderLimitOnly() {
         RenderedParameterInfo parameterInfo = renderingContext.calculateParameterInfo();
         return FragmentAndParameters.withFragment("limit " + parameterInfo.renderedPlaceHolder()) //$NON-NLS-1$
-                .withParameter(parameterInfo.parameterMapKey(), limit)
+                .withParameterBinding(parameterInfo.toParameterBinding(limit))
                 .build();
     }
 
@@ -51,8 +51,8 @@ public class LimitAndOffsetPagingModelRenderer {
         RenderedParameterInfo parameterInfo2 = renderingContext.calculateParameterInfo();
         return FragmentAndParameters.withFragment("limit " + parameterInfo1.renderedPlaceHolder() //$NON-NLS-1$
                     + " offset " + parameterInfo2.renderedPlaceHolder()) //$NON-NLS-1$
-                .withParameter(parameterInfo1.parameterMapKey(), limit)
-                .withParameter(parameterInfo2.parameterMapKey(), offset)
+                .withParameterBinding(parameterInfo1.toParameterBinding(limit))
+                .withParameterBinding(parameterInfo2.toParameterBinding(offset))
                 .build();
     }
 }

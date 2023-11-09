@@ -134,7 +134,7 @@ public class CriterionRenderer implements SqlCriterionVisitor<Optional<RenderedC
 
         return FragmentAndParameters
                 .withFragment(fragment)
-                .withParameters(selectStatement.getParameters())
+                .withParameterBindings(selectStatement.getParameterBindings())
                 .build();
     }
 
@@ -161,7 +161,7 @@ public class CriterionRenderer implements SqlCriterionVisitor<Optional<RenderedC
                                                          Function<FragmentCollector, String> fragmentCalculator) {
         FragmentAndParameters fragmentAndParameters = FragmentAndParameters
                 .withFragment(fragmentCalculator.apply(fragmentCollector))
-                .withParameters(fragmentCollector.parameters())
+                .withParameterBindings(fragmentCollector.parameterBindings())
                 .build();
 
         return new RenderedCriterion.Builder()

@@ -15,10 +15,15 @@
  */
 package org.mybatis.dynamic.sql.update.render;
 
+import java.util.List;
 import java.util.Map;
+
+import org.mybatis.dynamic.sql.render.ParameterBinding;
 
 public interface UpdateStatementProvider {
     Map<String, Object> getParameters();
 
     String getUpdateStatement();
+
+    List<ParameterBinding> getParameterBindings();
 }

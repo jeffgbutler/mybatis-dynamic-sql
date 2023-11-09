@@ -15,6 +15,7 @@
  */
 package org.mybatis.dynamic.sql.render;
 
+import java.sql.JDBCType;
 import java.util.Objects;
 
 public class RenderedParameterInfo {
@@ -32,5 +33,18 @@ public class RenderedParameterInfo {
 
     public String renderedPlaceHolder() {
         return renderedPlaceHolder;
+    }
+
+    public ParameterBinding toParameterBinding(Object value) {
+        return ParameterBinding.withMapKey(parameterMapKey())
+                .withValue(value)
+                .build();
+    }
+
+    public ParameterBinding toParameterBinding(Object value, JDBCType jdbcType) {
+        return ParameterBinding.withMapKey(parameterMapKey())
+                .withValue(value)
+                .withJdbcType(jdbcType)
+                .build();
     }
 }

@@ -34,7 +34,7 @@ class RenderedCriterionTest {
 
         assertAll(
                 () -> assertThat(fp.fragment()).isEqualTo("and col1 = :p1"),
-                () -> assertThat(fp.parameters()).isEmpty()
+                () -> assertThat(fp.parameterBindings()).isEmpty()
         );
     }
 }

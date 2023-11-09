@@ -16,12 +16,12 @@
 package org.mybatis.dynamic.sql.insert.render;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import org.mybatis.dynamic.sql.render.ParameterBinding;
 
 public class FieldAndValueCollector {
     final List<FieldAndValueAndParameters> fieldsAndValues = new ArrayList<>();
@@ -68,10 +68,10 @@ public class FieldAndValueCollector {
                 .collect(Collectors.joining(", ", "(", ")")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
-    public Map<String, Object> parameters() {
+    public List<ParameterBinding> parameterBindings() {
         return fieldsAndValues.stream()
-                .map(FieldAndValueAndParameters::parameters)
-                .collect(HashMap::new, HashMap::putAll, HashMap::putAll);
+                .map(FieldAndValueAndParameters::parameterBindings)
+                .collect(ArrayList::new, ArrayList::addAll, ArrayList::addAll);
     }
 
     public static Collector<FieldAndValueAndParameters, FieldAndValueCollector, FieldAndValueCollector> collect() {

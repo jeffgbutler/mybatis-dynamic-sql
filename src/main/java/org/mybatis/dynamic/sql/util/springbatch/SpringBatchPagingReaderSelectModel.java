@@ -15,11 +15,9 @@
  */
 package org.mybatis.dynamic.sql.util.springbatch;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
+import org.mybatis.dynamic.sql.select.render.SelectStatementProviderAdapter;
 
 public class SpringBatchPagingReaderSelectModel {
 
@@ -35,25 +33,15 @@ public class SpringBatchPagingReaderSelectModel {
         return new LimitAndOffsetDecorator(selectStatement);
     }
 
-    public static class LimitAndOffsetDecorator implements SelectStatementProvider {
-        private final Map<String, Object> parameters = new HashMap<>();
-        private final String selectStatement;
-
+    public static class LimitAndOffsetDecorator extends SelectStatementProviderAdapter {
         public LimitAndOffsetDecorator(SelectStatementProvider delegate) {
-            parameters.putAll(delegate.getParameters());
-
-            selectStatement = delegate.getSelectStatement()
-                    + " LIMIT #{_pagesize} OFFSET #{_skiprows}"; //$NON-NLS-1$
-        }
-
-        @Override
-        public Map<String, Object> getParameters() {
-            return parameters;
+            super(delegate);
         }
 
         @Override
         public String getSelectStatement() {
-            return selectStatement;
+            return super.getSelectStatement()
+                + " LIMIT #{_pagesize} OFFSET #{_skiprows}"; //$NON-NLS-1$
         }
     }
 }

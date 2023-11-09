@@ -50,7 +50,7 @@ public class GeneralInsertRenderer {
         String insertStatement = InsertRenderingUtilities.calculateInsertStatement(model.table(), collector);
 
         return DefaultGeneralInsertStatementProvider.withInsertStatement(insertStatement)
-                .withParameters(collector.parameters())
+                .withParameterBindings(collector.parameterBindings())
                 .build();
     }
 

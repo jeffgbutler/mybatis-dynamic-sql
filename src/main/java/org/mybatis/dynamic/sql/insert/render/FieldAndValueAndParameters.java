@@ -15,20 +15,22 @@
  */
 package org.mybatis.dynamic.sql.insert.render;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
+import org.mybatis.dynamic.sql.render.ParameterBinding;
 
 public class FieldAndValueAndParameters {
     private final String fieldName;
     private final String valuePhrase;
-    private final Map<String, Object> parameters;
+    private final List<ParameterBinding> parameterBindings;
 
     private FieldAndValueAndParameters(Builder builder) {
         fieldName = Objects.requireNonNull(builder.fieldName);
         valuePhrase = Objects.requireNonNull(builder.valuePhrase);
-        parameters = builder.parameters;
+        parameterBindings = builder.parameterBindings;
     }
 
     public String fieldName() {
@@ -39,8 +41,8 @@ public class FieldAndValueAndParameters {
         return valuePhrase;
     }
 
-    public Map<String, Object> parameters() {
-        return parameters;
+    public List<ParameterBinding> parameterBindings() {
+        return parameterBindings;
     }
 
     public static Builder withFieldName(String fieldName) {
@@ -50,7 +52,7 @@ public class FieldAndValueAndParameters {
     public static class Builder {
         private String fieldName;
         private String valuePhrase;
-        private final Map<String, Object> parameters = new HashMap<>();
+        private final List<ParameterBinding> parameterBindings = new ArrayList<>();
 
         public Builder withFieldName(String fieldName) {
             this.fieldName = fieldName;
@@ -62,8 +64,8 @@ public class FieldAndValueAndParameters {
             return this;
         }
 
-        public Builder withParameter(String key, Object value) {
-            parameters.put(key, value);
+        public Builder withParameterBinding(ParameterBinding parameterBinding) {
+            parameterBindings.add(parameterBinding);
             return this;
         }
 

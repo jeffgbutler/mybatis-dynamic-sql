@@ -61,7 +61,7 @@ public class DeleteRenderer {
     private DeleteStatementProvider toDeleteStatementProvider(FragmentCollector fragmentCollector) {
         return DefaultDeleteStatementProvider
                 .withDeleteStatement(fragmentCollector.collectFragments(Collectors.joining(" "))) //$NON-NLS-1$
-                .withParameters(fragmentCollector.parameters())
+                .withParameterBindings(fragmentCollector.parameterBindings())
                 .build();
     }
 
@@ -89,7 +89,7 @@ public class DeleteRenderer {
         RenderedParameterInfo parameterInfo = renderingContext.calculateParameterInfo();
 
         return FragmentAndParameters.withFragment("limit " + parameterInfo.renderedPlaceHolder()) //$NON-NLS-1$
-                .withParameter(parameterInfo.parameterMapKey(), limit)
+                .withParameterBinding(parameterInfo.toParameterBinding(limit))
                 .build();
     }
 

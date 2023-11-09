@@ -15,10 +15,15 @@
  */
 package org.mybatis.dynamic.sql.delete.render;
 
+import java.util.List;
 import java.util.Map;
+
+import org.mybatis.dynamic.sql.render.ParameterBinding;
 
 public interface DeleteStatementProvider {
     Map<String, Object> getParameters();
 
     String getDeleteStatement();
+
+    List<ParameterBinding> getParameterBindings();
 }

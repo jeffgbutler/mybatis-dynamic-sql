@@ -53,8 +53,8 @@ public class JoinRenderer {
                 + spaceBefore(renderedJoin.fragment());
 
         return FragmentAndParameters.withFragment(fragment)
-                .withParameters(renderedTable.parameters())
-                .withParameters(renderedJoin.parameters())
+                .withParameterBindings(renderedTable.parameterBindings())
+                .withParameterBindings(renderedJoin.parameterBindings())
                 .build();
     }
 
@@ -78,8 +78,8 @@ public class JoinRenderer {
         FragmentAndParameters suffix = joinCriterion.joinCondition().accept(joinConditionRenderer);
 
         return FragmentAndParameters.withFragment(prefix + spaceBefore(suffix.fragment()))
-                .withParameters(suffix.parameters())
-                .withParameters(renderedColumn.parameters())
+                .withParameterBindings(suffix.parameterBindings())
+                .withParameterBindings(renderedColumn.parameterBindings())
                 .build();
     }
 

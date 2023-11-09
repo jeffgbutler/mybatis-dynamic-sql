@@ -15,23 +15,32 @@
  */
 package org.mybatis.dynamic.sql.insert.render;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import org.mybatis.dynamic.sql.render.ParameterBinding;
+import org.mybatis.dynamic.sql.render.ParameterBindings;
 
 public class DefaultGeneralInsertStatementProvider
         implements GeneralInsertStatementProvider, InsertSelectStatementProvider {
     private final String insertStatement;
-    private final Map<String, Object> parameters = new HashMap<>();
+    private final ParameterBindings parameters;
 
     private DefaultGeneralInsertStatementProvider(Builder builder) {
         insertStatement = Objects.requireNonNull(builder.insertStatement);
-        parameters.putAll(builder.parameters);
+        parameters = new ParameterBindings(builder.parameterBindings);
     }
 
     @Override
     public Map<String, Object> getParameters() {
         return parameters;
+    }
+
+    @Override
+    public List<ParameterBinding> getParameterBindings() {
+        return parameters.getParameterBindings();
     }
 
     @Override
@@ -45,15 +54,15 @@ public class DefaultGeneralInsertStatementProvider
 
     public static class Builder {
         private String insertStatement;
-        private final Map<String, Object> parameters = new HashMap<>();
+        private final List<ParameterBinding> parameterBindings = new ArrayList<>();
 
         public Builder withInsertStatement(String insertStatement) {
             this.insertStatement = insertStatement;
             return this;
         }
 
-        public Builder withParameters(Map<String, Object> parameters) {
-            this.parameters.putAll(parameters);
+        public Builder withParameterBindings(List<ParameterBinding> parameterBindings) {
+            this.parameterBindings.addAll(parameterBindings);
             return this;
         }
 

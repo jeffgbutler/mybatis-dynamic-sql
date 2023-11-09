@@ -16,7 +16,6 @@
 package org.mybatis.dynamic.sql.where.render;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 
 import java.sql.JDBCType;
 import java.util.HashMap;
@@ -27,6 +26,7 @@ import org.mybatis.dynamic.sql.ColumnAndConditionCriterion;
 import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.render.ExplicitTableAliasCalculator;
+import org.mybatis.dynamic.sql.render.ParameterBinding;
 import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
@@ -53,7 +53,8 @@ class CriterionRendererTest {
         assertThat(criterion.accept(renderer)).hasValueSatisfying(rc -> {
             FragmentAndParameters fp = rc.fragmentAndParameters();
             assertThat(fp.fragment()).isEqualTo("id = #{parameters.p1,jdbcType=INTEGER}");
-            assertThat(fp.parameters()).containsExactly(entry("p1", 3));
+            assertThat(fp.parameterBindings()).containsExactly(
+                    ParameterBinding.withMapKey("p1").withValue(3).withJdbcType(JDBCType.INTEGER).build());
         });
     }
 
@@ -79,7 +80,8 @@ class CriterionRendererTest {
         assertThat(criterion.accept(renderer)).hasValueSatisfying(rc -> {
             FragmentAndParameters fp = rc.fragmentAndParameters();
             assertThat(fp.fragment()).isEqualTo("a.id = #{parameters.p1,jdbcType=INTEGER}");
-            assertThat(fp.parameters()).containsExactly(entry("p1", 3));
+            assertThat(fp.parameterBindings()).containsExactly(
+                    ParameterBinding.withMapKey("p1").withJdbcType(JDBCType.INTEGER).withValue(3).build());
         });
     }
 }

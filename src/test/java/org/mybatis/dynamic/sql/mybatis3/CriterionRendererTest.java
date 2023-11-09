@@ -52,7 +52,7 @@ class CriterionRendererTest {
         assertThat(criterion.accept(renderer)).hasValueSatisfying(rc -> {
             FragmentAndParameters fp = rc.fragmentAndParametersWithConnector();
             assertThat(fp.fragment()).isEqualTo("id = #{parameters.p1,jdbcType=INTEGER}");
-            assertThat(fp.parameters()).hasSize(1);
+            assertThat(fp.parameterBindings()).hasSize(1);
         });
     }
 
@@ -77,7 +77,7 @@ class CriterionRendererTest {
         assertThat(criterion.accept(renderer)).hasValueSatisfying(rc -> {
             FragmentAndParameters fp = rc.fragmentAndParametersWithConnector();
             assertThat(fp.fragment()).isEqualTo("a.id = #{parameters.p1,jdbcType=INTEGER}");
-            assertThat(fp.parameters()).hasSize(1);
+            assertThat(fp.parameterBindings()).hasSize(1);
         });
     }
 
@@ -104,7 +104,7 @@ class CriterionRendererTest {
         assertThat(criterion.accept(renderer)).hasValueSatisfying(rc -> {
             FragmentAndParameters fp = rc.fragmentAndParametersWithConnector();
             assertThat(fp.fragment()).isEqualTo("id = #{parameters.p1,jdbcType=DATE,typeHandler=foo.Bar}");
-            assertThat(fp.parameters()).hasSize(1);
+            assertThat(fp.parameterBindings()).hasSize(1);
         });
     }
 
@@ -129,7 +129,7 @@ class CriterionRendererTest {
         assertThat(criterion.accept(renderer)).hasValueSatisfying(rc -> {
             FragmentAndParameters fp = rc.fragmentAndParametersWithConnector();
             assertThat(fp.fragment()).isEqualTo("a.id = #{parameters.p1,jdbcType=INTEGER,typeHandler=foo.Bar}");
-            assertThat(fp.parameters()).hasSize(1);
+            assertThat(fp.parameterBindings()).hasSize(1);
         });
     }
 }

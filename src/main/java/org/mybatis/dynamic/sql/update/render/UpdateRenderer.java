@@ -65,7 +65,7 @@ public class UpdateRenderer {
     private UpdateStatementProvider toUpdateStatementProvider(FragmentCollector fragmentCollector) {
         return DefaultUpdateStatementProvider
                 .withUpdateStatement(fragmentCollector.collectFragments(Collectors.joining(" "))) //$NON-NLS-1$
-                .withParameters(fragmentCollector.parameters())
+                .withParameterBindings(fragmentCollector.parameterBindings())
                 .build();
     }
 
@@ -117,7 +117,7 @@ public class UpdateRenderer {
         RenderedParameterInfo parameterInfo = renderingContext.calculateParameterInfo();
 
         return FragmentAndParameters.withFragment("limit " + parameterInfo.renderedPlaceHolder()) //$NON-NLS-1$
-                .withParameter(parameterInfo.parameterMapKey(), limit)
+                .withParameterBinding(parameterInfo.toParameterBinding(limit))
                 .build();
     }
 

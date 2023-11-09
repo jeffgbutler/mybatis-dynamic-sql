@@ -37,6 +37,7 @@ import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.exception.InvalidSqlException;
+import org.mybatis.dynamic.sql.render.ParameterBinding;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
@@ -44,6 +45,8 @@ import org.mybatis.dynamic.sql.util.mybatis3.CommonSelectMapper;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.sql.JDBCType;
 
 @Testcontainers
 class Gh655Test {
@@ -129,5 +132,22 @@ class Gh655Test {
         assertThat(selectStatement.getSelectStatement()).isEqualTo(expected);
         assertThat(selectStatement.getParameters()).containsEntry("p1", 5);
         assertThat(selectStatement.getParameters()).containsEntry("p2", 5);
+    }
+
+    @Test
+    void columnComparisonRaw() {
+        // this is a nonsensical query just to test that rendering works as expected
+        SelectStatementProvider selectStatement = select(sum(id, isGreaterThan(5)).as("numrows"))
+                .from(items)
+                .where(id, isGreaterThan(sum(id, isGreaterThan(6))))
+                .build()
+                .render(RenderingStrategies.RAW_JDBC);
+
+        String expected = "select sum(id > ?) as numrows from items where id > sum(id > ?)";
+        assertThat(selectStatement.getSelectStatement()).isEqualTo(expected);
+        assertThat(selectStatement.getParameterBindings().get(0)).isEqualTo(
+                ParameterBinding.withMapKey("1").withJdbcType(JDBCType.INTEGER).withValue(5).build());
+        assertThat(selectStatement.getParameterBindings().get(1)).isEqualTo(
+                ParameterBinding.withMapKey("2").withJdbcType(JDBCType.INTEGER).withValue(6).build());
     }
 }

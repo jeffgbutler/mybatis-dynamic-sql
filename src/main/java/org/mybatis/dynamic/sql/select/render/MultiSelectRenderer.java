@@ -57,7 +57,7 @@ public class MultiSelectRenderer {
     private SelectStatementProvider toSelectStatementProvider(FragmentCollector fragmentCollector) {
         return DefaultSelectStatementProvider
                 .withSelectStatement(fragmentCollector.collectFragments(Collectors.joining(" "))) //$NON-NLS-1$
-                .withParameters(fragmentCollector.parameters())
+                .withParameterBindings(fragmentCollector.parameterBindings())
                 .build();
     }
 
@@ -69,7 +69,7 @@ public class MultiSelectRenderer {
 
         return FragmentAndParameters
                 .withFragment("(" + selectStatement.getSelectStatement() + ")") //$NON-NLS-1$ //$NON-NLS-2$
-                .withParameters(selectStatement.getParameters())
+                .withParameterBindings(selectStatement.getParameterBindings())
                 .build();
     }
 
@@ -81,7 +81,7 @@ public class MultiSelectRenderer {
 
         return FragmentAndParameters.withFragment(
                 unionQuery.connector() + " (" + selectStatement.getSelectStatement() + ")") //$NON-NLS-1$ //$NON-NLS-2$
-                .withParameters(selectStatement.getParameters())
+                .withParameterBindings(selectStatement.getParameterBindings())
                 .build();
     }
 

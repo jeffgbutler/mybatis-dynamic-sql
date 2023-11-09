@@ -88,7 +88,8 @@ public class GeneralInsertValuePhraseVisitor extends GeneralInsertMappingVisitor
 
         return FieldAndValueAndParameters.withFieldName(mapping.columnName())
                 .withValuePhrase(parameterInfo.renderedPlaceHolder())
-                .withParameter(parameterInfo.parameterMapKey(), value)
+                .withParameterBinding(parameterInfo.toParameterBinding(value,
+                        mapping.mapColumn(c -> c.jdbcType().orElse(null))))
                 .buildOptional();
     }
 }

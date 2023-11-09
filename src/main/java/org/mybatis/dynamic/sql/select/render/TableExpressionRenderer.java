@@ -50,7 +50,7 @@ public class TableExpressionRenderer implements TableExpressionVisitor<FragmentA
         fragment = applyAlias(fragment, subQuery);
 
         return FragmentAndParameters.withFragment(fragment)
-                .withParameters(selectStatement.getParameters())
+                .withParameterBindings(selectStatement.getParameterBindings())
                 .build();
     }
 

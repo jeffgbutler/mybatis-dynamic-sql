@@ -17,6 +17,7 @@ package org.mybatis.dynamic.sql.where.render;
 
 import static org.mybatis.dynamic.sql.util.StringUtilities.spaceBefore;
 
+import java.sql.JDBCType;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -58,8 +59,8 @@ public class DefaultConditionVisitor<T> implements ConditionVisitor<T, FragmentA
 
         return FragmentAndParameters
                 .withFragment(finalFragment)
-                .withParameters(fc.parameters())
-                .withParameters(renderedLeftColumn.parameters())
+                .withParameterBindings(fc.parameterBindings())
+                .withParameterBindings(renderedLeftColumn.parameterBindings())
                 .build();
     }
 
@@ -69,7 +70,7 @@ public class DefaultConditionVisitor<T> implements ConditionVisitor<T, FragmentA
         String finalFragment = condition.overrideRenderedLeftColumn(renderedLeftColumn.fragment())
                 + spaceBefore(condition.operator());
         return FragmentAndParameters.withFragment(finalFragment)
-                .withParameters(renderedLeftColumn.parameters())
+                .withParameterBindings(renderedLeftColumn.parameterBindings())
                 .build();
     }
 
@@ -82,8 +83,9 @@ public class DefaultConditionVisitor<T> implements ConditionVisitor<T, FragmentA
                 + spaceBefore(parameterInfo.renderedPlaceHolder());
 
         return FragmentAndParameters.withFragment(finalFragment)
-                .withParameter(parameterInfo.parameterMapKey(), convertValue(condition.value()))
-                .withParameters(renderedLeftColumn.parameters())
+                .withParameterBinding(parameterInfo.toParameterBinding(convertValue(condition.value()),
+                        calculateJdbcType()))
+                .withParameterBindings(renderedLeftColumn.parameterBindings())
                 .build();
     }
 
@@ -98,11 +100,12 @@ public class DefaultConditionVisitor<T> implements ConditionVisitor<T, FragmentA
                 + spaceBefore(parameterInfo1.renderedPlaceHolder())
                 + spaceBefore(condition.operator2())
                 + spaceBefore(parameterInfo2.renderedPlaceHolder());
-
         return FragmentAndParameters.withFragment(finalFragment)
-                .withParameter(parameterInfo1.parameterMapKey(), convertValue(condition.value1()))
-                .withParameter(parameterInfo2.parameterMapKey(), convertValue(condition.value2()))
-                .withParameters(renderedLeftColumn.parameters())
+                .withParameterBinding(parameterInfo1.toParameterBinding(convertValue(condition.value1()),
+                        calculateJdbcType()))
+                .withParameterBinding(parameterInfo2.toParameterBinding(convertValue(condition.value2()),
+                        calculateJdbcType()))
+                .withParameterBindings(renderedLeftColumn.parameterBindings())
                 .build();
     }
 
@@ -121,8 +124,8 @@ public class DefaultConditionVisitor<T> implements ConditionVisitor<T, FragmentA
                 + ")"; //$NON-NLS-1$
 
         return FragmentAndParameters.withFragment(finalFragment)
-                .withParameters(selectStatement.getParameters())
-                .withParameters(renderedLeftColumn.parameters())
+                .withParameterBindings(selectStatement.getParameterBindings())
+                .withParameterBindings(renderedLeftColumn.parameterBindings())
                 .build();
     }
 
@@ -134,8 +137,8 @@ public class DefaultConditionVisitor<T> implements ConditionVisitor<T, FragmentA
                 + spaceBefore(condition.operator())
                 + spaceBefore(renderedRightColumn.fragment());
         return FragmentAndParameters.withFragment(finalFragment)
-                .withParameters(renderedLeftColumn.parameters())
-                .withParameters(renderedRightColumn.parameters())
+                .withParameterBindings(renderedLeftColumn.parameterBindings())
+                .withParameterBindings(renderedRightColumn.parameterBindings())
                 .build();
     }
 
@@ -146,8 +149,12 @@ public class DefaultConditionVisitor<T> implements ConditionVisitor<T, FragmentA
     private FragmentAndParameters toFragmentAndParameters(T value) {
         RenderedParameterInfo parameterInfo = renderingContext.calculateParameterInfo(column);
         return FragmentAndParameters.withFragment(parameterInfo.renderedPlaceHolder())
-                .withParameter(parameterInfo.parameterMapKey(), convertValue(value))
+                .withParameterBinding(parameterInfo.toParameterBinding(convertValue(value), calculateJdbcType()))
                 .build();
+    }
+
+    private JDBCType calculateJdbcType() {
+        return column.jdbcType().orElse(null);
     }
 
     public static <T> Builder<T> withColumn(BindableColumn<T> column) {

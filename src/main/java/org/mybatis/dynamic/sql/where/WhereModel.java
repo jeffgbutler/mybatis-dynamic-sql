@@ -97,7 +97,7 @@ public class WhereModel extends AbstractBooleanExpressionModel {
 
     private WhereClauseProvider toWhereClauseProvider(FragmentAndParameters fragmentAndParameters) {
         return WhereClauseProvider.withWhereClause(fragmentAndParameters.fragment())
-                .withParameters(fragmentAndParameters.parameters())
+                .withParameterBindings(fragmentAndParameters.parameterBindings())
                 .build();
     }
 }
