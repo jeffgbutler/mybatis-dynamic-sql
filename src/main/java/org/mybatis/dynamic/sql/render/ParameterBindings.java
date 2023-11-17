@@ -20,12 +20,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mybatis.dynamic.sql.util.Messages;
 
 public class ParameterBindings implements Map<String, Object> {
 
@@ -65,21 +65,22 @@ public class ParameterBindings implements Map<String, Object> {
 
     @Override
     public Object get(Object key) {
-        return parameterBindingList.stream()
-                .filter(pb -> Objects.equals(pb.getMapKey(), key))
-                .findFirst().map(ParameterBinding::getValue).orElse(null);
+        return findEntry(key).map(ParameterBinding::getValue).orElse(null);
     }
 
     @Nullable
     @Override
     public Object put(String key, Object value) {
-        if (containsKey(key)) {
-            throw new IllegalArgumentException(Messages.getString("ERROR.39")); //$NON-NLS-1$
-        }
+        return findEntry(key)
+                .map(pb -> pb.replaceValue(value))
+                .orElseGet(() -> {
+                    parameterBindingList.add(toBinding(key, value));
+                    return null;
+                });
+    }
 
-        // In general, this should only be used by MyBatis when returning generated keys
-        parameterBindingList.add(toBinding(key, value));
-        return null;
+    private Optional<ParameterBinding> findEntry(Object key) {
+        return parameterBindingList.stream().filter(pb -> Objects.equals(pb.getMapKey(), key)).findFirst();
     }
 
     @Override
@@ -145,7 +146,7 @@ public class ParameterBindings implements Map<String, Object> {
 
             @Override
             public Object setValue(Object value) {
-                throw new UnsupportedOperationException();
+                return parameterBinding.replaceValue(value);
             }
         };
     }

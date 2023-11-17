@@ -16,7 +16,6 @@
 package org.mybatis.dynamic.sql.render;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,7 +25,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
-import org.mybatis.dynamic.sql.util.Messages;
 
 class ParameterBindingsTest {
 
@@ -46,8 +44,7 @@ class ParameterBindingsTest {
         ParameterBindings pb = new ParameterBindings(new ArrayList<>());
 
         pb.put("1", 1);
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> pb.put("1", 2))
-                .withMessage(Messages.getString("ERROR.39"));
+        assertThat(pb.put("1", 2)).isEqualTo(1);
     }
 
     @Test
@@ -109,7 +106,7 @@ class ParameterBindingsTest {
     }
 
     @Test
-    void testImmutableEntry() {
+    void testUpdateEntry() {
         ParameterBindings pb = new ParameterBindings(new ArrayList<>());
 
         pb.put("1", 1);
@@ -122,6 +119,6 @@ class ParameterBindingsTest {
 
         Map.Entry<String, Object> entry = optionalEntry.get();
 
-        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> entry.setValue(3));
+        assertThat(entry.setValue(3)).isEqualTo(1);
     }
 }

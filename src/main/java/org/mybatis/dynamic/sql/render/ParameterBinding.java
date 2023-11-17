@@ -21,7 +21,7 @@ import java.util.Optional;
 
 public class ParameterBinding {
     private final String mapKey;
-    private final Object value;
+    private Object value;
     private final JDBCType jdbcType;
 
     private ParameterBinding(Builder builder) {
@@ -36,6 +36,12 @@ public class ParameterBinding {
 
     public Object getValue() {
         return value;
+    }
+
+    public Object replaceValue(Object value) {
+        Object existingValue = this.value;
+        this.value = value;
+        return existingValue;
     }
 
     public Optional<JDBCType> getJdbcType() {
