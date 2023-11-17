@@ -17,7 +17,8 @@ package examples.springbatch.paging;
 
 import static examples.springbatch.mapper.PersonDynamicSqlSupport.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mybatis.dynamic.sql.SqlBuilder.*;
+import static org.mybatis.dynamic.sql.SqlBuilder.count;
+import static org.mybatis.dynamic.sql.SqlBuilder.isEqualTo;
 
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -82,7 +83,7 @@ class SpringBatchPagingTest {
         return executionContext.getInt("chunk_count", 0);
     }
 
-    private long upperCaseRowCount() throws Exception {
+    private long upperCaseRowCount() {
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
             PersonMapper personMapper = sqlSession.getMapper(PersonMapper.class);
 
