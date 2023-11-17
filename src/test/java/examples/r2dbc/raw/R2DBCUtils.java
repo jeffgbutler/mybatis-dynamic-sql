@@ -29,9 +29,18 @@ public class R2DBCUtils {
     }
 
     private static Statement createStatement(Connection connection, String sql, Map<String, Object> parameters) {
+        // TODO...when we merge the parameter bindings branch,
+        // change this to use the bindings rather than the parameter map
         Statement statement = connection.createStatement(sql);
 
-        parameters.forEach(statement::bind);
+        parameters.forEach((k, v) -> {
+            if (v == null) {
+                // TODO - change to class from parameter binding
+                statement.bindNull(k, Double.class);
+            } else {
+                statement.bind(k, v);
+            }
+        });
 
         return statement;
     }
