@@ -63,6 +63,7 @@ public class ParameterBindings implements Map<String, Object> {
                 .anyMatch(v -> Objects.equals(v, value));
     }
 
+    @Nullable
     @Override
     public Object get(Object key) {
         return findEntry(key).map(ParameterBinding::getValue).orElse(null);
@@ -83,6 +84,7 @@ public class ParameterBindings implements Map<String, Object> {
         return parameterBindingList.stream().filter(pb -> Objects.equals(pb.getMapKey(), key)).findFirst();
     }
 
+    @Nullable
     @Override
     public Object remove(Object key) {
         Object value = null;

@@ -19,6 +19,8 @@ import java.sql.JDBCType;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.jetbrains.annotations.Nullable;
+
 public class ParameterBinding {
     private final String mapKey;
     private Object value;
@@ -34,6 +36,7 @@ public class ParameterBinding {
         return mapKey;
     }
 
+    @Nullable
     public Object getValue() {
         return value;
     }
