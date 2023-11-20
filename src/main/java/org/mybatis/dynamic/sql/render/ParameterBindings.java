@@ -19,7 +19,6 @@ import java.util.AbstractMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,16 +40,14 @@ public class ParameterBindings extends AbstractMap<String, Object> {
     @Nullable
     @Override
     public Object put(String key, Object value) {
-        return findEntry(key)
+        return parameterBindingList.stream()
+                .filter(pb -> Objects.equals(pb.getMapKey(), key))
+                .findFirst()
                 .map(pb -> pb.replaceValue(value))
                 .orElseGet(() -> {
                     parameterBindingList.add(toBinding(key, value));
                     return null;
                 });
-    }
-
-    private Optional<ParameterBinding> findEntry(Object key) {
-        return parameterBindingList.stream().filter(pb -> Objects.equals(pb.getMapKey(), key)).findFirst();
     }
 
     @Nullable
