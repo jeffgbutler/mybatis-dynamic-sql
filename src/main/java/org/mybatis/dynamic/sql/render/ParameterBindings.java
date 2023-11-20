@@ -15,10 +15,9 @@
  */
 package org.mybatis.dynamic.sql.render;
 
-import java.util.Collection;
+import java.util.AbstractMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -27,7 +26,7 @@ import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ParameterBindings implements Map<String, Object> {
+public class ParameterBindings extends AbstractMap<String, Object> {
 
     private final List<ParameterBinding> parameterBindingList;
 
@@ -37,36 +36,6 @@ public class ParameterBindings implements Map<String, Object> {
 
     public List<ParameterBinding> getParameterBindings() {
         return parameterBindingList;
-    }
-
-    @Override
-    public int size() {
-        return parameterBindingList.size();
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return parameterBindingList.isEmpty();
-    }
-
-    @Override
-    public boolean containsKey(Object key) {
-        return parameterBindingList.stream()
-                .map(ParameterBinding::getMapKey)
-                .anyMatch(k -> Objects.equals(k, key));
-    }
-
-    @Override
-    public boolean containsValue(Object value) {
-        return parameterBindingList.stream()
-                .map(ParameterBinding::getValue)
-                .anyMatch(v -> Objects.equals(v, value));
-    }
-
-    @Nullable
-    @Override
-    public Object get(Object key) {
-        return findEntry(key).map(ParameterBinding::getValue).orElse(null);
     }
 
     @Nullable
@@ -102,35 +71,15 @@ public class ParameterBindings implements Map<String, Object> {
     }
 
     @Override
-    public void putAll(@NotNull Map<? extends String, ?> m) {
-        m.forEach(this::put);
-    }
-
-    @Override
     public void clear() {
         parameterBindingList.clear();
     }
 
     @NotNull
     @Override
-    public Set<String> keySet() {
-        return parameterBindingList.stream()
-                .map(ParameterBinding::getMapKey)
-                .collect(Collectors.toSet());
-    }
-
-    @NotNull
-    @Override
-    public Collection<Object> values() {
-        return parameterBindingList.stream()
-                .map(ParameterBinding::getValue)
-                .collect(Collectors.toList());
-    }
-
-    @NotNull
-    @Override
     public Set<Entry<String, Object>> entrySet() {
-        return parameterBindingList.stream().map(this::toEntry)
+        return parameterBindingList.stream()
+                .map(this::toEntry)
                 .collect(Collectors.toSet());
     }
 

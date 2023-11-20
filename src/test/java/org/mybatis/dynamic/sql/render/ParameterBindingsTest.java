@@ -16,6 +16,7 @@
 package org.mybatis.dynamic.sql.render;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -69,6 +70,7 @@ class ParameterBindingsTest {
 
         assertThat(prev).isEqualTo(2);
         assertThat(pb).hasSize(1);
+        assertThat(pb).containsOnly(entry("1", 1));
     }
 
     @Test
@@ -102,7 +104,7 @@ class ParameterBindingsTest {
         Collection<Object> values = pb.values();
         assertThat(values)
                 .hasSize(2)
-                .containsExactly(1, 2);
+                .containsOnly(1, 2);
     }
 
     @Test
@@ -111,14 +113,15 @@ class ParameterBindingsTest {
 
         pb.put("1", 1);
 
+        assertThat(pb).contains(entry("1", 1));
+
         Set<Map.Entry<String, Object>> entrySet = pb.entrySet();
 
         Optional<Map.Entry<String, Object>> optionalEntry = entrySet.stream().findFirst();
-
         assertThat(optionalEntry).isPresent();
-
         Map.Entry<String, Object> entry = optionalEntry.get();
-
         assertThat(entry.setValue(3)).isEqualTo(1);
+
+        assertThat(pb).contains(entry("1", 3));
     }
 }
