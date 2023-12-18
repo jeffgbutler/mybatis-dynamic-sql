@@ -37,6 +37,12 @@ public class FragmentCollector {
         fragments.add(fragmentAndParameters);
     }
 
+    public void addIfNonNull(FragmentAndParameters fragmentAndParameters) {
+        if (fragmentAndParameters != null) {
+            fragments.add(fragmentAndParameters);
+        }
+    }
+
     public FragmentCollector merge(FragmentCollector other) {
         fragments.addAll(other.fragments);
         return this;

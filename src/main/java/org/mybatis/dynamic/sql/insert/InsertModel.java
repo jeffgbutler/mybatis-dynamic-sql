@@ -18,6 +18,7 @@ package org.mybatis.dynamic.sql.insert;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -33,11 +34,13 @@ public class InsertModel<T> {
     private final SqlTable table;
     private final T row;
     private final List<AbstractColumnMapping> columnMappings;
+    private final Consumer<InsertStatementComposer<T>> renderingHook;
 
     private InsertModel(Builder<T> builder) {
         table = Objects.requireNonNull(builder.table);
         row = Objects.requireNonNull(builder.row);
         columnMappings = Objects.requireNonNull(builder.columnMappings);
+        renderingHook = Objects.requireNonNull(builder.renderingHook);
         Validator.assertNotEmpty(columnMappings, "ERROR.7"); //$NON-NLS-1$
     }
 
@@ -57,6 +60,7 @@ public class InsertModel<T> {
     public InsertStatementProvider<T> render(RenderingStrategy renderingStrategy) {
         return InsertRenderer.withInsertModel(this)
                 .withRenderingStrategy(renderingStrategy)
+                .withRenderingHook(renderingHook)
                 .build()
                 .render();
     }
@@ -69,6 +73,7 @@ public class InsertModel<T> {
         private SqlTable table;
         private T row;
         private final List<AbstractColumnMapping> columnMappings = new ArrayList<>();
+        private Consumer<InsertStatementComposer<T>> renderingHook = c -> {};
 
         public Builder<T> withTable(SqlTable table) {
             this.table = table;
@@ -82,6 +87,11 @@ public class InsertModel<T> {
 
         public Builder<T> withColumnMappings(List<? extends AbstractColumnMapping> columnMappings) {
             this.columnMappings.addAll(columnMappings);
+            return this;
+        }
+
+        public Builder<T> withRenderingHook(Consumer<InsertStatementComposer<T>> renderingHook) {
+            this.renderingHook = renderingHook;
             return this;
         }
 

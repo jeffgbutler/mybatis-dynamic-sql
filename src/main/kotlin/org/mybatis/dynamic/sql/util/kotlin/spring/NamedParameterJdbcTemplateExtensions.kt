@@ -265,7 +265,10 @@ class KeyHolderHelper(private val keyHolder: KeyHolder, private val template: Na
         template.generalInsert(org.mybatis.dynamic.sql.util.kotlin.spring.insertInto(table, completer), keyHolder)
 
     fun <T : Any> insert(row: T, completer: KotlinInsertCompleter<T>): Int =
-        template.insert(org.mybatis.dynamic.sql.util.kotlin.spring.insert(row, completer), keyHolder)
+        insert(org.mybatis.dynamic.sql.util.kotlin.spring.insert(row, completer))
+
+    fun <T : Any> insert(insertStatement: InsertStatementProvider<T>): Int =
+        template.insert(insertStatement, keyHolder)
 
     fun <T : Any> insertMultiple(vararg records: T, completer: KotlinMultiRowInsertCompleter<T>): Int =
         insertMultiple(records.asList(), completer)

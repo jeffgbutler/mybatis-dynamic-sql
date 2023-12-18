@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.jetbrains.annotations.NotNull;
@@ -38,11 +39,13 @@ public class InsertDSL<T> implements Buildable<InsertModel<T>> {
     private final T row;
     private final SqlTable table;
     private final List<AbstractColumnMapping> columnMappings;
+    private Consumer<InsertStatementComposer<T>> renderingHook;
 
     private InsertDSL(Builder<T> builder) {
         this.row = Objects.requireNonNull(builder.row);
         this.table = Objects.requireNonNull(builder.table);
         columnMappings = builder.columnMappings;
+        renderingHook = Objects.requireNonNull(builder.renderingHook);
     }
 
     public <F> ColumnMappingFinisher<F> map(SqlColumn<F> column) {
@@ -55,6 +58,7 @@ public class InsertDSL<T> implements Buildable<InsertModel<T>> {
         return InsertModel.withRow(row)
                 .withTable(table)
                 .withColumnMappings(columnMappings)
+                .withRenderingHook(renderingHook)
                 .build();
     }
 
@@ -116,6 +120,7 @@ public class InsertDSL<T> implements Buildable<InsertModel<T>> {
         private T row;
         private SqlTable table;
         private final List<AbstractColumnMapping> columnMappings = new ArrayList<>();
+        private Consumer<InsertStatementComposer<T>> renderingHook = c -> {};
 
         public Builder<T> withRow(T row) {
             this.row = row;
@@ -129,6 +134,11 @@ public class InsertDSL<T> implements Buildable<InsertModel<T>> {
 
         public Builder<T> withColumnMappings(Collection<? extends AbstractColumnMapping> columnMappings) {
             this.columnMappings.addAll(columnMappings);
+            return this;
+        }
+
+        public Builder<T> withRenderingHook(Consumer<InsertStatementComposer<T>> renderingHook) {
+            this.renderingHook = renderingHook;
             return this;
         }
 

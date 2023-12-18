@@ -17,6 +17,7 @@ package org.mybatis.dynamic.sql.delete;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.jetbrains.annotations.NotNull;
 import org.mybatis.dynamic.sql.SqlTable;
@@ -33,6 +34,7 @@ public class DeleteModel {
     private final WhereModel whereModel;
     private final Long limit;
     private final OrderByModel orderByModel;
+    private final Consumer<DeleteStatementComposer> renderingHook;
 
     private DeleteModel(Builder builder) {
         table = Objects.requireNonNull(builder.table());
@@ -40,6 +42,7 @@ public class DeleteModel {
         tableAlias = builder.tableAlias();
         limit = builder.limit();
         orderByModel = builder.orderByModel();
+        renderingHook = Objects.requireNonNull(builder.renderingHook);
     }
 
     public SqlTable table() {
@@ -66,6 +69,7 @@ public class DeleteModel {
     public DeleteStatementProvider render(RenderingStrategy renderingStrategy) {
         return DeleteRenderer.withDeleteModel(this)
                 .withRenderingStrategy(renderingStrategy)
+                .withRenderingHook(renderingHook) // TODO - why a separate method and not just accessed through the model?
                 .build()
                 .render();
     }
@@ -75,6 +79,13 @@ public class DeleteModel {
     }
 
     public static class Builder extends CommonBuilder<Builder> {
+        private Consumer<DeleteStatementComposer> renderingHook;
+
+        public Builder withRenderingHook(Consumer<DeleteStatementComposer> renderingHook) {
+            this.renderingHook = renderingHook;
+            return this;
+        }
+
         @Override
         protected Builder getThis() {
             return this;

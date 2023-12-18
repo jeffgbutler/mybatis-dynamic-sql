@@ -42,11 +42,17 @@ public class DeleteDSL<R> extends AbstractWhereStarter<DeleteDSL<R>.DeleteWhereB
     private final StatementConfiguration statementConfiguration = new StatementConfiguration();
     private Long limit;
     private OrderByModel orderByModel;
+    private Consumer<DeleteStatementComposer> renderingHook = c -> {};
 
     private DeleteDSL(SqlTable table, String tableAlias, Function<DeleteModel, R> adapterFunction) {
         this.table = Objects.requireNonNull(table);
         this.tableAlias = tableAlias;
         this.adapterFunction = Objects.requireNonNull(adapterFunction);
+    }
+
+    public DeleteDSL<R> withRenderingHook(Consumer<DeleteStatementComposer> renderingHook) {
+        this.renderingHook = Objects.requireNonNull(renderingHook);
+        return this;
     }
 
     @Override
@@ -83,6 +89,7 @@ public class DeleteDSL<R> extends AbstractWhereStarter<DeleteDSL<R>.DeleteWhereB
                 .withLimit(limit)
                 .withOrderByModel(orderByModel)
                 .withWhereModel(whereBuilder == null ? null : whereBuilder.buildWhereModel())
+                .withRenderingHook(renderingHook)
                 .build();
 
         return adapterFunction.apply(deleteModel);
@@ -124,6 +131,11 @@ public class DeleteDSL<R> extends AbstractWhereStarter<DeleteDSL<R>.DeleteWhereB
         public DeleteDSL<R> orderBy(Collection<? extends SortSpecification> columns) {
             orderByModel = OrderByModel.of(columns);
             return DeleteDSL.this;
+        }
+
+        public DeleteWhereBuilder withRenderingHook(Consumer<DeleteStatementComposer> renderingHook) {
+            DeleteDSL.this.withRenderingHook(renderingHook);
+            return this;
         }
 
         @NotNull

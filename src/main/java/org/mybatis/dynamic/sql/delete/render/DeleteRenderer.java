@@ -17,24 +17,25 @@ package org.mybatis.dynamic.sql.delete.render;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
 import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.common.OrderByRenderer;
 import org.mybatis.dynamic.sql.delete.DeleteModel;
+import org.mybatis.dynamic.sql.delete.DeleteStatementComposer;
 import org.mybatis.dynamic.sql.render.ExplicitTableAliasCalculator;
 import org.mybatis.dynamic.sql.render.RenderedParameterInfo;
 import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.render.TableAliasCalculator;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
-import org.mybatis.dynamic.sql.util.FragmentCollector;
 import org.mybatis.dynamic.sql.where.WhereModel;
 import org.mybatis.dynamic.sql.where.render.WhereRenderer;
 
 public class DeleteRenderer {
     private final DeleteModel deleteModel;
     private final RenderingContext renderingContext;
+    private final Consumer<DeleteStatementComposer> renderingHook;
 
     private DeleteRenderer(Builder builder) {
         deleteModel = Objects.requireNonNull(builder.deleteModel);
@@ -45,29 +46,23 @@ public class DeleteRenderer {
                 .withRenderingStrategy(Objects.requireNonNull(builder.renderingStrategy))
                 .withTableAliasCalculator(tableAliasCalculator)
                 .build();
+        renderingHook = Objects.requireNonNull(builder.renderingHook);
     }
 
     public DeleteStatementProvider render() {
-        FragmentCollector fragmentCollector = new FragmentCollector();
+        DeleteStatementComposer composer = new DeleteStatementComposer();
 
-        fragmentCollector.add(calculateDeleteStatementStart());
-        calculateWhereClause().ifPresent(fragmentCollector::add);
-        calculateOrderByClause().ifPresent(fragmentCollector::add);
-        calculateLimitClause().ifPresent(fragmentCollector::add);
+        composer.setStartOfStatement(FragmentAndParameters.fromFragment("delete from")); //$NON-NLS-1$
+        composer.setTableFragment(calculateTableFragment());
+        calculateWhereClause().ifPresent(composer::setWhereClause);
+        calculateOrderByClause().ifPresent(composer::setOrderByClause);
+        calculateLimitClause().ifPresent(composer::setLimitClause);
 
-        return toDeleteStatementProvider(fragmentCollector);
+        return composer.apply(renderingHook).toStatementProvider();
     }
 
-    private DeleteStatementProvider toDeleteStatementProvider(FragmentCollector fragmentCollector) {
-        return DefaultDeleteStatementProvider
-                .withDeleteStatement(fragmentCollector.collectFragments(Collectors.joining(" "))) //$NON-NLS-1$
-                .withParameters(fragmentCollector.parameters())
-                .build();
-    }
-
-    private FragmentAndParameters calculateDeleteStatementStart() {
-        String aliasedTableName = renderingContext.aliasedTableName(deleteModel.table());
-        return FragmentAndParameters.fromFragment("delete from " + aliasedTableName); //$NON-NLS-1$
+    private FragmentAndParameters calculateTableFragment() {
+        return FragmentAndParameters.fromFragment(renderingContext.aliasedTableName(deleteModel.table()));
     }
 
     private Optional<FragmentAndParameters> calculateWhereClause() {
@@ -108,6 +103,7 @@ public class DeleteRenderer {
     public static class Builder {
         private DeleteModel deleteModel;
         private RenderingStrategy renderingStrategy;
+        private Consumer<DeleteStatementComposer> renderingHook = c -> {};
 
         public Builder withDeleteModel(DeleteModel deleteModel) {
             this.deleteModel = deleteModel;
@@ -116,6 +112,11 @@ public class DeleteRenderer {
 
         public Builder withRenderingStrategy(RenderingStrategy renderingStrategy) {
             this.renderingStrategy = renderingStrategy;
+            return this;
+        }
+
+        public Builder withRenderingHook(Consumer<DeleteStatementComposer> renderingHook) {
+            this.renderingHook = renderingHook;
             return this;
         }
 
