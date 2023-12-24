@@ -34,11 +34,7 @@ public class FragmentCollector {
     }
 
     public void add(FragmentAndParameters fragmentAndParameters) {
-        fragments.add(fragmentAndParameters);
-    }
-
-    public void addIfNonNull(FragmentAndParameters fragmentAndParameters) {
-        if (fragmentAndParameters != null) {
+        if(fragmentAndParameters != null) {
             fragments.add(fragmentAndParameters);
         }
     }

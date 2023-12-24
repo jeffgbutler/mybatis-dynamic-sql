@@ -30,7 +30,7 @@ import org.mybatis.dynamic.sql.util.FragmentCollector;
  * <p>Unlike most other classes in this library, this class is mutable for ease of use. We caution users to be very
  * careful with modifications made through this class - with great power comes great responsibility!
  *
- * In all cases, the composer will add spaces as necessary, so there is no need to append leading or trailing
+ * <p>In all cases, the composer will add spaces as necessary, so there is no need to append leading or trailing
  * spaces. It is also important to note that the library performs no validation of any changes made through this
  * class. The final statement can be visualized as follows:
  *
@@ -74,15 +74,15 @@ public class DeleteStatementComposer extends AbstractStatementComposer<DeleteSta
     public DeleteStatementProvider toStatementProvider() {
         FragmentCollector fragmentCollector = new FragmentCollector();
 
-        fragmentCollector.addIfNonNull(initialFragment);
-        fragmentCollector.addIfNonNull(startOfStatement);
-        fragmentCollector.addIfNonNull(fragmentBeforeTable);
-        fragmentCollector.addIfNonNull(tableFragment);
-        fragmentCollector.addIfNonNull(fragmentAfterTable);
-        fragmentCollector.addIfNonNull(whereClause);
-        fragmentCollector.addIfNonNull(orderByClause);
-        fragmentCollector.addIfNonNull(limitClause);
-        fragmentCollector.addIfNonNull(finalFragment);
+        fragmentCollector.add(initialFragment);
+        fragmentCollector.add(startOfStatement);
+        fragmentCollector.add(fragmentBeforeTable);
+        fragmentCollector.add(tableFragment);
+        fragmentCollector.add(fragmentAfterTable);
+        fragmentCollector.add(whereClause);
+        fragmentCollector.add(orderByClause);
+        fragmentCollector.add(limitClause);
+        fragmentCollector.add(finalFragment);
 
         return toDeleteStatementProvider(fragmentCollector);
     }
