@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.mybatis</groupId>
     <artifactId>mybatis-parent</artifactId>
-    <version>40</version>
+    <version>41</version>
   </parent>
   <groupId>org.mybatis.dynamic-sql</groupId>
   <artifactId>mybatis-dynamic-sql</artifactId>
@@ -56,7 +56,7 @@
     <java.version>17</java.version>
     <java.release.version>8</java.release.version>
     <junit.jupiter.version>5.10.1</junit.jupiter.version>
-    <spring.batch.version>5.0.3</spring.batch.version>
+    <spring.batch.version>5.1.0</spring.batch.version>
 
     <checkstyle.config>checkstyle-override.xml</checkstyle.config>
 
@@ -64,14 +64,14 @@
 
     <module.name>org.mybatis.dynamic.sql</module.name>
 
-    <kotlin.version>1.9.20</kotlin.version>
+    <kotlin.version>1.9.22</kotlin.version>
     <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
 
     <sonar.sources>pom.xml,src/main/java,src/main/kotlin</sonar.sources>
     <sonar.tests>src/test/java,src/test/kotlin</sonar.tests>
 
     <kotlin.code.style>official</kotlin.code.style>
-    <test.containers.version>1.19.2</test.containers.version>
+    <test.containers.version>1.19.3</test.containers.version>
     <osgi.export>org.mybatis.dynamic.sql.*;version=${project.version};-noimport:=true</osgi.export>
 
     <!-- Reproducible Builds -->
@@ -89,14 +89,14 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>6.0.14</version>
+      <version>6.1.3</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.mybatis</groupId>
       <artifactId>mybatis</artifactId>
-      <version>3.5.14</version>
+      <version>3.5.15</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
@@ -122,13 +122,13 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.24.2</version>
+      <version>3.25.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mybatis</groupId>
       <artifactId>mybatis-spring</artifactId>
-      <version>3.0.2</version>
+      <version>3.0.3</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -158,7 +158,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.4.11</version>
+      <version>1.4.14</version>
       <scope>test</scope>
     </dependency>
     <!-- Hamcrest is only here to make Infinitest happy. Not really used in the project. -->
@@ -184,7 +184,7 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>42.6.0</version>
+      <version>42.7.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -196,7 +196,7 @@
     <dependency>
       <groupId>org.mariadb.jdbc</groupId>
       <artifactId>mariadb-java-client</artifactId>
-      <version>3.3.0</version>
+      <version>3.3.2</version>
       <scope>test</scope>
     </dependency>
 
@@ -327,7 +327,7 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>io.jsonwebtoken.coveralls</groupId>
+        <groupId>com.github.hazendaz.maven</groupId>
         <artifactId>coveralls-maven-plugin</artifactId>
         <configuration>
           <sourceDirectories>src/main/java,src/main/kotlin</sourceDirectories>
@@ -337,7 +337,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.4.0</version>
+        <version>3.5.0</version>
         <executions>
           <execution>
             <goals>
