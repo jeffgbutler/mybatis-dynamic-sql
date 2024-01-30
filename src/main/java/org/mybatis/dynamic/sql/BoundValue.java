@@ -51,7 +51,7 @@ public class BoundValue<T> implements BindableColumn<T> {
     public FragmentAndParameters render(RenderingContext renderingContext) {
         RenderedParameterInfo rpi = renderingContext.calculateParameterInfo(this);
         return FragmentAndParameters.withFragment(rpi.renderedPlaceHolder())
-                .withParameter(rpi.parameterMapKey(), value)
+                .withParameterBinding(rpi.toParameterBinding(value))
                 .build();
     }
 
