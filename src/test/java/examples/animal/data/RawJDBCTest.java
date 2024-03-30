@@ -391,7 +391,7 @@ class RawJDBCTest {
 
         assertThatExceptionOfType(DynamicSqlException.class).isThrownBy(
                 () -> insertModel.render(RenderingStrategies.RAW_JDBC))
-                .withMessage(Messages.getString("ERROR.39"));
+                .withMessage(Messages.getString("ERROR.44"));
     }
 
     @Test
@@ -419,7 +419,7 @@ class RawJDBCTest {
 
         assertThatExceptionOfType(DynamicSqlException.class).isThrownBy(
                         () -> batchInsertModel.render(RenderingStrategies.RAW_JDBC))
-                .withMessage(Messages.getString("ERROR.39"));
+                .withMessage(Messages.getString("ERROR.44"));
     }
 
     @Test
@@ -447,7 +447,7 @@ class RawJDBCTest {
 
         assertThatExceptionOfType(DynamicSqlException.class).isThrownBy(
                         () -> multiRowInsertModel.render(RenderingStrategies.RAW_JDBC))
-                .withMessage(Messages.getString("ERROR.39"));
+                .withMessage(Messages.getString("ERROR.44"));
     }
 
     @Test
@@ -463,7 +463,7 @@ class RawJDBCTest {
 
         assertThatExceptionOfType(DynamicSqlException.class).isThrownBy(
                         () -> multiRowInsertModel.render(RenderingStrategies.RAW_JDBC))
-                .withMessage(Messages.getString("ERROR.39"));
+                .withMessage(Messages.getString("ERROR.44"));
     }
 
     @Test
