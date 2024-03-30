@@ -48,8 +48,8 @@ public class ColumnAndConditionRenderer<T> {
                 + spaceBefore(renderedCondition.fragment());
 
         return FragmentAndParameters.withFragment(finalFragment)
-                .withParameters(renderedLeftColumn.parameters())
-                .withParameters(renderedCondition.parameters())
+                .withParameterBindings(renderedLeftColumn.parameterBindings())
+                .withParameterBindings(renderedCondition.parameterBindings())
                 .build();
     }
 

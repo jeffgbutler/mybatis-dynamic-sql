@@ -66,7 +66,7 @@ public class SimpleCaseWhenConditionRenderer<T> implements SimpleCaseWhenConditi
     private FragmentAndParameters renderBasicValue(T value) {
         RenderedParameterInfo rpi = renderingContext.calculateParameterInfo(column);
         return FragmentAndParameters.withFragment(rpi.renderedPlaceHolder())
-                .withParameter(rpi.parameterMapKey(), value)
+                .withParameterBinding(rpi.toParameterBinding(value))
                 .build();
     }
 }
