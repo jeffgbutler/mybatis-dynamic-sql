@@ -1449,7 +1449,7 @@ class RawR2DBCTest {
                 .build();
 
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> multiRowInsert.render(H2_R2DBC))
-                .withMessage(Messages.getString("ERROR.39"));
+                .withMessage(Messages.getString("ERROR.44"));
     }
 
     @Test
@@ -1476,7 +1476,7 @@ class RawR2DBCTest {
                 .build();
 
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> batchInsert.render(H2_R2DBC))
-                .withMessage(Messages.getString("ERROR.39"));
+                .withMessage(Messages.getString("ERROR.44"));
     }
 
 //    @Test
