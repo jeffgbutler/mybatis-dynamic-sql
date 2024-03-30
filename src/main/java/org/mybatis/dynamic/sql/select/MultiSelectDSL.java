@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,19 +19,24 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.jetbrains.annotations.NotNull;
 import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.common.OrderByModel;
+import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.util.Buildable;
+import org.mybatis.dynamic.sql.util.ConfigurableStatement;
 
-public class MultiSelectDSL implements Buildable<MultiSelectModel> {
+public class MultiSelectDSL implements Buildable<MultiSelectModel>, ConfigurableStatement<MultiSelectDSL> {
     private final List<UnionQuery> unionQueries = new ArrayList<>();
     private final SelectModel initialSelect;
     private OrderByModel orderByModel;
     private Long limit;
     private Long offset;
     private Long fetchFirstRows;
+    private final StatementConfiguration statementConfiguration = new StatementConfiguration();
 
     public MultiSelectDSL(Buildable<SelectModel> builder) {
         initialSelect = builder.build();
@@ -78,20 +83,23 @@ public class MultiSelectDSL implements Buildable<MultiSelectModel> {
                 .withInitialSelect(initialSelect)
                 .withUnionQueries(unionQueries)
                 .withOrderByModel(orderByModel)
-                .withPagingModel(buildPagingModel())
+                .withPagingModel(buildPagingModel().orElse(null))
+                .withStatementConfiguration(statementConfiguration)
                 .build();
     }
 
-    private PagingModel buildPagingModel() {
-        if (limit == null && offset == null && fetchFirstRows == null) {
-            return null;
-        }
-
+    private Optional<PagingModel> buildPagingModel() {
         return new PagingModel.Builder()
                 .withLimit(limit)
                 .withOffset(offset)
                 .withFetchFirstRows(fetchFirstRows)
                 .build();
+    }
+
+    @Override
+    public MultiSelectDSL configureStatement(Consumer<StatementConfiguration> consumer) {
+        consumer.accept(statementConfiguration);
+        return this;
     }
 
     public class LimitFinisher implements Buildable<MultiSelectModel> {

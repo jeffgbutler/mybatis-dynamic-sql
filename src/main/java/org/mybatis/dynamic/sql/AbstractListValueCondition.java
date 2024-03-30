@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.mybatis.dynamic.sql.render.RenderingContext;
+
 public abstract class AbstractListValueCondition<T> implements VisitableCondition<T> {
     protected final Collection<T> values;
 
@@ -35,8 +37,17 @@ public abstract class AbstractListValueCondition<T> implements VisitableConditio
     }
 
     @Override
-    public boolean shouldRender() {
-        return !values.isEmpty();
+    public boolean isEmpty() {
+        return values.isEmpty();
+    }
+
+    @Override
+    public boolean shouldRender(RenderingContext renderingContext) {
+        if (isEmpty()) {
+            return renderingContext.isEmptyListConditionRenderingAllowed();
+        } else {
+            return true;
+        }
     }
 
     @Override
@@ -56,20 +67,20 @@ public abstract class AbstractListValueCondition<T> implements VisitableConditio
 
     protected <S extends AbstractListValueCondition<T>> S filterSupport(Predicate<? super T> predicate,
             Function<Collection<T>, S> constructor, S self, Supplier<S> emptySupplier) {
-        if (shouldRender()) {
+        if (isEmpty()) {
+            return self;
+        } else {
             Collection<T> filtered = applyFilter(predicate);
             return filtered.isEmpty() ? emptySupplier.get() : constructor.apply(filtered);
-        } else {
-            return self;
         }
     }
 
     protected <R, S extends AbstractListValueCondition<R>> S mapSupport(Function<? super T, ? extends R> mapper,
             Function<Collection<R>, S> constructor, Supplier<S> emptySupplier) {
-        if (shouldRender()) {
-            return constructor.apply(applyMapper(mapper));
-        } else {
+        if (isEmpty()) {
             return emptySupplier.get();
+        } else {
+            return constructor.apply(applyMapper(mapper));
         }
     }
 

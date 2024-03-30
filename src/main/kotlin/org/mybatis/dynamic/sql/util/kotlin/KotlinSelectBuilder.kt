@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import org.mybatis.dynamic.sql.select.QueryExpressionDSL
 import org.mybatis.dynamic.sql.select.SelectModel
 import org.mybatis.dynamic.sql.select.SubQuery
 import org.mybatis.dynamic.sql.util.Buildable
-import org.mybatis.dynamic.sql.util.Messages
 
 typealias SelectCompleter = KotlinSelectBuilder.() -> Unit
 
@@ -79,9 +78,7 @@ class KotlinSelectBuilder(private val fromGatherer: QueryExpressionDSL.FromGathe
 
     override fun build(): SelectModel = getDsl().build()
 
-    override fun getDsl(): KQueryExpressionDSL {
-        return dsl?: throw KInvalidSQLException(Messages.getString("ERROR.27")) //$NON-NLS-1$
-    }
+    override fun getDsl(): KQueryExpressionDSL = invalidIfNull(dsl, "ERROR.27") //$NON-NLS-1$
 }
 
 /**

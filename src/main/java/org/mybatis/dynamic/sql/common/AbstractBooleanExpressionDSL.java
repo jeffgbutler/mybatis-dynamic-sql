@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -28,8 +28,7 @@ import org.mybatis.dynamic.sql.ExistsCriterion;
 import org.mybatis.dynamic.sql.ExistsPredicate;
 import org.mybatis.dynamic.sql.SqlCriterion;
 import org.mybatis.dynamic.sql.VisitableCondition;
-import org.mybatis.dynamic.sql.exception.InvalidSqlException;
-import org.mybatis.dynamic.sql.util.Messages;
+import org.mybatis.dynamic.sql.util.Validator;
 
 public abstract class AbstractBooleanExpressionDSL<T extends AbstractBooleanExpressionDSL<T>> {
     private SqlCriterion initialCriterion; // WARNING - may be null!
@@ -145,12 +144,13 @@ public abstract class AbstractBooleanExpressionDSL<T extends AbstractBooleanExpr
                 .build());
     }
 
-    protected void setInitialCriterion(SqlCriterion initialCriterion, StatementType statementType) {
-        if (this.initialCriterion != null) {
-            throw new InvalidSqlException(Messages.getString(statementType.messageNumber())); //$NON-NLS-1$
-        }
-
+    protected void setInitialCriterion(SqlCriterion initialCriterion) {
         this.initialCriterion = initialCriterion;
+    }
+
+    protected void setInitialCriterion(SqlCriterion initialCriterion, StatementType statementType) {
+        Validator.assertTrue(this.initialCriterion == null, statementType.messageNumber());
+        setInitialCriterion(initialCriterion);
     }
 
     // may be null!

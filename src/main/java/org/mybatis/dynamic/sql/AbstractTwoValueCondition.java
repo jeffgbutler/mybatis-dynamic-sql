@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -45,10 +45,10 @@ public abstract class AbstractTwoValueCondition<T> implements VisitableCondition
 
     protected <S extends AbstractTwoValueCondition<T>> S filterSupport(BiPredicate<? super T, ? super T> predicate,
             Supplier<S> emptySupplier, S self) {
-        if (shouldRender()) {
-            return predicate.test(value1, value2) ? self : emptySupplier.get();
-        } else {
+        if (isEmpty()) {
             return self;
+        } else {
+            return predicate.test(value1, value2) ? self : emptySupplier.get();
         }
     }
 
@@ -59,10 +59,10 @@ public abstract class AbstractTwoValueCondition<T> implements VisitableCondition
 
     protected <R, S extends AbstractTwoValueCondition<R>> S mapSupport(Function<? super T, ? extends R> mapper1,
             Function<? super T, ? extends R> mapper2, BiFunction<R, R, S> constructor, Supplier<S> emptySupplier) {
-        if (shouldRender()) {
-            return constructor.apply(mapper1.apply(value1), mapper2.apply(value2));
-        } else {
+        if (isEmpty()) {
             return emptySupplier.get();
+        } else {
+            return constructor.apply(mapper1.apply(value1), mapper2.apply(value2));
         }
     }
 

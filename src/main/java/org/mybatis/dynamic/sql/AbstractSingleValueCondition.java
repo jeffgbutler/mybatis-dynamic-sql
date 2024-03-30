@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -37,19 +37,19 @@ public abstract class AbstractSingleValueCondition<T> implements VisitableCondit
 
     protected <S extends AbstractSingleValueCondition<T>> S filterSupport(Predicate<? super T> predicate,
             Supplier<S> emptySupplier, S self) {
-        if (shouldRender()) {
-            return predicate.test(value) ? self : emptySupplier.get();
-        } else {
+        if (isEmpty()) {
             return self;
+        } else {
+            return predicate.test(value) ? self : emptySupplier.get();
         }
     }
 
     protected <R, S extends AbstractSingleValueCondition<R>> S mapSupport(Function<? super T, ? extends R> mapper,
             Function<R, S> constructor, Supplier<S> emptySupplier) {
-        if (shouldRender()) {
-            return constructor.apply(mapper.apply(value));
-        } else {
+        if (isEmpty()) {
             return emptySupplier.get();
+        } else {
+            return constructor.apply(mapper.apply(value));
         }
     }
 

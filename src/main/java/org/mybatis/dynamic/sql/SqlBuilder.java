@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -43,7 +43,10 @@ import org.mybatis.dynamic.sql.select.aggregate.CountDistinct;
 import org.mybatis.dynamic.sql.select.aggregate.Max;
 import org.mybatis.dynamic.sql.select.aggregate.Min;
 import org.mybatis.dynamic.sql.select.aggregate.Sum;
+import org.mybatis.dynamic.sql.select.caseexpression.SearchedCaseDSL;
+import org.mybatis.dynamic.sql.select.caseexpression.SimpleCaseDSL;
 import org.mybatis.dynamic.sql.select.function.Add;
+import org.mybatis.dynamic.sql.select.function.Cast;
 import org.mybatis.dynamic.sql.select.function.Concat;
 import org.mybatis.dynamic.sql.select.function.Concatenate;
 import org.mybatis.dynamic.sql.select.function.Divide;
@@ -442,6 +445,17 @@ public interface SqlBuilder {
                 .build();
     }
 
+    // case expressions
+    @SuppressWarnings("java:S100")
+    static <T> SimpleCaseDSL<T> case_(BindableColumn<T> column) {
+        return SimpleCaseDSL.simpleCase(column);
+    }
+
+    @SuppressWarnings("java:S100")
+    static SearchedCaseDSL case_() {
+        return SearchedCaseDSL.searchedCase();
+    }
+
     static <T> EqualTo<T> equalTo(BindableColumn<T> column) {
         return new EqualTo<>(column);
     }
@@ -492,6 +506,10 @@ public interface SqlBuilder {
         return StringConstant.of(constant);
     }
 
+    static <T> BoundValue<T> value(T value) {
+        return BoundValue.of(value);
+    }
+
     // functions
     static <T> Add<T> add(BindableColumn<T> firstColumn, BasicColumn secondColumn,
             BasicColumn... subsequentColumns) {
@@ -511,6 +529,18 @@ public interface SqlBuilder {
     static <T> Subtract<T> subtract(BindableColumn<T> firstColumn, BasicColumn secondColumn,
             BasicColumn... subsequentColumns) {
         return Subtract.of(firstColumn, secondColumn, subsequentColumns);
+    }
+
+    static CastFinisher cast(String value) {
+        return cast(stringConstant(value));
+    }
+
+    static CastFinisher cast(Double value) {
+        return cast(constant(value.toString()));
+    }
+
+    static CastFinisher cast(BasicColumn column) {
+        return new CastFinisher(column);
     }
 
     /**
@@ -962,6 +992,21 @@ public interface SqlBuilder {
         public <T> GeneralInsertDSL.SetClauseFinisher<T> set(SqlColumn<T> column) {
             return GeneralInsertDSL.insertInto(table)
                     .set(column);
+        }
+    }
+
+    class CastFinisher {
+        private final BasicColumn column;
+
+        public CastFinisher(BasicColumn column) {
+            this.column = column;
+        }
+
+        public Cast as(String targetType) {
+            return new Cast.Builder()
+                    .withColumn(column)
+                    .withTargetType(targetType)
+                    .build();
         }
     }
 }

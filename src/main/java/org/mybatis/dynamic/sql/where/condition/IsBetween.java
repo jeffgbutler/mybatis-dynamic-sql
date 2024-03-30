@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import org.mybatis.dynamic.sql.AbstractTwoValueCondition;
 public class IsBetween<T> extends AbstractTwoValueCondition<T> {
     private static final IsBetween<?> EMPTY = new IsBetween<Object>(null, null) {
         @Override
-        public boolean shouldRender() {
-            return false;
+        public boolean isEmpty() {
+            return true;
         }
     };
 

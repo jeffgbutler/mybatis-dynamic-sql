@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import org.mybatis.dynamic.sql.insert.InsertDSL
 import org.mybatis.dynamic.sql.insert.InsertModel
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping
 import org.mybatis.dynamic.sql.util.Buildable
-import org.mybatis.dynamic.sql.util.Messages
 
 typealias KotlinInsertCompleter<T> = KotlinInsertBuilder<T>.() -> Unit
 
@@ -38,15 +37,13 @@ class KotlinInsertBuilder<T : Any> (private val row: T): Buildable<InsertModel<T
         columnMappings.add(it)
     }
 
-    override fun build(): InsertModel<T> =
-        if (table == null) {
-            throw KInvalidSQLException(Messages.getString("ERROR.25")) //$NON-NLS-1$
-        } else {
-            with(InsertDSL.Builder<T>()) {
-                withRow(row)
-                withTable(table)
-                withColumnMappings(columnMappings)
-                build()
-            }.build()
-        }
+    override fun build(): InsertModel<T> {
+        assertNotNull(table, "ERROR.25") //$NON-NLS-1$
+        return with(InsertDSL.Builder<T>()) {
+            withRow(row)
+            withTable(table)
+            withColumnMappings(columnMappings)
+            build()
+        }.build()
+    }
 }

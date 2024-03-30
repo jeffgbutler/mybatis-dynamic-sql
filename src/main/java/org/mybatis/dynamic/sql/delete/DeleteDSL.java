@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.mybatis.dynamic.sql.util.Buildable;
 import org.mybatis.dynamic.sql.util.Utilities;
 import org.mybatis.dynamic.sql.where.AbstractWhereFinisher;
 import org.mybatis.dynamic.sql.where.AbstractWhereStarter;
-import org.mybatis.dynamic.sql.where.WhereModel;
+import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
 public class DeleteDSL<R> extends AbstractWhereStarter<DeleteDSL<R>.DeleteWhereBuilder, DeleteDSL<R>>
         implements Buildable<R> {
@@ -78,15 +78,15 @@ public class DeleteDSL<R> extends AbstractWhereStarter<DeleteDSL<R>.DeleteWhereB
     @NotNull
     @Override
     public R build() {
-        DeleteModel.Builder deleteModelBuilder = DeleteModel.withTable(table)
+        DeleteModel deleteModel = DeleteModel.withTable(table)
                 .withTableAlias(tableAlias)
                 .withLimit(limit)
-                .withOrderByModel(orderByModel);
-        if (whereBuilder != null) {
-            deleteModelBuilder.withWhereModel(whereBuilder.buildWhereModel());
-        }
+                .withOrderByModel(orderByModel)
+                .withWhereModel(whereBuilder == null ? null : whereBuilder.buildWhereModel())
+                .withStatementConfiguration(statementConfiguration)
+                .build();
 
-        return adapterFunction.apply(deleteModelBuilder.build());
+        return adapterFunction.apply(deleteModel);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class DeleteDSL<R> extends AbstractWhereStarter<DeleteDSL<R>.DeleteWhereB
     public class DeleteWhereBuilder extends AbstractWhereFinisher<DeleteWhereBuilder> implements Buildable<R> {
 
         private DeleteWhereBuilder() {
-            super(statementConfiguration);
+            super(DeleteDSL.this);
         }
 
         public DeleteDSL<R> limit(long limit) {
@@ -138,7 +138,7 @@ public class DeleteDSL<R> extends AbstractWhereStarter<DeleteDSL<R>.DeleteWhereB
             return this;
         }
 
-        protected WhereModel buildWhereModel() {
+        protected EmbeddedWhereModel buildWhereModel() {
             return buildModel();
         }
     }

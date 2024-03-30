@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.ColumnAndConditionCriterion;
 import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.SqlTable;
+import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.render.ExplicitTableAliasCalculator;
 import org.mybatis.dynamic.sql.render.ParameterBinding;
 import org.mybatis.dynamic.sql.render.RenderingContext;
@@ -46,6 +47,7 @@ class CriterionRendererTest {
 
         RenderingContext renderingContext = RenderingContext
                 .withRenderingStrategy(RenderingStrategies.MYBATIS3)
+                .withStatementConfiguration(new StatementConfiguration())
                 .build();
 
         CriterionRenderer renderer = new CriterionRenderer(renderingContext);
@@ -73,6 +75,7 @@ class CriterionRendererTest {
         RenderingContext renderingContext = RenderingContext
                 .withRenderingStrategy(RenderingStrategies.MYBATIS3)
                 .withTableAliasCalculator(ExplicitTableAliasCalculator.of(tableAliases))
+                .withStatementConfiguration(new StatementConfiguration())
                 .build();
 
         CriterionRenderer renderer = new CriterionRenderer(renderingContext);

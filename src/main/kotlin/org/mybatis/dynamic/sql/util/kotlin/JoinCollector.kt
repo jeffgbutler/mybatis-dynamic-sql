@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import org.mybatis.dynamic.sql.BindableColumn
 import org.mybatis.dynamic.sql.SqlBuilder
 import org.mybatis.dynamic.sql.select.join.JoinCondition
 import org.mybatis.dynamic.sql.select.join.JoinCriterion
-import org.mybatis.dynamic.sql.util.Messages
 
 typealias JoinReceiver = JoinCollector.() -> Unit
 
@@ -28,8 +27,7 @@ class JoinCollector {
     private var onJoinCriterion: JoinCriterion<*>? = null
     internal val andJoinCriteria = mutableListOf<JoinCriterion<*>>()
 
-    internal fun onJoinCriterion() : JoinCriterion<*> =
-        onJoinCriterion?: throw KInvalidSQLException(Messages.getString("ERROR.22")) //$NON-NLS-1$
+    internal fun onJoinCriterion() : JoinCriterion<*> = invalidIfNull(onJoinCriterion, "ERROR.22") //$NON-NLS-1$
 
     fun <T> on(leftColumn: BindableColumn<T>): RightColumnCollector<T> = RightColumnCollector {
         onJoinCriterion = JoinCriterion.Builder<T>()

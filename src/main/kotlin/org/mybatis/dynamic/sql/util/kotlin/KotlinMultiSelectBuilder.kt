@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package org.mybatis.dynamic.sql.util.kotlin
 import org.mybatis.dynamic.sql.BasicColumn
 import org.mybatis.dynamic.sql.SortSpecification
 import org.mybatis.dynamic.sql.SqlBuilder
+import org.mybatis.dynamic.sql.configuration.StatementConfiguration
 import org.mybatis.dynamic.sql.select.MultiSelectDSL
 import org.mybatis.dynamic.sql.select.MultiSelectModel
 import org.mybatis.dynamic.sql.util.Buildable
-import org.mybatis.dynamic.sql.util.Messages
 
 typealias MultiSelectCompleter = KotlinMultiSelectBuilder.() -> Unit
 
@@ -29,9 +29,7 @@ typealias MultiSelectCompleter = KotlinMultiSelectBuilder.() -> Unit
 class KotlinMultiSelectBuilder: Buildable<MultiSelectModel> {
     private var dsl: MultiSelectDSL? = null
         private set(value) {
-            if (field != null) {
-                throw KInvalidSQLException(Messages.getString("ERROR.33")) //$NON-NLS-1$
-            }
+            assertNull(field, "ERROR.33") //$NON-NLS-1$
             field = value
         }
 
@@ -77,10 +75,12 @@ class KotlinMultiSelectBuilder: Buildable<MultiSelectModel> {
         getDsl().fetchFirst(fetchFirstRows).rowsOnly()
     }
 
+    fun configureStatement(c: StatementConfiguration.() -> Unit) {
+        getDsl().configureStatement(c)
+    }
+
     override fun build(): MultiSelectModel =
         getDsl().build()
 
-    private fun getDsl(): MultiSelectDSL {
-        return dsl?: throw KInvalidSQLException(Messages.getString("ERROR.34")) //$NON-NLS-1$
-    }
+    private fun getDsl(): MultiSelectDSL = invalidIfNull(dsl, "ERROR.34") //$NON-NLS-1$
 }

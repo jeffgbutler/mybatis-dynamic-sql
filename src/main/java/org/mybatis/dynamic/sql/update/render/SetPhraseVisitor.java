@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.util.Optional;
 import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.render.RenderedParameterInfo;
 import org.mybatis.dynamic.sql.render.RenderingContext;
-import org.mybatis.dynamic.sql.select.render.SelectRenderer;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping;
 import org.mybatis.dynamic.sql.util.ColumnToColumnMapping;
@@ -30,6 +29,7 @@ import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 import org.mybatis.dynamic.sql.util.NullMapping;
 import org.mybatis.dynamic.sql.util.SelectMapping;
 import org.mybatis.dynamic.sql.util.StringConstantMapping;
+import org.mybatis.dynamic.sql.util.StringUtilities;
 import org.mybatis.dynamic.sql.util.UpdateMappingVisitor;
 import org.mybatis.dynamic.sql.util.ValueMapping;
 import org.mybatis.dynamic.sql.util.ValueOrNullMapping;
@@ -59,9 +59,8 @@ public class SetPhraseVisitor extends UpdateMappingVisitor<Optional<FragmentAndP
     @Override
     public Optional<FragmentAndParameters> visit(StringConstantMapping mapping) {
         String fragment = mapping.mapColumn(renderingContext::aliasedColumnName)
-                + " = '" //$NON-NLS-1$
-                + mapping.constant()
-                + "'"; //$NON-NLS-1$
+                + " = " //$NON-NLS-1$
+                + StringUtilities.formatConstantForSQL(mapping.constant());
 
         return FragmentAndParameters.withFragment(fragment)
                 .buildOptional();
@@ -86,11 +85,7 @@ public class SetPhraseVisitor extends UpdateMappingVisitor<Optional<FragmentAndP
 
     @Override
     public Optional<FragmentAndParameters> visit(SelectMapping mapping) {
-        SelectStatementProvider selectStatement = SelectRenderer.withSelectModel(mapping.selectModel())
-                .withRenderingContext(renderingContext)
-                .build()
-                .render();
-
+        SelectStatementProvider selectStatement = mapping.selectModel().render(renderingContext);
         String fragment = mapping.mapColumn(renderingContext::aliasedColumnName)
                 + " = (" //$NON-NLS-1$
                 + selectStatement.getSelectStatement()

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import static org.mybatis.dynamic.sql.SqlBuilder.insert;
 import static org.mybatis.dynamic.sql.SqlBuilder.insertInto;
 import static org.mybatis.dynamic.sql.SqlBuilder.select;
 import static org.mybatis.dynamic.sql.SqlBuilder.update;
+import static org.mybatis.dynamic.sql.SqlBuilder.value;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +31,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.common.OrderByModel;
+import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.exception.DynamicSqlException;
 import org.mybatis.dynamic.sql.exception.InvalidSqlException;
 import org.mybatis.dynamic.sql.insert.BatchInsertModel;
@@ -47,7 +49,7 @@ import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.select.join.JoinModel;
 import org.mybatis.dynamic.sql.select.join.JoinSpecification;
 import org.mybatis.dynamic.sql.select.join.JoinType;
-import org.mybatis.dynamic.sql.select.render.PagingModelRenderer;
+import org.mybatis.dynamic.sql.select.render.FetchFirstPagingModelRenderer;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.update.UpdateModel;
 import org.mybatis.dynamic.sql.util.InternalError;
@@ -238,20 +240,30 @@ class InvalidSQLTest {
 
     @Test
     void testInvalidPagingModel() {
-        PagingModel pagingModel = new PagingModel.Builder().build();
+        Optional<PagingModel> pagingModel = new PagingModel.Builder().withLimit(22L).build();
 
         RenderingContext renderingContext = RenderingContext
                 .withRenderingStrategy(RenderingStrategies.MYBATIS3)
+                .withStatementConfiguration(new StatementConfiguration())
                 .build();
 
-        PagingModelRenderer renderer = new PagingModelRenderer.Builder()
-                .withPagingModel(pagingModel)
-                .withRenderingContext(renderingContext)
-                .build();
+        assertThat(pagingModel).isPresent();
+
+        FetchFirstPagingModelRenderer renderer = new FetchFirstPagingModelRenderer(renderingContext, pagingModel.get());
 
         assertThatExceptionOfType(InvalidSqlException.class)
                 .isThrownBy(renderer::render)
                 .withMessage(Messages.getInternalErrorString(InternalError.INTERNAL_ERROR_13));
+    }
+
+    @Test
+    void testInvalidValueAlias() {
+        BoundValue<Integer> foo = value(1);
+
+        assertThat(foo.alias()).isEmpty();
+        assertThatExceptionOfType(InvalidSqlException.class)
+                .isThrownBy(() -> foo.as("foo"))
+                .withMessage(Messages.getString("ERROR.38"));
     }
 
     @Test

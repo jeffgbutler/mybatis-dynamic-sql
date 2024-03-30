@@ -4,9 +4,30 @@ This log will detail notable changes to MyBatis Dynamic SQL. Full details are av
 
 ## Release 1.5.1 - Unreleased
 
-This is a minor release with a few small enhancements.
+This is a minor release with several enhancements.
 
 GitHub milestone: [https://github.com/mybatis/mybatis-dynamic-sql/milestone/13](https://github.com/mybatis/mybatis-dynamic-sql/milestone/13)
+
+### Case Expressions and Cast Function
+We've added support for CASE expressions to the library. Both simple and searched case expressions are supported.
+This is a fairly extensive enhancement as case expressions are quite complex, but we were able to reuse many of the
+building blocks from the WHERE and HAVING support already in the library. You should be able to build CASE expressions
+with relatively few limitations.
+
+It is also common to use a CAST function with CASE expressions, so we have added CAST as a built-in function
+in the library.
+
+The DSL for both Java and Kotlin has been updated to fully support CASE expressions in the same idiomatic forms
+as other parts of the library.
+
+We've tested this extensively and the code is, of course, 100% covered by test code. But it is possible that we've not
+covered every scenario. Please let us know if you find issues.
+
+Full documentation is available here:
+- [Java Case Expression DSL Documentation](caseExpressions.md)
+- [Kotlin Case Expression DSL Documentation](kotlinCaseExpressions.md)
+
+The pull request for this change is ([#761](https://github.com/mybatis/mybatis-dynamic-sql/pull/761))
 
 ### Parameter Values in Joins
 
@@ -37,6 +58,13 @@ types - which is a rare usage. Please let us know if this causes an undo hardshi
    initial enhancement request that inspired this change. As a result of the changes, one method is deprecated
    in the `BasicColumn` object. If you have implemented any custom functions, please note this deprecation and update
    your code accordingly. ([#662](https://github.com/mybatis/mybatis-dynamic-sql/pull/662))
+2. Added the ability to code a bound value in rendered SQL. This is similar to a constant, but the value is added to
+   the parameter map and a bind parameter marker is rendered. ([#738](https://github.com/mybatis/mybatis-dynamic-sql/pull/738))
+3. Refactored the conditions to separate the concept of an empty condition from that of a renderable condition. This
+   will enable a future change where conditions could decide to allow rendering even if they are considered empty (such
+   as rendering empty lists). This change should be transparent to users unless they have implemented custom conditions.
+4. Added a configuration setting to allow empty list conditions to render. This could generate invalid SQL, but might be
+   a good safety measure in some cases.
 
 ## Release 1.5.0 - April 21, 2023
 

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -49,6 +50,7 @@ public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectD
     private Long limit;
     private Long offset;
     private Long fetchFirstRows;
+    final StatementConfiguration statementConfiguration = new StatementConfiguration();
 
     private SelectDSL(Function<SelectModel, R> adapterFunction) {
         this.adapterFunction = Objects.requireNonNull(adapterFunction);
@@ -123,7 +125,7 @@ public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectD
 
     @Override
     public SelectDSL<R> configureStatement(Consumer<StatementConfiguration> consumer) {
-        queryExpressions.forEach(q -> q.configureStatement(consumer));
+        consumer.accept(statementConfiguration);
         return this;
     }
 
@@ -132,7 +134,8 @@ public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectD
     public R build() {
         SelectModel selectModel = SelectModel.withQueryExpressions(buildModels())
                 .withOrderByModel(orderByModel)
-                .withPagingModel(buildPagingModel())
+                .withPagingModel(buildPagingModel().orElse(null))
+                .withStatementConfiguration(statementConfiguration)
                 .build();
         return adapterFunction.apply(selectModel);
     }
@@ -143,11 +146,7 @@ public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectD
                 .collect(Collectors.toList());
     }
 
-    private PagingModel buildPagingModel() {
-        if (limit == null && offset == null && fetchFirstRows == null) {
-            return  null;
-        }
-
+    private Optional<PagingModel> buildPagingModel() {
         return new PagingModel.Builder()
                 .withLimit(limit)
                 .withOffset(offset)

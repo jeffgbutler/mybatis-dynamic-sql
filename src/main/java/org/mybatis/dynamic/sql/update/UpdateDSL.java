@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ import org.mybatis.dynamic.sql.util.ValueOrNullMapping;
 import org.mybatis.dynamic.sql.util.ValueWhenPresentMapping;
 import org.mybatis.dynamic.sql.where.AbstractWhereFinisher;
 import org.mybatis.dynamic.sql.where.AbstractWhereStarter;
-import org.mybatis.dynamic.sql.where.WhereModel;
+import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
 public class UpdateDSL<R> extends AbstractWhereStarter<UpdateDSL<R>.UpdateWhereBuilder, UpdateDSL<R>>
         implements Buildable<R> {
@@ -98,17 +98,16 @@ public class UpdateDSL<R> extends AbstractWhereStarter<UpdateDSL<R>.UpdateWhereB
     @NotNull
     @Override
     public R build() {
-        UpdateModel.Builder updateModelBuilder = UpdateModel.withTable(table)
+        UpdateModel updateModel = UpdateModel.withTable(table)
                 .withTableAlias(tableAlias)
                 .withColumnMappings(columnMappings)
                 .withLimit(limit)
-                .withOrderByModel(orderByModel);
+                .withOrderByModel(orderByModel)
+                .withWhereModel(whereBuilder == null ? null : whereBuilder.buildWhereModel())
+                .withStatementConfiguration(statementConfiguration)
+                .build();
 
-        if (whereBuilder != null) {
-            updateModelBuilder.withWhereModel(whereBuilder.buildWhereModel());
-        }
-
-        return adapterFunction.apply(updateModelBuilder.build());
+        return adapterFunction.apply(updateModel);
     }
 
     @Override
@@ -193,7 +192,7 @@ public class UpdateDSL<R> extends AbstractWhereStarter<UpdateDSL<R>.UpdateWhereB
     public class UpdateWhereBuilder extends AbstractWhereFinisher<UpdateWhereBuilder> implements Buildable<R> {
 
         private UpdateWhereBuilder() {
-            super(statementConfiguration);
+            super(UpdateDSL.this);
         }
 
         public UpdateDSL<R> limit(long limit) {
@@ -220,7 +219,7 @@ public class UpdateDSL<R> extends AbstractWhereStarter<UpdateDSL<R>.UpdateWhereB
             return this;
         }
 
-        protected WhereModel buildWhereModel() {
+        protected EmbeddedWhereModel buildWhereModel() {
             return buildModel();
         }
     }

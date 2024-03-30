@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,17 +22,19 @@ import org.jetbrains.annotations.NotNull;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.common.CommonBuilder;
 import org.mybatis.dynamic.sql.common.OrderByModel;
+import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.delete.render.DeleteRenderer;
 import org.mybatis.dynamic.sql.delete.render.DeleteStatementProvider;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
-import org.mybatis.dynamic.sql.where.WhereModel;
+import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
 public class DeleteModel {
     private final SqlTable table;
     private final String tableAlias;
-    private final WhereModel whereModel;
+    private final EmbeddedWhereModel whereModel;
     private final Long limit;
     private final OrderByModel orderByModel;
+    private final StatementConfiguration statementConfiguration;
 
     private DeleteModel(Builder builder) {
         table = Objects.requireNonNull(builder.table());
@@ -40,6 +42,7 @@ public class DeleteModel {
         tableAlias = builder.tableAlias();
         limit = builder.limit();
         orderByModel = builder.orderByModel();
+        statementConfiguration = Objects.requireNonNull(builder.statementConfiguration());
     }
 
     public SqlTable table() {
@@ -50,7 +53,7 @@ public class DeleteModel {
         return Optional.ofNullable(tableAlias);
     }
 
-    public Optional<WhereModel> whereModel() {
+    public Optional<EmbeddedWhereModel> whereModel() {
         return Optional.ofNullable(whereModel);
     }
 
@@ -66,6 +69,7 @@ public class DeleteModel {
     public DeleteStatementProvider render(RenderingStrategy renderingStrategy) {
         return DeleteRenderer.withDeleteModel(this)
                 .withRenderingStrategy(renderingStrategy)
+                .withStatementConfiguration(statementConfiguration)
                 .build()
                 .render();
     }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ fun <T : Any> SqlTable.column(
     jdbcType: JDBCType? = null,
     typeHandler: String? = null,
     renderingStrategy: RenderingStrategy? = null,
-    parameterTypeConverter: ((T?) -> Any?)? = null,
+    parameterTypeConverter: ((T?) -> Any?) = { it },
     javaType: KClass<T>? = null
 ): SqlColumn<T> = SqlColumn.Builder<T>().run {
     withTable(this@column)

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import org.mybatis.dynamic.sql.NotCriterion
 import org.mybatis.dynamic.sql.SqlBuilder
 import org.mybatis.dynamic.sql.SqlCriterion
 import org.mybatis.dynamic.sql.VisitableCondition
-import org.mybatis.dynamic.sql.util.Messages
 
 typealias GroupingCriteriaReceiver = GroupingCriteriaCollector.() -> Unit
 
@@ -128,12 +127,10 @@ sealed class SubCriteriaCollector {
  */
 @Suppress("TooManyFunctions")
 @MyBatisDslMarker
-class GroupingCriteriaCollector : SubCriteriaCollector() {
+open class GroupingCriteriaCollector : SubCriteriaCollector() {
     internal var initialCriterion: SqlCriterion? = null
         private set(value) {
-            if (field != null) {
-                throw KInvalidSQLException(Messages.getString("ERROR.21")) //$NON-NLS-1$
-            }
+            assertNull(field, "ERROR.21") //$NON-NLS-1$
             field = value
         }
 

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.mybatis.dynamic.sql.BindableColumn;
 import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.SqlTable;
+import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 
 /**
  * This class encapsulates all the supporting items related to rendering, and contains many utility methods
@@ -38,15 +39,16 @@ public class RenderingContext {
     private final TableAliasCalculator tableAliasCalculator;
     private final String configuredParameterName;
     private final String calculatedParameterName;
+    private final StatementConfiguration statementConfiguration;
 
     private RenderingContext(Builder builder) {
         renderingStrategy = Objects.requireNonNull(builder.renderingStrategy);
         configuredParameterName = builder.parameterName;
+        tableAliasCalculator = Objects.requireNonNull(builder.tableAliasCalculator);
+        statementConfiguration = Objects.requireNonNull(builder.statementConfiguration);
 
         // reasonable defaults
         sequence = builder.sequence == null ? new AtomicInteger(1) : builder.sequence;
-        tableAliasCalculator = builder.tableAliasCalculator == null ? TableAliasCalculator.empty()
-                : builder.tableAliasCalculator;
         calculatedParameterName = builder.parameterName == null ? RenderingStrategy.DEFAULT_PARAMETER_PREFIX
                 : builder.parameterName + "." + RenderingStrategy.DEFAULT_PARAMETER_PREFIX;  //$NON-NLS-1$
     }
@@ -95,8 +97,16 @@ public class RenderingContext {
                 .orElseGet(table::tableNameAtRuntime);
     }
 
+    public boolean isNonRenderingClauseAllowed() {
+        return statementConfiguration.isNonRenderingWhereClauseAllowed();
+    }
+
+    public boolean isEmptyListConditionRenderingAllowed() {
+        return statementConfiguration.isEmptyListConditionRenderingAllowed();
+    }
+
     /**
-     * Crete a new rendering context based on this, with the table alias calculator modified to include the
+     * Create a new rendering context based on this, with the table alias calculator modified to include the
      * specified child table alias calculator. This is used by the query expression renderer when the alias calculator
      * may change during rendering.
      *
@@ -115,6 +125,7 @@ public class RenderingContext {
                 .withSequence(this.sequence)
                 .withParameterName(this.configuredParameterName)
                 .withTableAliasCalculator(tac)
+                .withStatementConfiguration(statementConfiguration)
                 .build();
     }
 
@@ -125,8 +136,9 @@ public class RenderingContext {
     public static class Builder {
         private RenderingStrategy renderingStrategy;
         private AtomicInteger sequence;
-        private TableAliasCalculator tableAliasCalculator;
+        private TableAliasCalculator tableAliasCalculator = TableAliasCalculator.empty();
         private String parameterName;
+        private StatementConfiguration statementConfiguration;
 
         public Builder withRenderingStrategy(RenderingStrategy renderingStrategy) {
             this.renderingStrategy = renderingStrategy;
@@ -145,6 +157,11 @@ public class RenderingContext {
 
         public Builder withParameterName(String parameterName) {
             this.parameterName = parameterName;
+            return this;
+        }
+
+        public Builder withStatementConfiguration(StatementConfiguration statementConfiguration) {
+            this.statementConfiguration = statementConfiguration;
             return this;
         }
 

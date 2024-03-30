@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2023 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.mybatis.dynamic.sql.select.render;
 import org.mybatis.dynamic.sql.common.AbstractBooleanExpressionRenderer;
 import org.mybatis.dynamic.sql.select.HavingModel;
 
-public class HavingRenderer extends AbstractBooleanExpressionRenderer<HavingModel> {
+public class HavingRenderer extends AbstractBooleanExpressionRenderer {
     private HavingRenderer(Builder builder) {
         super("having", builder); //$NON-NLS-1$
     }
@@ -27,7 +27,7 @@ public class HavingRenderer extends AbstractBooleanExpressionRenderer<HavingMode
         return new Builder(havingModel);
     }
 
-    public static class Builder extends AbstractBuilder<HavingModel, Builder> {
+    public static class Builder extends AbstractBuilder<Builder> {
         public Builder(HavingModel havingModel) {
             super(havingModel);
         }
