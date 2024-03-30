@@ -30,7 +30,6 @@ import org.mybatis.dynamic.sql.NotCriterion;
 import org.mybatis.dynamic.sql.SqlCriterion;
 import org.mybatis.dynamic.sql.SqlCriterionVisitor;
 import org.mybatis.dynamic.sql.render.RenderingContext;
-import org.mybatis.dynamic.sql.select.render.SelectRenderer;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 import org.mybatis.dynamic.sql.util.FragmentCollector;
@@ -110,7 +109,7 @@ public class CriterionRenderer implements SqlCriterionVisitor<Optional<RenderedC
     }
 
     private <T> Optional<FragmentAndParameters> renderColumnAndCondition(ColumnAndConditionCriterion<T> criterion) {
-        if (criterion.condition().shouldRender()) {
+        if (criterion.condition().shouldRender(renderingContext)) {
             return Optional.of(renderCondition(criterion));
         } else {
             criterion.condition().renderingSkipped();
@@ -121,11 +120,7 @@ public class CriterionRenderer implements SqlCriterionVisitor<Optional<RenderedC
     private FragmentAndParameters renderExists(ExistsCriterion criterion) {
         ExistsPredicate existsPredicate = criterion.existsPredicate();
 
-        SelectStatementProvider selectStatement = SelectRenderer
-                .withSelectModel(existsPredicate.selectModelBuilder().build())
-                .withRenderingContext(renderingContext)
-                .build()
-                .render();
+        SelectStatementProvider selectStatement = existsPredicate.selectModelBuilder().build().render(renderingContext);
 
         String fragment = existsPredicate.operator()
                 + " (" //$NON-NLS-1$
@@ -175,10 +170,12 @@ public class CriterionRenderer implements SqlCriterionVisitor<Optional<RenderedC
     }
 
     private <T> FragmentAndParameters renderCondition(ColumnAndConditionCriterion<T> criterion) {
-        DefaultConditionVisitor<T> visitor = DefaultConditionVisitor.withColumn(criterion.column())
+        return new ColumnAndConditionRenderer.Builder<T>()
+                .withColumn(criterion.column())
+                .withCondition(criterion.condition())
                 .withRenderingContext(renderingContext)
-                .build();
-        return criterion.condition().accept(visitor);
+                .build()
+                .render();
     }
 
     /**

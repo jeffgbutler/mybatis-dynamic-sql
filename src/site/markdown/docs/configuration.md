@@ -7,12 +7,6 @@ The library can be configured globally - which will change the behavior for all 
 can be configured. There are sensible defaults for all configuration values, so configuration is not strictly necessary.
 If you want to change any of the default behaviors of the library, then the information on this page will help.
 
-Prior to version 1.4.1 of the library, there was no configurable behavior in the library. In version 1.4.1 we changed
-the default behavior of the library to throw an exception if a where clause fails to render. We did this out of an
-abundance of caution because the optional conditions in a where clause could lead to a statement that affected all
-rows in a table (for example, a delete statement could inadvertently delete all rows in a table). If you want the library
-to function as it did before version 1.4.1 , then you can change the global configuration as shown below.
-
 ## Global Configuration
 
 On first use the library will initialize the global configuration. The global configuration can be specified via a property
@@ -24,9 +18,10 @@ The configuration file is a standard Java properties file. The possible values a
 
 ## Global Configuration Properties
 
-| Property                       | Default | Meaning                                                                                                                                                                                                                                                                                               |
-|--------------------------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| nonRenderingWhereClauseAllowed | false   | If a where clause is specified, but fails to render, then the library will throw a `NonRenderingWhereClauseException` by default. If you set this value to true, then no exception will be thrown. This could enable statements to be rendered without where clauses that affect all rows in a table. |
+| Property                           | Default | Available in Version | Meaning                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+|------------------------------------|---------|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| emptyListConditionRenderingAllowed | false   | 1.5.1+               | If a list condition ("in", "not in", etc.) has an empty list - either though its initial values, or through filtering, the condition will be dropped from the where clause by default. If you set this value to true, then the condition will render even though the resulting SQL will be invalid. This will likely cause an SQLException at runtime, but it could be viewed as a protective measure so that statements do not effect more rows than desired. |
+| nonRenderingWhereClauseAllowed     | false   | 1.4.1+               | If a where clause is specified, but fails to render, then the library will throw a `NonRenderingWhereClauseException` by default. If you set this value to true, then no exception will be thrown. This could enable statements to be rendered without where clauses that affect all rows in a table.                                                                                                                                                          |
 
 ## Statement Configuration
 
@@ -56,3 +51,32 @@ val deleteStatement = deleteFrom(person) {
 }
 ```
 
+## Configuration Scope with Select Statements
+
+Select statements can stand alone, or they can be embedded within other statements. For example, the library supports
+writing insert statements with an embedded select, or select statements that contain other select statements for sub
+queries. The select DSLs (both Java and Kotlin) appear to allow you to specify statement configuration on embedded
+select statements, but this is not supported in point of fact. Statement configuration must ALWAYS be specified on the
+outermost statement. Any configuration specified on embedded select statements will be ignored. We realize this could be
+confusing! But we've made this decision hoping to minimize code duplication and maximize consistency.
+
+So the best practice is to ALWAYS specify the statement configuration as the LAST call to the DSL before calling
+`build`, or before ending a Kotlin lambda.
+
+The following Kotlin code snippet shows this in action...
+
+```kotlin
+val insertStatement = insertSelect {
+    into(person)
+    select(id, firstName, lastName, birthDate, employed, occupation, addressId) {
+        from(person)
+        where { id isGreaterThanOrEqualToWhenPresent null }
+        // the following will be ignored in favor of the enclosing statement configuration...
+        configureStatement { isNonRenderingWhereClauseAllowed = false }
+    }
+    configureStatement { isNonRenderingWhereClauseAllowed = true }
+}
+```
+
+The inner `configureStatement` call will be ignored in this case, only the `configureStatement` call scoped to the
+insert statement itself will be in effect.
