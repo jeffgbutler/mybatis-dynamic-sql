@@ -41,11 +41,11 @@ public class RawJDBCRenderingStrategy extends RenderingStrategy {
 
     @Override
     public String getRecordBasedInsertBinding(BindableColumn<?> column, String parameterName) {
-        throw new DynamicSqlException(Messages.getString("ERROR.38")); //$NON-NLS-1$
+        throw new DynamicSqlException(Messages.getString("ERROR.39")); //$NON-NLS-1$
     }
 
     @Override
     public String getRecordBasedInsertBinding(BindableColumn<?> column, String prefix, String parameterName) {
-        throw new DynamicSqlException(Messages.getString("ERROR.38")); //$NON-NLS-1$
+        throw new DynamicSqlException(Messages.getString("ERROR.39")); //$NON-NLS-1$
     }
 }
