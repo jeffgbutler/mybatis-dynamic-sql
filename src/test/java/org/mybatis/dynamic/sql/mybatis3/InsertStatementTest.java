@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -35,11 +35,11 @@ class InsertStatementTest {
 
     @Test
     void testFullInsertStatementBuilder() {
-        TestRecord record = new TestRecord();
-        record.setLastName("jones");
-        record.setOccupation("dino driver");
+        TestRecord row = new TestRecord();
+        row.setLastName("jones");
+        row.setOccupation("dino driver");
 
-        InsertStatementProvider<?> insertStatement = insert(record)
+        InsertStatementProvider<?> insertStatement = insert(row)
                 .into(foo)
                 .map(id).toProperty("id")
                 .map(firstName).toProperty("firstName")
@@ -57,16 +57,16 @@ class InsertStatementTest {
 
     @Test
     void testSelectiveInsertStatementBuilder() {
-        TestRecord record = new TestRecord();
-        record.setLastName("jones");
-        record.setOccupation("dino driver");
+        TestRecord row = new TestRecord();
+        row.setLastName("jones");
+        row.setOccupation("dino driver");
 
-        InsertStatementProvider<?> insertStatement = insert(record)
+        InsertStatementProvider<?> insertStatement = insert(row)
                 .into(foo)
-                .map(id).toPropertyWhenPresent("id", record::getId)
-                .map(firstName).toPropertyWhenPresent("firstName", record::getFirstName)
-                .map(lastName).toPropertyWhenPresent("lastName", record::getLastName)
-                .map(occupation).toPropertyWhenPresent("occupation", record::getOccupation)
+                .map(id).toPropertyWhenPresent("id", row::getId)
+                .map(firstName).toPropertyWhenPresent("firstName", row::getFirstName)
+                .map(lastName).toPropertyWhenPresent("lastName", row::getLastName)
+                .map(occupation).toPropertyWhenPresent("occupation", row::getOccupation)
                 .build()
                 .render(RenderingStrategies.MYBATIS3);
 

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class BatchInsert<T> {
     private final String insertStatement;
@@ -38,7 +37,7 @@ public class BatchInsert<T> {
     public List<InsertStatementProvider<T>> insertStatements() {
         return records.stream()
                 .map(this::toInsertStatement)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private InsertStatementProvider<T> toInsertStatement(T row) {
@@ -57,7 +56,7 @@ public class BatchInsert<T> {
     }
 
     public List<T> getRecords() {
-        return Collections.unmodifiableList(records);
+        return records;
     }
 
     public static <T> Builder<T> withRecords(List<T> records) {

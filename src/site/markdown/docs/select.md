@@ -6,21 +6,22 @@ select statements, but purposely does not cover every possibility.
 In general, the following are supported:
 
 1. The typical parts of a select statement including SELECT, DISTINCT, FROM, JOIN, WHERE, GROUP BY, UNION,
-   UNION ALL, ORDER BY
+   UNION ALL, ORDER BY, HAVING
 2. Tables can be aliased per select statement
 3. Columns can be aliased per select statement
 4. Some support for aggregates (avg, min, max, sum)
 5. Equijoins of type INNER, LEFT OUTER, RIGHT OUTER, FULL OUTER
-6. Subqueries in where clauses.  For example, `where foo in (select foo from foos where id < 36)` 
+6. Subqueries in where clauses. For example, `where foo in (select foo from foos where id < 36)`
+7. Select from another select. For example `select count(*) from (select foo from foos where id < 36)`
+8. Multi-Selects. For example `(select * from foo order by id limit 3) union (select * from foo order by id desc limit 3)`
 
 At this time, the library does not support the following:
 
 1. WITH expressions
-2. HAVING expressions
-3. Select from another select.  For example `select count(*) from (select foo from foos where id < 36)`
-4. INTERSECT, EXCEPT, etc.
+2. INTERSECT, EXCEPT, etc.
 
-The user guide page for WHERE Clauses shows examples of many different types of SELECT statements with different complexities of the WHERE clause including support for sub-queries.  We will just show a single example here, including an ORDER BY clause:
+The user guide page for WHERE Clauses shows examples of many types of SELECT statements with different complexities of
+the WHERE clause including support for sub-queries.  We will just show a single example here, including an ORDER BY clause:
 
 ```java
     SelectStatementProvider selectStatement = select(id, animalName, bodyWeight, brainWeight)
@@ -85,11 +86,36 @@ The library supports the generation of UNION and UNION ALL queries. For example:
 
 Any number of SELECT statements can be added to a UNION query. Only one ORDER BY phrase is allowed.
 
+With this type of union query, the "order by" and paging clauses are applied to the query as a whole. If
+you need to apply "order by" or paging clauses to the nested queries, use a multi-select query as shown
+below.
+
+## Multi-Select Queries
+
+Multi-select queries are a special case of union select statements. The difference is that "order by" and
+paging clauses can be applied to the merged queries. For example:
+
+```java
+    SelectStatementProvider selectStatement = multiSelect(
+            select(id, animalName, bodyWeight, brainWeight)
+            .from(animalData)
+            .orderBy(id)
+            .limit(2)
+        ).union(
+            selectDistinct(id, animalName, bodyWeight, brainWeight)
+            .from(animalData)
+            .orderBy(id.descending())
+            .limit(3)
+        )
+        .build()
+        .render(RenderingStrategies.MYBATIS3);
+```
+
 ## MyBatis Mapper for Select Statements
 
 The SelectStatementProvider object can be used as a parameter to a MyBatis mapper method directly. If you
 are using an annotated mapper, the select method should look like this (note that we recommend coding a "selectMany" and a "selectOne" method with a shared result mapping):
-  
+
 ```java
 import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.ResultMap;
@@ -148,7 +174,7 @@ Notice that the resultMap is the only element in the XML mapper. This is our rec
 We do not recommend using an XML mapper for select statements, but if you want to do so the SelectStatementProvider object can be used as a parameter to a MyBatis mapper method directly.
 
 If you are using an XML mapper, the select method should look like this in the Java interface:
-  
+
 ```java
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 
@@ -186,7 +212,7 @@ it is easist to use the "arbitrary string" method with the column alias as shown
 there is a join, and the ORDER BY column is in two or more tables, and the ORDER BY column is not in the select
 list. For example `orderBy(sortColumn("t1", foo))`.
 1. If none of the above use cases meet your needs, then you can specify an arbitrary String to write into the rendered ORDER BY
-phrase (see below for an example).  
+phrase (see below for an example).
 
 In our testing, this caused an issue in only one case.  When there is an outer join and the select list contains
 both the left and right join column.  In that case, the workaround is to supply a column alias for both columns.

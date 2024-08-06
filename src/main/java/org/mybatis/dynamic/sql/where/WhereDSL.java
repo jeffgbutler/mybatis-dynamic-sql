@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,23 +15,55 @@
  */
 package org.mybatis.dynamic.sql.where;
 
-import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
+import java.util.function.Consumer;
 
-public class WhereDSL extends AbstractWhereDSL<WhereDSL> {
-    private WhereDSL() {
-        super(new StatementConfiguration());
+import org.jetbrains.annotations.NotNull;
+import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
+import org.mybatis.dynamic.sql.util.Buildable;
+
+/**
+ *  DSL for standalone where clauses.
+ *
+ *  <p>This can also be used to create reusable where clauses for different statements.
+ */
+public class WhereDSL extends AbstractWhereStarter<WhereDSL.StandaloneWhereFinisher, WhereDSL> {
+    private final StatementConfiguration statementConfiguration = new StatementConfiguration();
+    private final StandaloneWhereFinisher whereBuilder = new StandaloneWhereFinisher();
+
+    @Override
+    public StandaloneWhereFinisher where() {
+        return whereBuilder;
     }
 
     @Override
-    protected WhereDSL getThis() {
+    public WhereDSL configureStatement(Consumer<StatementConfiguration> consumer) {
+        consumer.accept(statementConfiguration);
         return this;
     }
 
-    public static WhereDSL where() {
-        return new WhereDSL();
-    }
+    public class StandaloneWhereFinisher extends AbstractWhereFinisher<StandaloneWhereFinisher>
+            implements Buildable<WhereModel> {
+        private StandaloneWhereFinisher() {
+            super(WhereDSL.this);
+        }
 
-    public WhereModel build() {
-        return internalBuild();
+        @Override
+        protected StandaloneWhereFinisher getThis() {
+            return this;
+        }
+
+        @NotNull
+        @Override
+        public WhereModel build() {
+            return new WhereModel.Builder()
+                    .withInitialCriterion(getInitialCriterion())
+                    .withSubCriteria(subCriteria)
+                    .withStatementConfiguration(statementConfiguration)
+                    .build();
+        }
+
+        public WhereApplier toWhereApplier() {
+            return d -> d.initialize(getInitialCriterion(), subCriteria);
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ class NotBetweenTest {
     fun `Test That First Null Causes Compile Error`() {
         val source = """
             package temp.kotlin.test
-            
+
             import examples.kotlin.mybatis3.canonical.PersonDynamicSqlSupport.id
             import examples.kotlin.mybatis3.canonical.PersonDynamicSqlSupport.person
             import org.mybatis.dynamic.sql.util.kotlin.mybatis3.countFrom
@@ -36,14 +36,16 @@ class NotBetweenTest {
         """
 
         val compilerMessageCollector = compile(source)
-        assertThat(compilerMessageCollector.errorLocations()).isEqualTo(listOf(ErrorLocation(9, 33)))
+        assertThat(compilerMessageCollector.errorLocations())
+            .hasSize(1)
+            .contains(ErrorLocation(9, 33))
     }
 
     @Test
     fun `Test That Second Null Causes Compile Error`() {
         val source = """
             package temp.kotlin.test
-            
+
             import examples.kotlin.mybatis3.canonical.PersonDynamicSqlSupport.id
             import examples.kotlin.mybatis3.canonical.PersonDynamicSqlSupport.person
             import org.mybatis.dynamic.sql.util.kotlin.mybatis3.countFrom
@@ -56,14 +58,16 @@ class NotBetweenTest {
         """
 
         val compilerMessageCollector = compile(source)
-        assertThat(compilerMessageCollector.errorLocations()).isEqualTo(listOf(ErrorLocation(9, 39)))
+        assertThat(compilerMessageCollector.errorLocations())
+            .hasSize(1)
+            .contains(ErrorLocation(9, 39))
     }
 
     @Test
     fun `Test That Both Null Causes Compile Errors`() {
         val source = """
             package temp.kotlin.test
-            
+
             import examples.kotlin.mybatis3.canonical.PersonDynamicSqlSupport.id
             import examples.kotlin.mybatis3.canonical.PersonDynamicSqlSupport.person
             import org.mybatis.dynamic.sql.util.kotlin.mybatis3.countFrom
@@ -76,17 +80,16 @@ class NotBetweenTest {
         """
 
         val compilerMessageCollector = compile(source)
-        assertThat(compilerMessageCollector.errorLocations()).isEqualTo(listOf(
-            ErrorLocation(9, 33),
-            ErrorLocation(9, 42)
-        ))
+        assertThat(compilerMessageCollector.errorLocations())
+            .hasSize(2)
+            .contains(ErrorLocation(9, 33), ErrorLocation(9, 42))
     }
 
     @Test
     fun `Test That First Null In Elements Method Causes Compile Error`() {
         val source = """
             package temp.kotlin.test
-            
+
             import examples.kotlin.mybatis3.canonical.PersonDynamicSqlSupport.id
             import examples.kotlin.mybatis3.canonical.PersonDynamicSqlSupport.person
             import org.mybatis.dynamic.sql.util.kotlin.mybatis3.countFrom
@@ -100,14 +103,16 @@ class NotBetweenTest {
         """
 
         val compilerMessageCollector = compile(source)
-        assertThat(compilerMessageCollector.errorLocations()).isEqualTo(listOf(ErrorLocation(10, 39)))
+        assertThat(compilerMessageCollector.errorLocations())
+            .hasSize(1)
+            .contains(ErrorLocation(10, 39))
     }
 
     @Test
     fun `Test That Second Null In Elements Method Causes Compile Error`() {
         val source = """
             package temp.kotlin.test
-            
+
             import examples.kotlin.mybatis3.canonical.PersonDynamicSqlSupport.id
             import examples.kotlin.mybatis3.canonical.PersonDynamicSqlSupport.person
             import org.mybatis.dynamic.sql.util.kotlin.mybatis3.countFrom
@@ -121,14 +126,16 @@ class NotBetweenTest {
         """
 
         val compilerMessageCollector = compile(source)
-        assertThat(compilerMessageCollector.errorLocations()).isEqualTo(listOf(ErrorLocation(10, 41)))
+        assertThat(compilerMessageCollector.errorLocations())
+            .hasSize(1)
+            .contains(ErrorLocation(10, 41))
     }
 
     @Test
     fun `Test That Both Null In Elements Method Causes Compile Error`() {
         val source = """
             package temp.kotlin.test
-            
+
             import examples.kotlin.mybatis3.canonical.PersonDynamicSqlSupport.id
             import examples.kotlin.mybatis3.canonical.PersonDynamicSqlSupport.person
             import org.mybatis.dynamic.sql.util.kotlin.mybatis3.countFrom
@@ -142,9 +149,8 @@ class NotBetweenTest {
         """
 
         val compilerMessageCollector = compile(source)
-        assertThat(compilerMessageCollector.errorLocations()).isEqualTo(listOf(
-            ErrorLocation(10, 39),
-            ErrorLocation(10, 49)
-        ))
+        assertThat(compilerMessageCollector.errorLocations())
+            .hasSize(2)
+            .contains(ErrorLocation(10, 39), ErrorLocation(10, 49))
     }
 }

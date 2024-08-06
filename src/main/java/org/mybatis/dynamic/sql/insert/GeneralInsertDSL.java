@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
 import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.SqlTable;
+import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping;
 import org.mybatis.dynamic.sql.util.Buildable;
 import org.mybatis.dynamic.sql.util.ConstantMapping;
@@ -52,6 +53,7 @@ public class GeneralInsertDSL implements Buildable<GeneralInsertModel> {
         return new GeneralInsertModel.Builder()
                 .withTable(table)
                 .withInsertMappings(columnMappings)
+                .withStatementConfiguration(new StatementConfiguration()) // nothing configurable in this statement yet
                 .build();
     }
 
@@ -119,7 +121,7 @@ public class GeneralInsertDSL implements Buildable<GeneralInsertModel> {
             return this;
         }
 
-        public Builder withColumnMappings(Collection<AbstractColumnMapping> columnMappings) {
+        public Builder withColumnMappings(Collection<? extends AbstractColumnMapping> columnMappings) {
             this.columnMappings.addAll(columnMappings);
             return this;
         }

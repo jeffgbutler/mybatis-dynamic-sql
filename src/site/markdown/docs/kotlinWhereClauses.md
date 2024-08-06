@@ -85,11 +85,10 @@ where clauses with and/or/not phrases. See the following example of a complex wh
 select(foo) {
     from(bar)
     where {
-        id isEqualTo 3
-        and { id isEqualTo 4 }
+       id isEqualTo 3
+       or { id isEqualTo 4 }
+       and { not { id isEqualTo 6 } }
     }
-    or { id isEqualTo 4 }
-    and { not { id isEqualTo 6 } }
 }
 ```
 
@@ -140,7 +139,7 @@ given context. Others must be enclosed in an `and` or an `or` block. The four ty
         }
     }
     ```
-   
+
     You can accomplish a "not exists" by nesting `exists` inside a `not` block:
 
     ```kotlin
@@ -215,8 +214,10 @@ These criteria should be updated by moving the column and condition into a lambd
 ```kotlin
 select(foo) {
    from(bar)
-   where { id isEqualTo 3 }
-   or { id isEqualTo 4 }
+   where {
+      id isEqualTo 3
+      or { id isEqualTo 4 }
+   }
 }
 ```
 

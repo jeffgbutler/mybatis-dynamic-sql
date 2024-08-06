@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,15 +20,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SortSpecification;
-import org.mybatis.dynamic.sql.SqlTable;
-import org.mybatis.dynamic.sql.TableExpression;
 import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.select.QueryExpressionDSL.FromGatherer;
@@ -51,6 +49,7 @@ public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectD
     private Long limit;
     private Long offset;
     private Long fetchFirstRows;
+    final StatementConfiguration statementConfiguration = new StatementConfiguration();
 
     private SelectDSL(Function<SelectModel, R> adapterFunction) {
         this.adapterFunction = Objects.requireNonNull(adapterFunction);
@@ -60,7 +59,7 @@ public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectD
         return select(Arrays.asList(selectList));
     }
 
-    public static QueryExpressionDSL.FromGatherer<SelectModel> select(Collection<BasicColumn> selectList) {
+    public static QueryExpressionDSL.FromGatherer<SelectModel> select(Collection<? extends BasicColumn> selectList) {
         return select(Function.identity(), selectList);
     }
 
@@ -70,7 +69,7 @@ public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectD
     }
 
     public static <R> QueryExpressionDSL.FromGatherer<R> select(Function<SelectModel, R> adapterFunction,
-            Collection<BasicColumn> selectList) {
+            Collection<? extends BasicColumn> selectList) {
         return new FromGatherer.Builder<R>()
                 .withSelectList(selectList)
                 .withSelectDSL(new SelectDSL<>(adapterFunction))
@@ -81,7 +80,8 @@ public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectD
         return selectDistinct(Function.identity(), selectList);
     }
 
-    public static QueryExpressionDSL.FromGatherer<SelectModel> selectDistinct(Collection<BasicColumn> selectList) {
+    public static QueryExpressionDSL.FromGatherer<SelectModel> selectDistinct(
+            Collection<? extends BasicColumn> selectList) {
         return selectDistinct(Function.identity(), selectList);
     }
 
@@ -91,7 +91,7 @@ public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectD
     }
 
     public static <R> QueryExpressionDSL.FromGatherer<R> selectDistinct(Function<SelectModel, R> adapterFunction,
-            Collection<BasicColumn> selectList) {
+            Collection<? extends BasicColumn> selectList) {
         return new FromGatherer.Builder<R>()
                 .withSelectList(selectList)
                 .withSelectDSL(new SelectDSL<>(adapterFunction))
@@ -99,19 +99,11 @@ public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectD
                 .build();
     }
 
-    QueryExpressionDSL<R> newQueryExpression(FromGatherer<R> fromGatherer, TableExpression table) {
-        QueryExpressionDSL<R> queryExpression = new QueryExpressionDSL<>(fromGatherer, table);
+    void registerQueryExpression(QueryExpressionDSL<R> queryExpression) {
         queryExpressions.add(queryExpression);
-        return queryExpression;
     }
 
-    QueryExpressionDSL<R> newQueryExpression(FromGatherer<R> fromGatherer, SqlTable table, String tableAlias) {
-        QueryExpressionDSL<R> queryExpression = new QueryExpressionDSL<>(fromGatherer, table, tableAlias);
-        queryExpressions.add(queryExpression);
-        return queryExpression;
-    }
-
-    void orderBy(Collection<SortSpecification> columns) {
+    void orderBy(Collection<? extends SortSpecification> columns) {
         orderByModel = OrderByModel.of(columns);
     }
 
@@ -132,7 +124,7 @@ public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectD
 
     @Override
     public SelectDSL<R> configureStatement(Consumer<StatementConfiguration> consumer) {
-        queryExpressions.forEach(q -> q.configureStatement(consumer));
+        consumer.accept(statementConfiguration);
         return this;
     }
 
@@ -141,7 +133,8 @@ public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectD
     public R build() {
         SelectModel selectModel = SelectModel.withQueryExpressions(buildModels())
                 .withOrderByModel(orderByModel)
-                .withPagingModel(buildPagingModel())
+                .withPagingModel(buildPagingModel().orElse(null))
+                .withStatementConfiguration(statementConfiguration)
                 .build();
         return adapterFunction.apply(selectModel);
     }
@@ -149,14 +142,10 @@ public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectD
     private List<QueryExpressionModel> buildModels() {
         return queryExpressions.stream()
                 .map(QueryExpressionDSL::buildModel)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    private PagingModel buildPagingModel() {
-        if (limit == null && offset == null && fetchFirstRows == null) {
-            return  null;
-        }
-
+    private Optional<PagingModel> buildPagingModel() {
         return new PagingModel.Builder()
                 .withLimit(limit)
                 .withOffset(offset)

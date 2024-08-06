@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -62,6 +62,16 @@ class ColumnMappingVisitorTest {
 
         assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> tv.visit(mapping))
                 .withMessage("Internal Error 3");
+    }
+
+    @Test
+    void testThatGeneralInsertVisitorErrorsForRowMapping() {
+        TestTable table = new TestTable();
+        GeneralInsertVisitor tv = new GeneralInsertVisitor();
+        RowMapping mapping = RowMapping.of(table.id);
+
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> tv.visit(mapping))
+                .withMessage("Internal Error 14");
     }
 
     @Test
@@ -184,6 +194,16 @@ class ColumnMappingVisitorTest {
                 .withMessage("Internal Error 11");
     }
 
+    @Test
+    void testThatUpdateVisitorErrorsForRowMapping() {
+        TestTable table = new TestTable();
+        UpdateVisitor tv = new UpdateVisitor();
+        RowMapping mapping = RowMapping.of(table.id);
+
+        assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> tv.visit(mapping))
+                .withMessage("Internal Error 15");
+    }
+
     private static class TestTable extends SqlTable {
         public SqlColumn<Integer> id;
         public SqlColumn<String> description;
@@ -253,6 +273,11 @@ class ColumnMappingVisitorTest {
         public String visit(PropertyWhenPresentMapping mapping) {
             return "Property When Present Mapping";
         }
+
+        @Override
+        public String visit(RowMapping mapping) {
+            return "Row Mapping";
+        }
     }
 
     private static class UpdateVisitor extends UpdateMappingVisitor<String> {
@@ -317,6 +342,11 @@ class ColumnMappingVisitorTest {
         @Override
         public String visit(PropertyMapping mapping) {
             return "Property Mapping";
+        }
+
+        @Override
+        public String visit(RowMapping mapping) {
+            return "Row Mapping";
         }
 
     }

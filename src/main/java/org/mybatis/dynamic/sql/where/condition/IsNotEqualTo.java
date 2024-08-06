@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import org.mybatis.dynamic.sql.AbstractSingleValueCondition;
 public class IsNotEqualTo<T> extends AbstractSingleValueCondition<T> {
     private static final IsNotEqualTo<?> EMPTY = new IsNotEqualTo<Object>(null) {
         @Override
-        public boolean shouldRender() {
-            return false;
+        public boolean isEmpty() {
+            return true;
         }
     };
 
@@ -39,8 +39,8 @@ public class IsNotEqualTo<T> extends AbstractSingleValueCondition<T> {
     }
 
     @Override
-    public String renderCondition(String columnName, String placeholder) {
-        return columnName + " <> " + placeholder; //$NON-NLS-1$
+    public String operator() {
+        return "<>"; //$NON-NLS-1$
     }
 
     public static <T> IsNotEqualTo<T> of(T value) {
@@ -54,7 +54,7 @@ public class IsNotEqualTo<T> extends AbstractSingleValueCondition<T> {
 
     /**
      * If renderable, apply the mapping to the value and return a new condition with the new value. Else return a
-     *     condition that will not render (this).
+     * condition that will not render (this).
      *
      * @param mapper a mapping function to apply to the value, if renderable
      * @param <R> type of the new condition

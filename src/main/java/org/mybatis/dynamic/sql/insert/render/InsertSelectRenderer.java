@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,8 +22,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.mybatis.dynamic.sql.SqlColumn;
+import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.insert.InsertColumnListModel;
 import org.mybatis.dynamic.sql.insert.InsertSelectModel;
+import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.StringUtilities;
@@ -31,15 +33,17 @@ import org.mybatis.dynamic.sql.util.StringUtilities;
 public class InsertSelectRenderer {
 
     private final InsertSelectModel model;
-    private final RenderingStrategy renderingStrategy;
+    private final RenderingContext renderingContext;
 
     private InsertSelectRenderer(Builder builder) {
         model = Objects.requireNonNull(builder.model);
-        renderingStrategy = Objects.requireNonNull(builder.renderingStrategy);
+        renderingContext = RenderingContext.withRenderingStrategy(builder.renderingStrategy)
+                .withStatementConfiguration(builder.statementConfiguration)
+                .build();
     }
 
     public InsertSelectStatementProvider render() {
-        SelectStatementProvider selectStatement = model.selectModel().render(renderingStrategy);
+        SelectStatementProvider selectStatement = model.selectModel().render(renderingContext);
 
         String statementStart = InsertRenderingUtilities.calculateInsertStatementStart(model.table());
         Optional<String> columnsPhrase = calculateColumnsPhrase();
@@ -59,7 +63,8 @@ public class InsertSelectRenderer {
     }
 
     private String calculateColumnsPhrase(InsertColumnListModel columnList) {
-        return columnList.mapColumns(SqlColumn::name)
+        return columnList.columns()
+                .map(SqlColumn::name)
                 .collect(Collectors.joining(", ", "(", ")")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
@@ -70,6 +75,7 @@ public class InsertSelectRenderer {
     public static class Builder {
         private InsertSelectModel model;
         private RenderingStrategy renderingStrategy;
+        private StatementConfiguration statementConfiguration;
 
         public Builder withInsertSelectModel(InsertSelectModel model) {
             this.model = model;
@@ -78,6 +84,11 @@ public class InsertSelectRenderer {
 
         public Builder withRenderingStrategy(RenderingStrategy renderingStrategy) {
             this.renderingStrategy = renderingStrategy;
+            return this;
+        }
+
+        public Builder withStatementConfiguration(StatementConfiguration statementConfiguration) {
+            this.statementConfiguration = statementConfiguration;
             return this;
         }
 

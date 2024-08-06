@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,11 +21,12 @@ import java.util.function.UnaryOperator;
 import org.mybatis.dynamic.sql.AbstractSingleValueCondition;
 import org.mybatis.dynamic.sql.util.StringUtilities;
 
-public class IsLikeCaseInsensitive extends AbstractSingleValueCondition<String> {
+public class IsLikeCaseInsensitive extends AbstractSingleValueCondition<String>
+        implements CaseInsensitiveVisitableCondition {
     private static final IsLikeCaseInsensitive EMPTY = new IsLikeCaseInsensitive(null) {
         @Override
-        public boolean shouldRender() {
-            return false;
+        public boolean isEmpty() {
+            return true;
         }
     };
 
@@ -38,17 +39,8 @@ public class IsLikeCaseInsensitive extends AbstractSingleValueCondition<String> 
     }
 
     @Override
-    public String renderCondition(String columnName, String placeholder) {
-        return "upper(" + columnName + ") like " + placeholder; //$NON-NLS-1$ //$NON-NLS-2$
-    }
-
-    @Override
-    public String value() {
-        return StringUtilities.safelyUpperCase(super.value());
-    }
-
-    public static IsLikeCaseInsensitive of(String value) {
-        return new IsLikeCaseInsensitive(value);
+    public String operator() {
+        return "like"; //$NON-NLS-1$
     }
 
     @Override
@@ -58,7 +50,7 @@ public class IsLikeCaseInsensitive extends AbstractSingleValueCondition<String> 
 
     /**
      * If renderable, apply the mapping to the value and return a new condition with the new value. Else return a
-     *     condition that will not render (this).
+     * condition that will not render (this).
      *
      * @param mapper a mapping function to apply to the value, if renderable
      * @return a new condition with the result of applying the mapper to the value of this condition,
@@ -66,5 +58,9 @@ public class IsLikeCaseInsensitive extends AbstractSingleValueCondition<String> 
      */
     public IsLikeCaseInsensitive map(UnaryOperator<String> mapper) {
         return mapSupport(mapper, IsLikeCaseInsensitive::new, IsLikeCaseInsensitive::empty);
+    }
+
+    public static IsLikeCaseInsensitive of(String value) {
+        return new IsLikeCaseInsensitive(value).map(StringUtilities::safelyUpperCase);
     }
 }

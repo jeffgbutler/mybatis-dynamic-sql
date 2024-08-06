@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -56,12 +56,7 @@ class EmptyWhereTest {
 
         Variation v4 = new Variation(null, null, "");
 
-        List<Variation> answer = new ArrayList<>();
-        answer.add(v1);
-        answer.add(v2);
-        answer.add(v3);
-        answer.add(v4);
-        return answer;
+        return List.of(v1, v2, v3, v4);
     }
 
     static Stream<Variation> whereVariations() {
@@ -262,7 +257,7 @@ class EmptyWhereTest {
         String fName = "Fred";
         String lName = "Flintstone";
 
-        WhereDSL builder = where(id, isEqualTo(3));
+        WhereDSL.StandaloneWhereFinisher builder = where(id, isEqualTo(3));
 
         builder.and(firstName, isEqualTo(fName).filter(Objects::nonNull));
         builder.and(PersonDynamicSqlSupport.lastName, isEqualTo(lName).filter(Objects::nonNull));
@@ -281,7 +276,7 @@ class EmptyWhereTest {
     @ParameterizedTest
     @MethodSource("whereVariations")
     void testWhereVariations(Variation variation) {
-        WhereDSL builder = where();
+        WhereDSL.StandaloneWhereFinisher builder = where();
 
         builder.and(firstName, isEqualTo(variation.firstName).filter(Objects::nonNull));
         builder.or(PersonDynamicSqlSupport.lastName, isEqualTo(variation.lastName).filter(Objects::nonNull));

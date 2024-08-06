@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,34 +25,16 @@ import org.mybatis.dynamic.sql.NotCriterion
 import org.mybatis.dynamic.sql.SqlBuilder
 import org.mybatis.dynamic.sql.SqlCriterion
 import org.mybatis.dynamic.sql.VisitableCondition
-import org.mybatis.dynamic.sql.util.Messages
 
 typealias GroupingCriteriaReceiver = GroupingCriteriaCollector.() -> Unit
 
-/**
- * This class is used to gather criteria for a where clause. The class gathers two types of criteria:
- * an initial criterion, and sub-criteria connected by either an "and" or an "or".
- *
- * An initial criterion can be one of four types:
- * - A column and condition (called with the invoke operator on a column, or an infix function)
- * - An exists operator (called with the "exists" function)
- * - A criteria group which is essentially parenthesis within the where clause (called with the "group" function)
- * - A criteria group preceded with "not" (called with the "not" function)
- *
- * Only one of the initial criterion functions should be called within each scope. If you need more than one,
- * use a sub-criterion joined with "and" or "or"
- */
-@Suppress("TooManyFunctions")
-@MyBatisDslMarker
-class GroupingCriteriaCollector {
-    internal var initialCriterion: SqlCriterion? = null
-        private set(value) {
-            if (field != null) {
-                throw KInvalidSQLException(Messages.getString("ERROR.21")) //$NON-NLS-1$
-            }
-            field = value
-        }
+fun GroupingCriteriaReceiver.andThen(after: SubCriteriaCollector.() -> Unit): GroupingCriteriaReceiver = {
+    invoke(this)
+    after(this)
+}
 
+@MyBatisDslMarker
+sealed class SubCriteriaCollector {
     internal val subCriteria = mutableListOf<AndOrCriteriaGroup>()
 
     /**
@@ -64,11 +46,11 @@ class GroupingCriteriaCollector {
      * @param criteriaReceiver a function to create the contained criteria
      */
     fun and(criteriaReceiver: GroupingCriteriaReceiver): Unit =
-        with(GroupingCriteriaCollector().apply(criteriaReceiver)) {
-            this@GroupingCriteriaCollector.subCriteria.add(
+        GroupingCriteriaCollector().apply(criteriaReceiver).let {
+            subCriteria.add(
                 AndOrCriteriaGroup.Builder().withConnector("and") //$NON-NLS-1$
-                    .withInitialCriterion(initialCriterion)
-                    .withSubCriteria(subCriteria)
+                    .withInitialCriterion(it.initialCriterion)
+                    .withSubCriteria(it.subCriteria)
                     .build()
             )
         }
@@ -85,7 +67,7 @@ class GroupingCriteriaCollector {
      *
      */
     fun and(criteria: List<AndOrCriteriaGroup>) {
-        this@GroupingCriteriaCollector.subCriteria.add(
+        subCriteria.add(
             AndOrCriteriaGroup.Builder().withConnector("and") //$NON-NLS-1$
                 .withSubCriteria(criteria)
                 .build()
@@ -101,11 +83,11 @@ class GroupingCriteriaCollector {
      * @param criteriaReceiver a function to create the contained criteria
      */
     fun or(criteriaReceiver: GroupingCriteriaReceiver): Unit =
-        with(GroupingCriteriaCollector().apply(criteriaReceiver)) {
-            this@GroupingCriteriaCollector.subCriteria.add(
+        GroupingCriteriaCollector().apply(criteriaReceiver).let {
+            subCriteria.add(
                 AndOrCriteriaGroup.Builder().withConnector("or") //$NON-NLS-1$
-                    .withInitialCriterion(initialCriterion)
-                    .withSubCriteria(subCriteria)
+                    .withInitialCriterion(it.initialCriterion)
+                    .withSubCriteria(it.subCriteria)
                     .build()
             )
         }
@@ -122,12 +104,35 @@ class GroupingCriteriaCollector {
      *
      */
     fun or(criteria: List<AndOrCriteriaGroup>) {
-        this@GroupingCriteriaCollector.subCriteria.add(
+        subCriteria.add(
             AndOrCriteriaGroup.Builder().withConnector("or") //$NON-NLS-1$
                 .withSubCriteria(criteria)
                 .build()
         )
     }
+}
+
+/**
+ * This class is used to gather criteria for a having or where clause. The class gathers two types of criteria:
+ * an initial criterion, and sub-criteria connected by either an "and" or an "or".
+ *
+ * An initial criterion can be one of four types:
+ * - A column and condition (called with the invoke operator on a column, or an infix function)
+ * - An exists operator (called with the "exists" function)
+ * - A criteria group which is essentially parenthesis within the where clause (called with the "group" function)
+ * - A criteria group preceded with "not" (called with the "not" function)
+ *
+ * Only one of the initial criterion functions should be called within each scope. If you need more than one,
+ * use a sub-criterion joined with "and" or "or"
+ */
+@Suppress("TooManyFunctions")
+@MyBatisDslMarker
+open class GroupingCriteriaCollector : SubCriteriaCollector() {
+    internal var initialCriterion: SqlCriterion? = null
+        private set(value) {
+            assertNull(field, "ERROR.21") //$NON-NLS-1$
+            field = value
+        }
 
     /**
      * Add an initial criterion preceded with "not" to the current context. If the receiver adds more than one
@@ -139,10 +144,10 @@ class GroupingCriteriaCollector {
      * @param criteriaReceiver a function to create the contained criteria
      */
     fun not(criteriaReceiver: GroupingCriteriaReceiver): Unit =
-        with(GroupingCriteriaCollector().apply(criteriaReceiver)) {
-            this@GroupingCriteriaCollector.initialCriterion = NotCriterion.Builder()
-                .withInitialCriterion(initialCriterion)
-                .withSubCriteria(subCriteria)
+        GroupingCriteriaCollector().apply(criteriaReceiver).let {
+            initialCriterion = NotCriterion.Builder()
+                .withInitialCriterion(it.initialCriterion)
+                .withSubCriteria(it.subCriteria)
                 .build()
         }
 
@@ -159,9 +164,7 @@ class GroupingCriteriaCollector {
      *
      */
     fun not(criteria: List<AndOrCriteriaGroup>) {
-        this@GroupingCriteriaCollector.initialCriterion = NotCriterion.Builder()
-            .withSubCriteria(criteria)
-            .build()
+        initialCriterion = NotCriterion.Builder().withSubCriteria(criteria).build()
     }
 
     /**
@@ -173,9 +176,8 @@ class GroupingCriteriaCollector {
      * @param kotlinSubQueryBuilder a function to create a select statement
      */
     fun exists(kotlinSubQueryBuilder: KotlinSubQueryBuilder.() -> Unit): Unit =
-        with(KotlinSubQueryBuilder().apply(kotlinSubQueryBuilder)) {
-            this@GroupingCriteriaCollector.initialCriterion =
-                ExistsCriterion.Builder().withExistsPredicate(SqlBuilder.exists(this)).build()
+        KotlinSubQueryBuilder().apply(kotlinSubQueryBuilder).let {
+            initialCriterion = ExistsCriterion.Builder().withExistsPredicate(SqlBuilder.exists(it)).build()
         }
 
     /**
@@ -192,10 +194,10 @@ class GroupingCriteriaCollector {
      * @param criteriaReceiver a function to create the contained criteria
      */
     fun group(criteriaReceiver: GroupingCriteriaReceiver): Unit =
-        with(GroupingCriteriaCollector().apply(criteriaReceiver)) {
-            this@GroupingCriteriaCollector.initialCriterion = CriteriaGroup.Builder()
-                .withInitialCriterion(initialCriterion)
-                .withSubCriteria(subCriteria)
+        GroupingCriteriaCollector().apply(criteriaReceiver).let {
+            initialCriterion = CriteriaGroup.Builder()
+                .withInitialCriterion(it.initialCriterion)
+                .withSubCriteria(it.subCriteria)
                 .build()
         }
 
@@ -212,9 +214,7 @@ class GroupingCriteriaCollector {
      *
      */
     fun group(criteria: List<AndOrCriteriaGroup>) {
-        this@GroupingCriteriaCollector.initialCriterion = CriteriaGroup.Builder()
-            .withSubCriteria(criteria)
-            .build()
+        initialCriterion = CriteriaGroup.Builder().withSubCriteria(criteria).build()
     }
 
     /**
@@ -317,6 +317,10 @@ class GroupingCriteriaCollector {
 
     fun <T> BindableColumn<T>.isIn(vararg values: T & Any) = isIn(values.asList())
 
+    @JvmName("isInArray")
+    infix fun <T> BindableColumn<T>.isIn(values: Array<out T & Any>) =
+        invoke(org.mybatis.dynamic.sql.util.kotlin.elements.isIn(values))
+
     infix fun <T> BindableColumn<T>.isIn(values: Collection<T & Any>) =
         invoke(org.mybatis.dynamic.sql.util.kotlin.elements.isIn(values))
 
@@ -325,10 +329,18 @@ class GroupingCriteriaCollector {
 
     fun <T> BindableColumn<T>.isInWhenPresent(vararg values: T?) = isInWhenPresent(values.asList())
 
+    @JvmName("isInArrayWhenPresent")
+    infix fun <T> BindableColumn<T>.isInWhenPresent(values: Array<out T?>?) =
+        invoke(org.mybatis.dynamic.sql.util.kotlin.elements.isInWhenPresent(values))
+
     infix fun <T> BindableColumn<T>.isInWhenPresent(values: Collection<T?>?) =
         invoke(org.mybatis.dynamic.sql.util.kotlin.elements.isInWhenPresent(values))
 
     fun <T> BindableColumn<T>.isNotIn(vararg values: T & Any) = isNotIn(values.asList())
+
+    @JvmName("isNotInArray")
+    infix fun <T> BindableColumn<T>.isNotIn(values: Array<out T & Any>) =
+        invoke(org.mybatis.dynamic.sql.util.kotlin.elements.isNotIn(values))
 
     infix fun <T> BindableColumn<T>.isNotIn(values: Collection<T & Any>) =
         invoke(org.mybatis.dynamic.sql.util.kotlin.elements.isNotIn(values))
@@ -337,6 +349,10 @@ class GroupingCriteriaCollector {
         invoke(org.mybatis.dynamic.sql.util.kotlin.elements.isNotIn(subQuery))
 
     fun <T> BindableColumn<T>.isNotInWhenPresent(vararg values: T?) = isNotInWhenPresent(values.asList())
+
+    @JvmName("isNotInArrayWhenPresent")
+    infix fun <T> BindableColumn<T>.isNotInWhenPresent(values: Array<out T?>?) =
+        invoke(org.mybatis.dynamic.sql.util.kotlin.elements.isNotInWhenPresent(values))
 
     infix fun <T> BindableColumn<T>.isNotInWhenPresent(values: Collection<T?>?) =
         invoke(org.mybatis.dynamic.sql.util.kotlin.elements.isNotInWhenPresent(values))
@@ -394,11 +410,19 @@ class GroupingCriteriaCollector {
 
     fun BindableColumn<String>.isInCaseInsensitive(vararg values: String) = isInCaseInsensitive(values.asList())
 
+    @JvmName("isInArrayCaseInsensitive")
+    infix fun BindableColumn<String>.isInCaseInsensitive(values: Array<out String>) =
+        invoke(org.mybatis.dynamic.sql.util.kotlin.elements.isInCaseInsensitive(values))
+
     infix fun BindableColumn<String>.isInCaseInsensitive(values: Collection<String>) =
         invoke(org.mybatis.dynamic.sql.util.kotlin.elements.isInCaseInsensitive(values))
 
     fun BindableColumn<String>.isInCaseInsensitiveWhenPresent(vararg values: String?) =
         isInCaseInsensitiveWhenPresent(values.asList())
+
+    @JvmName("isInArrayCaseInsensitiveWhenPresent")
+    infix fun BindableColumn<String>.isInCaseInsensitiveWhenPresent(values: Array<out String?>?) =
+        invoke(org.mybatis.dynamic.sql.util.kotlin.elements.isInCaseInsensitiveWhenPresent(values))
 
     infix fun BindableColumn<String>.isInCaseInsensitiveWhenPresent(values: Collection<String?>?) =
         invoke(org.mybatis.dynamic.sql.util.kotlin.elements.isInCaseInsensitiveWhenPresent(values))
@@ -406,14 +430,43 @@ class GroupingCriteriaCollector {
     fun BindableColumn<String>.isNotInCaseInsensitive(vararg values: String) =
         isNotInCaseInsensitive(values.asList())
 
+    @JvmName("isNotInArrayCaseInsensitive")
+    infix fun BindableColumn<String>.isNotInCaseInsensitive(values: Array<out String>) =
+        invoke(org.mybatis.dynamic.sql.util.kotlin.elements.isNotInCaseInsensitive(values))
+
     infix fun BindableColumn<String>.isNotInCaseInsensitive(values: Collection<String>) =
         invoke(org.mybatis.dynamic.sql.util.kotlin.elements.isNotInCaseInsensitive(values))
 
     fun BindableColumn<String>.isNotInCaseInsensitiveWhenPresent(vararg values: String?) =
         isNotInCaseInsensitiveWhenPresent(values.asList())
 
+    @JvmName("isNotInArrayCaseInsensitiveWhenPresent")
+    infix fun BindableColumn<String>.isNotInCaseInsensitiveWhenPresent(values: Array<out String?>?) =
+        invoke(org.mybatis.dynamic.sql.util.kotlin.elements.isNotInCaseInsensitiveWhenPresent(values))
+
     infix fun BindableColumn<String>.isNotInCaseInsensitiveWhenPresent(values: Collection<String?>?) =
         invoke(org.mybatis.dynamic.sql.util.kotlin.elements.isNotInCaseInsensitiveWhenPresent(values))
+
+    companion object {
+        fun having(receiver: GroupingCriteriaReceiver): GroupingCriteriaReceiver = receiver
+
+        /**
+         * Function for code simplification. This allows creation of an independent where clause
+         * that can be reused in different statements. For example:
+         *
+         * val whereClause = where { id isEqualTo 3 }
+         *
+         * val rows = countFrom(foo) {
+         *   where(whereClause)
+         * }
+         *
+         * Use of this function is optional. You can also write code like this:
+         *
+         * val whereClause: GroupingCriteriaReceiver = { id isEqualTo 3 }
+         *
+         */
+        fun where(receiver: GroupingCriteriaReceiver): GroupingCriteriaReceiver = receiver
+    }
 }
 
 class SecondValueCollector<T> (private val consumer: (T) -> Unit) {

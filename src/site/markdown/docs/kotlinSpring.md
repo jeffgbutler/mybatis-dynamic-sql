@@ -24,17 +24,17 @@ For each operation, there are two different methods of executing SQL:
 1. The first method is a two-step method. With this method you build SQL provider objects as shown on the Kotlin
    overview page and then execute the generated SQL by passing the provider to an extension method
    on `NamedParameterJdbcTemplate`
-1. The second method is a one-step method that combines these operations into a single step 
+2. The second method is a one-step method that combines these operations into a single step
 
 We will illustrate both approaches below.
 
 ## Kotlin Dynamic SQL Support Objects
 
-The pattern for the meta-model is the same as shown on the Kotlin overview page. We'll repeat it here to show some
+The pattern for the metamodel is the same as shown on the Kotlin overview page. We'll repeat it here to show some
 specifics for Spring.
 
 ```kotlin
-import org.mybatis.dynamic.sql.SqlTable
+import org.mybatis.dynamic.sql.AlisableSqlTable
 import org.mybatis.dynamic.sql.util.kotlin.elements.column
 import java.util.Date
 
@@ -48,7 +48,7 @@ object PersonDynamicSqlSupport {
     val occupation = person.occupation
     val addressId = person.addressId
 
-    class Person : SqlTable("Person") {
+    class Person : AlisableSqlTable<Person>("Person", ::Person) {
         val id = column<Int>(name = "id")
         val firstName = column<String>(name = "first_name")
         val lastName = column(
@@ -579,6 +579,14 @@ val personRecord: List<PersonRecord> = template.selectDistinct(id, firstName, la
    )
 }
 ```
+
+## Multi-Select Statement Support
+
+Multi-select statements are a special case of select statement. All the above information about row mappers applies
+equally to multi-select statements.
+
+The library does not provide a "one-step" shortcut for multi-select queries. You can execute a multi-select query
+with the two-step method using either the "selectList" or "selectOne" extension methods as shown above.
 
 ## Update Method Support
 

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@ package org.mybatis.dynamic.sql.select.aggregate;
 import java.util.Objects;
 
 import org.mybatis.dynamic.sql.BasicColumn;
-import org.mybatis.dynamic.sql.render.TableAliasCalculator;
+import org.mybatis.dynamic.sql.render.RenderingContext;
+import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 
 public class CountDistinct extends AbstractCount {
 
@@ -34,8 +35,9 @@ public class CountDistinct extends AbstractCount {
     }
 
     @Override
-    public String renderWithTableAlias(TableAliasCalculator tableAliasCalculator) {
-        return "count(distinct " + column.renderWithTableAlias(tableAliasCalculator) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+    public FragmentAndParameters render(RenderingContext renderingContext) {
+        return column.render(renderingContext)
+                .mapFragment(s -> "count(distinct " + s + ")"); //$NON-NLS-1$ //$NON-NLS-2$)
     }
 
     @Override

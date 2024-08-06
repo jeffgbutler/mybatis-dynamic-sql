@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.mybatis.dynamic.sql.where.render;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -30,9 +29,7 @@ import org.mybatis.dynamic.sql.ExistsPredicate;
 import org.mybatis.dynamic.sql.NotCriterion;
 import org.mybatis.dynamic.sql.SqlCriterion;
 import org.mybatis.dynamic.sql.SqlCriterionVisitor;
-import org.mybatis.dynamic.sql.render.RenderingStrategy;
-import org.mybatis.dynamic.sql.render.TableAliasCalculator;
-import org.mybatis.dynamic.sql.select.render.SelectRenderer;
+import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 import org.mybatis.dynamic.sql.util.FragmentCollector;
@@ -56,16 +53,10 @@ import org.mybatis.dynamic.sql.util.FragmentCollector;
  * @author Jeff Butler
  */
 public class CriterionRenderer implements SqlCriterionVisitor<Optional<RenderedCriterion>> {
-    private final AtomicInteger sequence;
-    private final RenderingStrategy renderingStrategy;
-    private final TableAliasCalculator tableAliasCalculator;
-    private final String parameterName;
+    private final RenderingContext renderingContext;
 
-    private CriterionRenderer(Builder builder) {
-        sequence = Objects.requireNonNull(builder.sequence);
-        renderingStrategy = Objects.requireNonNull(builder.renderingStrategy);
-        tableAliasCalculator = Objects.requireNonNull(builder.tableAliasCalculator);
-        parameterName = builder.parameterName;
+    public CriterionRenderer(RenderingContext renderingContext) {
+        this.renderingContext = Objects.requireNonNull(renderingContext);
     }
 
     @Override
@@ -118,7 +109,7 @@ public class CriterionRenderer implements SqlCriterionVisitor<Optional<RenderedC
     }
 
     private <T> Optional<FragmentAndParameters> renderColumnAndCondition(ColumnAndConditionCriterion<T> criterion) {
-        if (criterion.condition().shouldRender()) {
+        if (criterion.condition().shouldRender(renderingContext)) {
             return Optional.of(renderCondition(criterion));
         } else {
             criterion.condition().renderingSkipped();
@@ -129,13 +120,7 @@ public class CriterionRenderer implements SqlCriterionVisitor<Optional<RenderedC
     private FragmentAndParameters renderExists(ExistsCriterion criterion) {
         ExistsPredicate existsPredicate = criterion.existsPredicate();
 
-        SelectStatementProvider selectStatement = SelectRenderer
-                .withSelectModel(existsPredicate.selectModelBuilder().build())
-                .withRenderingStrategy(renderingStrategy)
-                .withSequence(sequence)
-                .withParentTableAliasCalculator(tableAliasCalculator)
-                .build()
-                .render();
+        SelectStatementProvider selectStatement = existsPredicate.selectModelBuilder().build().render(renderingContext);
 
         String fragment = existsPredicate.operator()
                 + " (" //$NON-NLS-1$
@@ -150,9 +135,8 @@ public class CriterionRenderer implements SqlCriterionVisitor<Optional<RenderedC
 
     private List<RenderedCriterion> renderSubCriteria(List<AndOrCriteriaGroup> subCriteria) {
         return subCriteria.stream().map(this::renderAndOrCriteriaGroup)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+                .flatMap(Optional::stream)
+                .toList();
     }
 
     private Optional<RenderedCriterion> renderAndOrCriteriaGroup(AndOrCriteriaGroup criterion) {
@@ -185,13 +169,12 @@ public class CriterionRenderer implements SqlCriterionVisitor<Optional<RenderedC
     }
 
     private <T> FragmentAndParameters renderCondition(ColumnAndConditionCriterion<T> criterion) {
-        WhereConditionVisitor<T> visitor = WhereConditionVisitor.withColumn(criterion.column())
-                .withRenderingStrategy(renderingStrategy)
-                .withSequence(sequence)
-                .withTableAliasCalculator(tableAliasCalculator)
-                .withParameterName(parameterName)
-                .build();
-        return criterion.condition().accept(visitor);
+        return new ColumnAndConditionRenderer.Builder<T>()
+                .withColumn(criterion.column())
+                .withCondition(criterion.condition())
+                .withRenderingContext(renderingContext)
+                .build()
+                .render();
     }
 
     /**
@@ -243,50 +226,19 @@ public class CriterionRenderer implements SqlCriterionVisitor<Optional<RenderedC
 
     private String calculateFragment(FragmentCollector collector) {
         if (collector.hasMultipleFragments()) {
-            return collector.fragments()
-                    .collect(Collectors.joining(" ", "(", ")")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            return collector.collectFragments(
+                    Collectors.joining(" ", "(", ")")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         } else {
-            return collector.fragments().findFirst().orElse(""); //$NON-NLS-1$
+            return collector.firstFragment().orElse(""); //$NON-NLS-1$
         }
     }
 
     private String calculateNotFragment(FragmentCollector collector) {
         if (collector.hasMultipleFragments()) {
-            return collector.fragments()
-                    .collect(Collectors.joining(" ", "not (", ")")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+            return collector.collectFragments(
+                    Collectors.joining(" ", "not (", ")")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         } else {
-            return collector.fragments().findFirst().map(s -> "not " + s).orElse(""); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-    }
-
-    public static class Builder {
-        private AtomicInteger sequence;
-        private RenderingStrategy renderingStrategy;
-        private TableAliasCalculator tableAliasCalculator;
-        private String parameterName;
-
-        public Builder withSequence(AtomicInteger sequence) {
-            this.sequence = sequence;
-            return this;
-        }
-
-        public Builder withRenderingStrategy(RenderingStrategy renderingStrategy) {
-            this.renderingStrategy = renderingStrategy;
-            return this;
-        }
-
-        public Builder withTableAliasCalculator(TableAliasCalculator tableAliasCalculator) {
-            this.tableAliasCalculator = tableAliasCalculator;
-            return this;
-        }
-
-        public Builder withParameterName(String parameterName) {
-            this.parameterName = parameterName;
-            return this;
-        }
-
-        public CriterionRenderer build() {
-            return new CriterionRenderer(this);
+            return collector.firstFragment().map(s -> "not " + s).orElse(""); //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
 }

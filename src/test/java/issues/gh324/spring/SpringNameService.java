@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -37,26 +37,26 @@ public class SpringNameService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void insertRecord() {
-        NameRecord record = new NameRecord();
-        record.setId(1);
-        record.setName("Fred");
-        mapper.insert(record);
+        NameRecord row = new NameRecord();
+        row.setId(1);
+        row.setName("Fred");
+        mapper.insert(row);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void updateRecordAndCommit() {
-        NameRecord record = new NameRecord();
-        record.setId(1);
-        record.setName("Barney");
-        mapper.updateByPrimaryKey(record);
+        NameRecord row = new NameRecord();
+        row.setId(1);
+        row.setName("Barney");
+        mapper.updateByPrimaryKey(row);
     }
 
     public void updateRecordAndRollback() {
         TransactionStatus txStatus = transactionManager.getTransaction(new DefaultTransactionDefinition());
-        NameRecord record = new NameRecord();
-        record.setId(1);
-        record.setName("Barney");
-        mapper.updateByPrimaryKey(record);
+        NameRecord row = new NameRecord();
+        row.setId(1);
+        row.setName("Barney");
+        mapper.updateByPrimaryKey(row);
         transactionManager.rollback(txStatus);
     }
 

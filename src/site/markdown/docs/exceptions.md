@@ -30,12 +30,12 @@ All of these exceptions can be avoided through proper use of the DSL and validat
 Most conditions in a where clause provide optionality - they have `filter` methods that can cause the condition to be
 dropped from the where clause. If all the conditions in a where clause fail to render, then the where clause itself is
 dropped from the rendered SQL. This can be dangerous in that it can cause a statement to be generated that affects all
-rows in a table. For example, all rows could be deleted. As of version 1.4.1, the library will throw a 
+rows in a table. For example, all rows could be deleted. As of version 1.4.1, the library will throw a
 `NonRenderingWhereClauseException` in this case out of an abundance of caution. This behavior can be overridden
 through either global configuration, or by configuring individual statements to allow for where clauses to be dropped.
 
 The important idea is that there are legitimate cases when it is reasonable to allow a where clause to not render, but
-the decision to allow that should be very intentional. See the "Configuration of the Library" page for further details.
+the decision to allow that should be very intentional. See the [Configuration of the Library](configuration.md) page for further details.
 
 The exception will only be thrown if a where clause is coded but fails to render. If you do not code a where clause in
 a statement, then we assume that you intend for all rows to be affected.

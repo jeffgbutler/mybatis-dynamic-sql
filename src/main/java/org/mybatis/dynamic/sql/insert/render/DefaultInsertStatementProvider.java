@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,21 +21,11 @@ import org.jetbrains.annotations.NotNull;
 
 public class DefaultInsertStatementProvider<T> implements InsertStatementProvider<T> {
     private final String insertStatement;
-    // need to keep both row and record for now so we don't break
-    // old code. The MyBatis reflection utilities don't handle
-    // the case where the attribute name is different from the getter.
-    private final T record;
     private final T row;
 
     private DefaultInsertStatementProvider(Builder<T> builder) {
         insertStatement = Objects.requireNonNull(builder.insertStatement);
         row = Objects.requireNonNull(builder.row);
-        record = row;
-    }
-
-    @Override
-    public T getRecord() {
-        return record;
     }
 
     @Override

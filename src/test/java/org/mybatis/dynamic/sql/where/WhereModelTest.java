@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.mybatis.dynamic.sql.where;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mybatis.dynamic.sql.SqlBuilder.*;
 
 import java.sql.JDBCType;
@@ -24,6 +25,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.SqlTable;
+import org.mybatis.dynamic.sql.exception.NonRenderingWhereClauseException;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.where.render.WhereClauseProvider;
 
@@ -38,7 +40,27 @@ class WhereModelTest {
                 .render(RenderingStrategies.MYBATIS3, "myName");
 
         assertThat(whereClause.map(WhereClauseProvider::getWhereClause)).hasValueSatisfying(wc ->
-            assertThat(wc).isEqualTo("where (id = #{myName.parameters.p1,jdbcType=INTEGER} or id = #{myName.parameters.p2,jdbcType=INTEGER})")
+            assertThat(wc).isEqualTo("where id = #{myName.parameters.p1,jdbcType=INTEGER} or id = #{myName.parameters.p2,jdbcType=INTEGER}")
         );
+    }
+
+    @Test
+    void testNonRenderingWhereDisallowed() {
+        WhereModel model = where().build();
+
+        assertThatExceptionOfType(NonRenderingWhereClauseException.class).isThrownBy(() ->
+                model.render(RenderingStrategies.MYBATIS3)
+        );
+    }
+
+    @Test
+    void testNonRenderingWhereAllowed() {
+        Optional<WhereClauseProvider> whereClause = new WhereDSL()
+                .configureStatement(c -> c.setNonRenderingWhereClauseAllowed(true))
+                .where()
+                .build()
+                .render(RenderingStrategies.MYBATIS3);
+
+        assertThat(whereClause).isEmpty();
     }
 }

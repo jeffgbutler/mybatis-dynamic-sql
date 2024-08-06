@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,20 +15,8 @@
  */
 package org.mybatis.dynamic.sql.select.join;
 
-import java.util.Objects;
+public interface JoinCondition<T> {
+    String operator();
 
-import org.mybatis.dynamic.sql.BasicColumn;
-
-public abstract class JoinCondition {
-    private final BasicColumn rightColumn;
-
-    protected JoinCondition(BasicColumn rightColumn) {
-        this.rightColumn = Objects.requireNonNull(rightColumn);
-    }
-
-    public BasicColumn rightColumn() {
-        return rightColumn;
-    }
-
-    public abstract String operator();
+    <R> R accept(JoinConditionVisitor<T, R> visitor);
 }

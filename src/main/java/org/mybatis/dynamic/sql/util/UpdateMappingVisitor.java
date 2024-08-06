@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,11 +18,16 @@ package org.mybatis.dynamic.sql.util;
 public abstract class UpdateMappingVisitor<R> implements ColumnMappingVisitor<R> {
     @Override
     public final R visit(PropertyMapping mapping) {
-        throw new UnsupportedOperationException(Messages.getInternalErrorString(10));
+        throw new UnsupportedOperationException(Messages.getInternalErrorString(InternalError.INTERNAL_ERROR_10));
     }
 
     @Override
     public final R visit(PropertyWhenPresentMapping mapping) {
-        throw new UnsupportedOperationException(Messages.getInternalErrorString(11));
+        throw new UnsupportedOperationException(Messages.getInternalErrorString(InternalError.INTERNAL_ERROR_11));
+    }
+
+    @Override
+    public final R visit(RowMapping mapping) {
+        throw new UnsupportedOperationException(Messages.getInternalErrorString(InternalError.INTERNAL_ERROR_15));
     }
 }

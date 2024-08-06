@@ -1,5 +1,5 @@
 --
---    Copyright 2016-2022 the original author or authors.
+--    Copyright 2016-2024 the original author or authors.
 --
 --    Licensed under the Apache License, Version 2.0 (the "License");
 --    you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 drop table Address if exists;
 drop table Person if exists;
+drop table CompoundKey if exists;
 
 create table Address (
    address_id int not null,
@@ -34,6 +35,12 @@ create table Person (
    occupation varchar(30) null,
    address_id int null,
    primary key(id)
+);
+
+create table CompoundKey (
+   id1 int not null,
+   id2 int not null,
+   primary key (id1, id2)
 );
 
 insert into Address (address_id, street_address, city, state)

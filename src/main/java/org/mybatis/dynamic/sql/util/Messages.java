@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class Messages {
         return MessageFormat.format(getString(key), p1, p2, p3);
     }
 
-    public static String getInternalErrorString(int internalErrorNumber) {
-        return MessageFormat.format(getString("INTERNAL.ERROR"), internalErrorNumber); //$NON-NLS-1$
+    public static String getInternalErrorString(InternalError internalError) {
+        return MessageFormat.format(getString("INTERNAL.ERROR"), internalError.getNumber()); //$NON-NLS-1$
     }
 }

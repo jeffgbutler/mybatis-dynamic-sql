@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,13 +17,9 @@ package org.mybatis.dynamic.sql.update.render;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 
-import org.mybatis.dynamic.sql.SqlColumn;
-import org.mybatis.dynamic.sql.render.RenderingStrategy;
-import org.mybatis.dynamic.sql.render.TableAliasCalculator;
-import org.mybatis.dynamic.sql.select.render.SelectRenderer;
+import org.mybatis.dynamic.sql.render.RenderedParameterInfo;
+import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping;
 import org.mybatis.dynamic.sql.util.ColumnToColumnMapping;
@@ -32,6 +28,7 @@ import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 import org.mybatis.dynamic.sql.util.NullMapping;
 import org.mybatis.dynamic.sql.util.SelectMapping;
 import org.mybatis.dynamic.sql.util.StringConstantMapping;
+import org.mybatis.dynamic.sql.util.StringUtilities;
 import org.mybatis.dynamic.sql.util.UpdateMappingVisitor;
 import org.mybatis.dynamic.sql.util.ValueMapping;
 import org.mybatis.dynamic.sql.util.ValueOrNullMapping;
@@ -39,40 +36,30 @@ import org.mybatis.dynamic.sql.util.ValueWhenPresentMapping;
 
 public class SetPhraseVisitor extends UpdateMappingVisitor<Optional<FragmentAndParameters>> {
 
-    private final AtomicInteger sequence;
-    private final RenderingStrategy renderingStrategy;
-    private final Function<SqlColumn<?>, String> aliasedColumnNameFunction;
+    private final RenderingContext renderingContext;
 
-    public SetPhraseVisitor(AtomicInteger sequence, RenderingStrategy renderingStrategy,
-                            TableAliasCalculator tableAliasCalculator) {
-        this.sequence = Objects.requireNonNull(sequence);
-        this.renderingStrategy = Objects.requireNonNull(renderingStrategy);
-        Objects.requireNonNull(tableAliasCalculator);
-        aliasedColumnNameFunction = c -> tableAliasCalculator.aliasForColumn(c.table())
-                .map(alias -> alias + "." + c.name())  //$NON-NLS-1$
-                .orElseGet(c::name);
+    public SetPhraseVisitor(RenderingContext renderingContext) {
+        this.renderingContext = Objects.requireNonNull(renderingContext);
     }
 
     @Override
     public Optional<FragmentAndParameters> visit(NullMapping mapping) {
-        return FragmentAndParameters
-                .withFragment(mapping.mapColumn(aliasedColumnNameFunction) + " = null") //$NON-NLS-1$
-                .buildOptional();
+        return buildNullFragment(mapping);
     }
 
     @Override
     public Optional<FragmentAndParameters> visit(ConstantMapping mapping) {
-        String fragment = mapping.mapColumn(aliasedColumnNameFunction) + " = " + mapping.constant(); //$NON-NLS-1$
+        String fragment = renderingContext.aliasedColumnName(mapping.column())
+                + " = " + mapping.constant(); //$NON-NLS-1$
         return FragmentAndParameters.withFragment(fragment)
                 .buildOptional();
     }
 
     @Override
     public Optional<FragmentAndParameters> visit(StringConstantMapping mapping) {
-        String fragment = mapping.mapColumn(aliasedColumnNameFunction)
-                + " = '" //$NON-NLS-1$
-                + mapping.constant()
-                + "'"; //$NON-NLS-1$
+        String fragment = renderingContext.aliasedColumnName(mapping.column())
+                + " = " //$NON-NLS-1$
+                + StringUtilities.formatConstantForSQL(mapping.constant());
 
         return FragmentAndParameters.withFragment(fragment)
                 .buildOptional();
@@ -80,33 +67,25 @@ public class SetPhraseVisitor extends UpdateMappingVisitor<Optional<FragmentAndP
 
     @Override
     public <T> Optional<FragmentAndParameters> visit(ValueMapping<T> mapping) {
-        return buildFragment(mapping, mapping.value());
+        return buildValueFragment(mapping, mapping.value());
     }
 
     @Override
     public <T> Optional<FragmentAndParameters> visit(ValueOrNullMapping<T> mapping) {
         return mapping.value()
-                .map(v -> buildFragment(mapping, v))
-                .orElseGet(() -> FragmentAndParameters
-                        .withFragment(mapping.mapColumn(aliasedColumnNameFunction) + " = null") //$NON-NLS-1$
-                        .buildOptional()
-                );
+                .map(v -> buildValueFragment(mapping, v))
+                .orElseGet(() -> buildNullFragment(mapping));
     }
 
     @Override
     public <T> Optional<FragmentAndParameters> visit(ValueWhenPresentMapping<T> mapping) {
-        return mapping.value().flatMap(v -> buildFragment(mapping, v));
+        return mapping.value().flatMap(v -> buildValueFragment(mapping, v));
     }
 
     @Override
     public Optional<FragmentAndParameters> visit(SelectMapping mapping) {
-        SelectStatementProvider selectStatement = SelectRenderer.withSelectModel(mapping.selectModel())
-                .withRenderingStrategy(renderingStrategy)
-                .withSequence(sequence)
-                .build()
-                .render();
-
-        String fragment = mapping.mapColumn(aliasedColumnNameFunction)
+        SelectStatementProvider selectStatement = mapping.selectModel().render(renderingContext);
+        String fragment = renderingContext.aliasedColumnName(mapping.column())
                 + " = (" //$NON-NLS-1$
                 + selectStatement.getSelectStatement()
                 + ")"; //$NON-NLS-1$
@@ -118,29 +97,31 @@ public class SetPhraseVisitor extends UpdateMappingVisitor<Optional<FragmentAndP
 
     @Override
     public Optional<FragmentAndParameters> visit(ColumnToColumnMapping mapping) {
-        String setPhrase = mapping.mapColumn(aliasedColumnNameFunction)
+        FragmentAndParameters renderedColumn = mapping.rightColumn().render(renderingContext);
+
+        String setPhrase = renderingContext.aliasedColumnName(mapping.column())
                 + " = "  //$NON-NLS-1$
-                + mapping.rightColumn().renderWithTableAlias(TableAliasCalculator.empty());
+                + renderedColumn.fragment();
 
         return FragmentAndParameters.withFragment(setPhrase)
+                .withParameters(renderedColumn.parameters())
                 .buildOptional();
     }
 
-    private <T> Optional<FragmentAndParameters> buildFragment(AbstractColumnMapping mapping, T value) {
-        String mapKey = RenderingStrategy.formatParameterMapKey(sequence);
-
-        String jdbcPlaceholder = mapping.mapColumn(c -> calculateJdbcPlaceholder(c, mapKey));
-        String setPhrase = mapping.mapColumn(aliasedColumnNameFunction)
+    private <T> Optional<FragmentAndParameters> buildValueFragment(AbstractColumnMapping mapping, T value) {
+        RenderedParameterInfo parameterInfo = renderingContext.calculateParameterInfo(mapping.column());
+        String setPhrase = renderingContext.aliasedColumnName(mapping.column())
                 + " = "  //$NON-NLS-1$
-                + jdbcPlaceholder;
+                + parameterInfo.renderedPlaceHolder();
 
         return FragmentAndParameters.withFragment(setPhrase)
-                .withParameter(mapKey, value)
+                .withParameter(parameterInfo.parameterMapKey(), value)
                 .buildOptional();
     }
 
-    private String calculateJdbcPlaceholder(SqlColumn<?> column, String parameterName) {
-        return column.renderingStrategy().orElse(renderingStrategy)
-                .getFormattedJdbcPlaceholder(column, RenderingStrategy.DEFAULT_PARAMETER_PREFIX, parameterName);
+    private Optional<FragmentAndParameters> buildNullFragment(AbstractColumnMapping mapping) {
+        return FragmentAndParameters
+                .withFragment(renderingContext.aliasedColumnName(mapping.column()) + " = null") //$NON-NLS-1$
+                .buildOptional();
     }
 }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,23 +15,24 @@
  */
 package org.mybatis.dynamic.sql.common;
 
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.mybatis.dynamic.sql.SortSpecification;
+import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
+import org.mybatis.dynamic.sql.util.FragmentCollector;
 
 public class OrderByRenderer {
-    public FragmentAndParameters render(OrderByModel orderByModel) {
-        String phrase = orderByModel.mapColumns(this::calculateOrderByPhrase)
-                .collect(Collectors.joining(", ", "order by ", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-        return FragmentAndParameters.withFragment(phrase).build();
+    private final RenderingContext renderingContext;
+
+    public OrderByRenderer(RenderingContext renderingContext) {
+        this.renderingContext = Objects.requireNonNull(renderingContext);
     }
 
-    private String calculateOrderByPhrase(SortSpecification column) {
-        String phrase = column.orderByName();
-        if (column.isDescending()) {
-            phrase = phrase + " DESC"; //$NON-NLS-1$
-        }
-        return phrase;
+    public FragmentAndParameters render(OrderByModel orderByModel) {
+        return orderByModel.columns().map(c -> c.renderForOrderBy(renderingContext))
+                .collect(FragmentCollector.collect())
+                .toFragmentAndParameters(
+                        Collectors.joining(", ", "order by ", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 }

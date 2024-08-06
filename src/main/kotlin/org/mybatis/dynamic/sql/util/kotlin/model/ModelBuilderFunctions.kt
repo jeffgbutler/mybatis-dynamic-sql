@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,14 +20,12 @@ import org.mybatis.dynamic.sql.BasicColumn
 import org.mybatis.dynamic.sql.SqlBuilder
 import org.mybatis.dynamic.sql.SqlTable
 import org.mybatis.dynamic.sql.delete.DeleteModel
-import org.mybatis.dynamic.sql.insert.BatchInsertDSL
 import org.mybatis.dynamic.sql.insert.BatchInsertModel
 import org.mybatis.dynamic.sql.insert.GeneralInsertModel
-import org.mybatis.dynamic.sql.insert.InsertDSL
 import org.mybatis.dynamic.sql.insert.InsertModel
 import org.mybatis.dynamic.sql.insert.InsertSelectModel
-import org.mybatis.dynamic.sql.insert.MultiRowInsertDSL
 import org.mybatis.dynamic.sql.insert.MultiRowInsertModel
+import org.mybatis.dynamic.sql.select.MultiSelectModel
 import org.mybatis.dynamic.sql.select.SelectModel
 import org.mybatis.dynamic.sql.update.UpdateModel
 import org.mybatis.dynamic.sql.util.kotlin.CountCompleter
@@ -44,8 +42,10 @@ import org.mybatis.dynamic.sql.util.kotlin.KotlinInsertCompleter
 import org.mybatis.dynamic.sql.util.kotlin.KotlinInsertSelectSubQueryBuilder
 import org.mybatis.dynamic.sql.util.kotlin.KotlinMultiRowInsertBuilder
 import org.mybatis.dynamic.sql.util.kotlin.KotlinMultiRowInsertCompleter
+import org.mybatis.dynamic.sql.util.kotlin.KotlinMultiSelectBuilder
 import org.mybatis.dynamic.sql.util.kotlin.KotlinSelectBuilder
 import org.mybatis.dynamic.sql.util.kotlin.KotlinUpdateBuilder
+import org.mybatis.dynamic.sql.util.kotlin.MultiSelectCompleter
 import org.mybatis.dynamic.sql.util.kotlin.SelectCompleter
 import org.mybatis.dynamic.sql.util.kotlin.UpdateCompleter
 
@@ -77,34 +77,8 @@ fun insertInto(table: SqlTable, completer: GeneralInsertCompleter): GeneralInser
 fun <T : Any> insertMultiple(rows: Collection<T>, completer: KotlinMultiRowInsertCompleter<T>): MultiRowInsertModel<T> =
     KotlinMultiRowInsertBuilder(rows).apply(completer).build()
 
-@Deprecated("Please use the new form - move the table into the lambda with into(table)")
-fun insertSelect(table: SqlTable, completer: InsertSelectCompleter): InsertSelectModel =
-    with(KotlinInsertSelectSubQueryBuilder()) {
-        into(table)
-        apply(completer)
-        build()
-    }
-
 fun insertSelect(completer: InsertSelectCompleter): InsertSelectModel =
     KotlinInsertSelectSubQueryBuilder().apply(completer).build()
-
-@Deprecated("Please switch to the insertBatch statement in the model package")
-fun <T> BatchInsertDSL.IntoGatherer<T>.into(
-    table: SqlTable,
-    completer: BatchInsertDSL<T>.() -> Unit
-): BatchInsertModel<T> =
-    into(table).apply(completer).build()
-
-@Deprecated("Please switch to the insert statement in the model package")
-fun <T> InsertDSL.IntoGatherer<T>.into(table: SqlTable, completer: InsertDSL<T>.() -> Unit): InsertModel<T> =
-    into(table).apply(completer).build()
-
-@Deprecated("Please switch to the insertMultiple statement in the model package")
-fun <T> MultiRowInsertDSL.IntoGatherer<T>.into(
-    table: SqlTable,
-    completer: MultiRowInsertDSL<T>.() -> Unit
-): MultiRowInsertModel<T> =
-    into(table).apply(completer).build()
 
 fun select(vararg columns: BasicColumn, completer: SelectCompleter): SelectModel =
     select(columns.asList(), completer)
@@ -117,6 +91,9 @@ fun selectDistinct(vararg columns: BasicColumn, completer: SelectCompleter): Sel
 
 fun selectDistinct(columns: List<BasicColumn>, completer: SelectCompleter): SelectModel =
     KotlinSelectBuilder(SqlBuilder.selectDistinct(columns)).apply(completer).build()
+
+fun multiSelect(completer: MultiSelectCompleter): MultiSelectModel =
+    KotlinMultiSelectBuilder().apply(completer).build()
 
 fun update(table: SqlTable, completer: UpdateCompleter): UpdateModel =
     KotlinUpdateBuilder(SqlBuilder.update(table)).apply(completer).build()

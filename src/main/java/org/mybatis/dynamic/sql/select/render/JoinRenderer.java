@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,8 +20,7 @@ import static org.mybatis.dynamic.sql.util.StringUtilities.spaceBefore;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.mybatis.dynamic.sql.BasicColumn;
-import org.mybatis.dynamic.sql.render.TableAliasCalculator;
+import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.select.join.JoinCriterion;
 import org.mybatis.dynamic.sql.select.join.JoinModel;
 import org.mybatis.dynamic.sql.select.join.JoinSpecification;
@@ -31,49 +30,59 @@ import org.mybatis.dynamic.sql.util.FragmentCollector;
 public class JoinRenderer {
     private final JoinModel joinModel;
     private final TableExpressionRenderer tableExpressionRenderer;
-    private final TableAliasCalculator tableAliasCalculator;
+    private final RenderingContext renderingContext;
 
     private JoinRenderer(Builder builder) {
         joinModel = Objects.requireNonNull(builder.joinModel);
         tableExpressionRenderer = Objects.requireNonNull(builder.tableExpressionRenderer);
-        tableAliasCalculator = Objects.requireNonNull(builder.tableAliasCalculator);
+        renderingContext = Objects.requireNonNull(builder.renderingContext);
     }
 
     public FragmentAndParameters render() {
-        FragmentCollector fc = joinModel.mapJoinSpecifications(this::renderJoinSpecification)
-                .collect(FragmentCollector.collect());
-
-        return FragmentAndParameters.withFragment(fc.fragments().collect(Collectors.joining(" "))) //$NON-NLS-1$
-                .withParameters(fc.parameters())
-                .build();
+        return joinModel.joinSpecifications()
+                .map(this::renderJoinSpecification)
+                .collect(FragmentCollector.collect())
+                .toFragmentAndParameters(Collectors.joining(" ")); //$NON-NLS-1$
     }
 
     private FragmentAndParameters renderJoinSpecification(JoinSpecification joinSpecification) {
         FragmentAndParameters renderedTable = joinSpecification.table().accept(tableExpressionRenderer);
+        FragmentAndParameters renderedJoin = renderConditions(joinSpecification);
 
         String fragment = joinSpecification.joinType().type()
                 + spaceBefore(renderedTable.fragment())
-                + spaceBefore(renderConditions(joinSpecification));
+                + spaceBefore(renderedJoin.fragment());
 
         return FragmentAndParameters.withFragment(fragment)
                 .withParameters(renderedTable.parameters())
+                .withParameters(renderedJoin.parameters())
                 .build();
     }
 
-    private String renderConditions(JoinSpecification joinSpecification) {
-        return joinSpecification.mapJoinCriteria(this::renderCriterion)
-                .collect(Collectors.joining(" ")); //$NON-NLS-1$
+    private FragmentAndParameters renderConditions(JoinSpecification joinSpecification) {
+        return joinSpecification.joinCriteria()
+                .map(this::renderCriterion)
+                .collect(FragmentCollector.collect())
+                .toFragmentAndParameters(Collectors.joining(" ")); //$NON-NLS-1$
     }
 
-    private String renderCriterion(JoinCriterion joinCriterion) {
-        return joinCriterion.connector()
-                + spaceBefore(applyTableAlias(joinCriterion.leftColumn()))
-                + spaceBefore(joinCriterion.operator())
-                + spaceBefore(applyTableAlias(joinCriterion.rightColumn()));
-    }
+    private <T> FragmentAndParameters renderCriterion(JoinCriterion<T> joinCriterion) {
+        FragmentAndParameters renderedColumn = joinCriterion.leftColumn().render(renderingContext);
 
-    private String applyTableAlias(BasicColumn column) {
-        return column.renderWithTableAlias(tableAliasCalculator);
+        String prefix = joinCriterion.connector()
+                + spaceBefore(renderedColumn.fragment());
+
+        JoinConditionRenderer<T> joinConditionRenderer = new JoinConditionRenderer.Builder<T>()
+                .withRenderingContext(renderingContext)
+                .withLeftColumn(joinCriterion.leftColumn())
+                .build();
+
+        FragmentAndParameters suffix = joinCriterion.joinCondition().accept(joinConditionRenderer);
+
+        return FragmentAndParameters.withFragment(prefix + spaceBefore(suffix.fragment()))
+                .withParameters(suffix.parameters())
+                .withParameters(renderedColumn.parameters())
+                .build();
     }
 
     public static Builder withJoinModel(JoinModel joinModel) {
@@ -83,7 +92,7 @@ public class JoinRenderer {
     public static class Builder {
         private JoinModel joinModel;
         private TableExpressionRenderer tableExpressionRenderer;
-        private TableAliasCalculator tableAliasCalculator;
+        private RenderingContext renderingContext;
 
         public Builder withJoinModel(JoinModel joinModel) {
             this.joinModel = joinModel;
@@ -95,8 +104,8 @@ public class JoinRenderer {
             return this;
         }
 
-        public Builder withTableAliasCalculator(TableAliasCalculator tableAliasCalculator) {
-            this.tableAliasCalculator = tableAliasCalculator;
+        public Builder withRenderingContext(RenderingContext renderingContext) {
+            this.renderingContext = renderingContext;
             return this;
         }
 

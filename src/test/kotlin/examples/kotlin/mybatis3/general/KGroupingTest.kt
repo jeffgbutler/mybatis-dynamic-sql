@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,10 +20,15 @@ import examples.kotlin.mybatis3.general.FooDynamicSqlSupport.B
 import examples.kotlin.mybatis3.general.FooDynamicSqlSupport.C
 import examples.kotlin.mybatis3.general.FooDynamicSqlSupport.foo
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Test
 import org.mybatis.dynamic.sql.SqlTable
+import org.mybatis.dynamic.sql.exception.InvalidSqlException
+import org.mybatis.dynamic.sql.util.Messages
+import org.mybatis.dynamic.sql.util.kotlin.GroupingCriteriaCollector.Companion.having
 import org.mybatis.dynamic.sql.util.kotlin.elements.add
 import org.mybatis.dynamic.sql.util.kotlin.elements.column
+import org.mybatis.dynamic.sql.util.kotlin.elements.count
 import org.mybatis.dynamic.sql.util.kotlin.elements.isBetween
 import org.mybatis.dynamic.sql.util.kotlin.elements.isLessThanOrEqualTo
 import org.mybatis.dynamic.sql.util.kotlin.mybatis3.select
@@ -47,13 +52,15 @@ class KGroupingTest {
         val selectStatement = select(A, B, C) {
             from(foo)
             where {
-                A (isBetween(1).and(5).map { it + 3 }.filter{ _ -> true })
-                or { A (isLessThanOrEqualTo(3).map { it + 6 }.filter { true }) }
-                or { A isNotEqualTo 9 }
-                or { C isLike "Fred%" }
+                group {
+                    A(isBetween(1).and(5).map { it + 3 }.filter { _ -> true })
+                    or { A(isLessThanOrEqualTo(3).map { it + 6 }.filter { true }) }
+                    or { A isNotEqualTo 9 }
+                    or { C isLike "Fred%" }
+                }
+                and { B isEqualTo 3 }
+                or { add(A, B) isGreaterThan 4 }
             }
-            and { B isEqualTo 3 }
-            or { add(A, B) isGreaterThan 4 }
         }
 
         val expected = "select A, B, C" +
@@ -78,16 +85,18 @@ class KGroupingTest {
             from(foo)
             where {
                 group {
-                    A isEqualTo 1
-                    or { A isGreaterThan 5 }
+                    group {
+                        A isEqualTo 1
+                        or { A isGreaterThan 5 }
+                    }
+                    and { B isEqualTo 1 }
+                    or {
+                        A isLessThan 0
+                        and { B isEqualTo 2 }
+                    }
                 }
-                and { B isEqualTo 1 }
-                or {
-                    A isLessThan 0
-                    and { B isEqualTo 2 }
-                }
+                and { C isEqualTo "Fred" }
             }
-            and { C isEqualTo "Fred" }
         }
 
         val expected = "select A, B, C" +
@@ -110,22 +119,24 @@ class KGroupingTest {
             from(foo)
             where {
                 group {
-                    exists {
-                        select(foo.allColumns()) {
-                            from(foo)
-                            where { A isEqualTo 3 }
+                    group {
+                        exists {
+                            select(foo.allColumns()) {
+                                from(foo)
+                                where { A isEqualTo 3 }
+                            }
                         }
+                        and { A isEqualTo 1 }
+                        or { A isGreaterThan 5 }
                     }
-                    and { A isEqualTo 1 }
-                    or { A isGreaterThan 5 }
+                    and { B isEqualTo 1 }
+                    or {
+                        A isLessThan 0
+                        and { B isEqualTo 2 }
+                    }
                 }
-                and { B isEqualTo 1 }
-                or {
-                    A isLessThan 0
-                    and { B isEqualTo 2 }
-                }
+                and { C isEqualTo "Fred" }
             }
-            and { C isEqualTo "Fred" }
         }
 
         val expected = "select A, B, C" +
@@ -151,30 +162,32 @@ class KGroupingTest {
             where {
                 group {
                     group {
-                        A isEqualTo 1
-                        or { A isGreaterThan 5 }
-                    }
-                    and { A isGreaterThan 5 }
-                }
-                and {
-                    group {
-                        A isEqualTo 1
-                        or { A isGreaterThan 5 }
-                    }
-                    or { B isEqualTo 1 }
-                }
-                or {
-                    group {
-                        A isEqualTo 1
-                        or { A isGreaterThan 5 }
+                        group {
+                            A isEqualTo 1
+                            or { A isGreaterThan 5 }
+                        }
+                        and { A isGreaterThan 5 }
                     }
                     and {
-                        A isLessThan 0
-                        and { B isEqualTo 2 }
+                        group {
+                            A isEqualTo 1
+                            or { A isGreaterThan 5 }
+                        }
+                        or { B isEqualTo 1 }
+                    }
+                    or {
+                        group {
+                            A isEqualTo 1
+                            or { A isGreaterThan 5 }
+                        }
+                        and {
+                            A isLessThan 0
+                            and { B isEqualTo 2 }
+                        }
                     }
                 }
+                and { C isEqualTo "Fred" }
             }
-            and { C isEqualTo "Fred" }
         }
 
         val expected = "select A, B, C" +
@@ -202,23 +215,25 @@ class KGroupingTest {
     fun testAndOrCriteriaGroups() {
         val selectStatement = select(A, B, C) {
             from(foo)
-            where { A isEqualTo 6 }
-            and { C isEqualTo "Fred" }
-            and {
-                group {
-                    A isEqualTo 1
-                    or { A isGreaterThan 5 }
-                }
-                or { B isEqualTo 1 }
-            }
-            or {
-                group {
-                    A  isEqualTo 1
-                    or { A isGreaterThan 5 }
-                }
+            where {
+                A isEqualTo 6
+                and { C isEqualTo "Fred" }
                 and {
-                    A isLessThan 0
-                    and { B isEqualTo 2 }
+                    group {
+                        A isEqualTo 1
+                        or { A isGreaterThan 5 }
+                    }
+                    or { B isEqualTo 1 }
+                }
+                or {
+                    group {
+                        A  isEqualTo 1
+                        or { A isGreaterThan 5 }
+                    }
+                    and {
+                        A isLessThan 0
+                        and { B isEqualTo 2 }
+                    }
                 }
             }
         }
@@ -255,13 +270,13 @@ class KGroupingTest {
                     }
                     and { A isGreaterThan 3 }
                 }
-            }
-            and { not { A isGreaterThan 4 } }
-            or {
-                not {
-                    group {
-                        B isLessThan 6
-                        and { A isGreaterThanOrEqualTo 7 }
+                and { not { A isGreaterThan 4 } }
+                or {
+                    not {
+                        group {
+                            B isLessThan 6
+                            and { A isGreaterThanOrEqualTo 7 }
+                        }
                     }
                 }
             }
@@ -280,5 +295,149 @@ class KGroupingTest {
         assertThat(selectStatement.parameters).containsEntry("p4", 4)
         assertThat(selectStatement.parameters).containsEntry("p5", 6)
         assertThat(selectStatement.parameters).containsEntry("p6", 7)
+    }
+
+    @Test
+    fun testNotGroupAndOrCriteriaGroupsNested() {
+        val selectStatement = select(A, B, C) {
+            from(foo)
+            where {
+                not {
+                    group {
+                        B isEqualTo 4
+                        and { A isLessThan 5 }
+                    }
+                    and { A isGreaterThan 3 }
+                }
+                and { not { A isGreaterThan 4 } }
+                or {
+                    not {
+                        group {
+                            B isLessThan 6
+                            and { A isGreaterThanOrEqualTo 7 }
+                        }
+                    }
+                }
+            }
+        }
+
+        val expected = "select A, B, C" +
+                " from Foo" +
+                " where not ((B = #{parameters.p1} and A < #{parameters.p2}) and A > #{parameters.p3})" +
+                " and not A > #{parameters.p4}" +
+                " or not (B < #{parameters.p5} and A >= #{parameters.p6})"
+
+        assertThat(selectStatement.selectStatement).isEqualTo(expected)
+        assertThat(selectStatement.parameters).containsEntry("p1", 4)
+        assertThat(selectStatement.parameters).containsEntry("p2", 5)
+        assertThat(selectStatement.parameters).containsEntry("p3", 3)
+        assertThat(selectStatement.parameters).containsEntry("p4", 4)
+        assertThat(selectStatement.parameters).containsEntry("p5", 6)
+        assertThat(selectStatement.parameters).containsEntry("p6", 7)
+    }
+
+    @Test
+    fun testNotGroupAndOrCriteriaGroupsNested2() {
+        val selectStatement = select(A, B, C) {
+            from(foo)
+            where {
+                B isEqualTo 4
+                or { B isEqualTo 5 }
+            }
+        }
+
+        val expected = "select A, B, C" +
+                " from Foo" +
+                " where B = #{parameters.p1} or B = #{parameters.p2}"
+
+        assertThat(selectStatement.selectStatement).isEqualTo(expected)
+        assertThat(selectStatement.parameters).containsEntry("p1", 4)
+        assertThat(selectStatement.parameters).containsEntry("p2", 5)
+    }
+
+    @Test
+    fun testHaving() {
+        val selectStatement = select(A, count()) {
+            from(foo)
+            groupBy(A)
+            having { count() isGreaterThan 6 }
+        }
+
+        val expected = "select A, count(*)" +
+                " from Foo" +
+                " group by A" +
+                " having count(*) > #{parameters.p1}"
+
+        assertThat(selectStatement.selectStatement).isEqualTo(expected)
+        assertThat(selectStatement.parameters).containsEntry("p1", 6L)
+    }
+
+    @Test
+    fun testIndependentHaving() {
+        val havingClause = having { count() isGreaterThan 6 }
+
+        val selectStatement = select(A, count()) {
+            from(foo)
+            groupBy(A)
+            having(havingClause)
+        }
+
+        val expected = "select A, count(*)" +
+                " from Foo" +
+                " group by A" +
+                " having count(*) > #{parameters.p1}"
+
+        assertThat(selectStatement.selectStatement).isEqualTo(expected)
+        assertThat(selectStatement.parameters).containsEntry("p1", 6L)
+    }
+
+    @Test
+    fun testHavingMultipleConditions() {
+        val selectStatement = select(A, count()) {
+            from(foo)
+            groupBy(A)
+            having {
+                count() isGreaterThan 6
+                and { A isEqualTo 5 }
+            }
+        }
+
+        val expected = "select A, count(*)" +
+                " from Foo" +
+                " group by A" +
+                " having count(*) > #{parameters.p1}" +
+                " and A = #{parameters.p2}"
+
+        assertThat(selectStatement.selectStatement).isEqualTo(expected)
+        assertThat(selectStatement.parameters).containsEntry("p1", 6L)
+        assertThat(selectStatement.parameters).containsEntry("p2", 5)
+    }
+
+    @Test
+    fun testHavingWithOptionalCondition() {
+        val selectStatement = select(A, count()) {
+            from(foo)
+            groupBy(A)
+            having { count() isGreaterThanWhenPresent null }
+        }
+
+        val expected = "select A, count(*)" +
+                " from Foo" +
+                " group by A"
+
+        assertThat(selectStatement.selectStatement).isEqualTo(expected)
+        assertThat(selectStatement.parameters).isEmpty()
+    }
+
+    @Test
+    fun testThatMultipleHavingClausesThrowsException() {
+        assertThatExceptionOfType(InvalidSqlException::class.java).isThrownBy {
+            select(A, count()) {
+                from(foo)
+                groupBy(A)
+                having { count() isGreaterThan 6 }
+                having { count() isGreaterThan 5 }
+            }
+        }.withMessage(Messages.getString("ERROR.31"))
     }
 }

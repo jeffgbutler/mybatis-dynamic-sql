@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ import org.mybatis.dynamic.sql.insert.InsertSelectDSL;
 import org.mybatis.dynamic.sql.insert.MultiRowInsertDSL;
 import org.mybatis.dynamic.sql.select.ColumnSortSpecification;
 import org.mybatis.dynamic.sql.select.CountDSL;
+import org.mybatis.dynamic.sql.select.HavingDSL;
+import org.mybatis.dynamic.sql.select.MultiSelectDSL;
 import org.mybatis.dynamic.sql.select.QueryExpressionDSL.FromGatherer;
 import org.mybatis.dynamic.sql.select.SelectDSL;
 import org.mybatis.dynamic.sql.select.SelectModel;
@@ -41,7 +43,11 @@ import org.mybatis.dynamic.sql.select.aggregate.CountDistinct;
 import org.mybatis.dynamic.sql.select.aggregate.Max;
 import org.mybatis.dynamic.sql.select.aggregate.Min;
 import org.mybatis.dynamic.sql.select.aggregate.Sum;
+import org.mybatis.dynamic.sql.select.caseexpression.SearchedCaseDSL;
+import org.mybatis.dynamic.sql.select.caseexpression.SimpleCaseDSL;
 import org.mybatis.dynamic.sql.select.function.Add;
+import org.mybatis.dynamic.sql.select.function.Cast;
+import org.mybatis.dynamic.sql.select.function.Concat;
 import org.mybatis.dynamic.sql.select.function.Concatenate;
 import org.mybatis.dynamic.sql.select.function.Divide;
 import org.mybatis.dynamic.sql.select.function.Lower;
@@ -51,6 +57,7 @@ import org.mybatis.dynamic.sql.select.function.Substring;
 import org.mybatis.dynamic.sql.select.function.Subtract;
 import org.mybatis.dynamic.sql.select.function.Upper;
 import org.mybatis.dynamic.sql.select.join.EqualTo;
+import org.mybatis.dynamic.sql.select.join.EqualToValue;
 import org.mybatis.dynamic.sql.select.join.JoinCondition;
 import org.mybatis.dynamic.sql.select.join.JoinCriterion;
 import org.mybatis.dynamic.sql.update.UpdateDSL;
@@ -69,6 +76,8 @@ import org.mybatis.dynamic.sql.where.condition.IsGreaterThanOrEqualToWithSubsele
 import org.mybatis.dynamic.sql.where.condition.IsGreaterThanWithSubselect;
 import org.mybatis.dynamic.sql.where.condition.IsIn;
 import org.mybatis.dynamic.sql.where.condition.IsInCaseInsensitive;
+import org.mybatis.dynamic.sql.where.condition.IsInCaseInsensitiveWhenPresent;
+import org.mybatis.dynamic.sql.where.condition.IsInWhenPresent;
 import org.mybatis.dynamic.sql.where.condition.IsInWithSubselect;
 import org.mybatis.dynamic.sql.where.condition.IsLessThan;
 import org.mybatis.dynamic.sql.where.condition.IsLessThanColumn;
@@ -84,6 +93,8 @@ import org.mybatis.dynamic.sql.where.condition.IsNotEqualToColumn;
 import org.mybatis.dynamic.sql.where.condition.IsNotEqualToWithSubselect;
 import org.mybatis.dynamic.sql.where.condition.IsNotIn;
 import org.mybatis.dynamic.sql.where.condition.IsNotInCaseInsensitive;
+import org.mybatis.dynamic.sql.where.condition.IsNotInCaseInsensitiveWhenPresent;
+import org.mybatis.dynamic.sql.where.condition.IsNotInWhenPresent;
 import org.mybatis.dynamic.sql.where.condition.IsNotInWithSubselect;
 import org.mybatis.dynamic.sql.where.condition.IsNotLike;
 import org.mybatis.dynamic.sql.where.condition.IsNotLikeCaseInsensitive;
@@ -214,7 +225,7 @@ public interface SqlBuilder {
         return SelectDSL.select(selectList);
     }
 
-    static FromGatherer<SelectModel> select(Collection<BasicColumn> selectList) {
+    static FromGatherer<SelectModel> select(Collection<? extends BasicColumn> selectList) {
         return SelectDSL.select(selectList);
     }
 
@@ -222,8 +233,12 @@ public interface SqlBuilder {
         return SelectDSL.selectDistinct(selectList);
     }
 
-    static FromGatherer<SelectModel> selectDistinct(Collection<BasicColumn> selectList) {
+    static FromGatherer<SelectModel> selectDistinct(Collection<? extends BasicColumn> selectList) {
         return SelectDSL.selectDistinct(selectList);
+    }
+
+    static MultiSelectDSL multiSelect(Buildable<SelectModel> selectModelBuilder) {
+        return new MultiSelectDSL(selectModelBuilder);
     }
 
     static UpdateDSL<UpdateModel> update(SqlTable table) {
@@ -234,21 +249,30 @@ public interface SqlBuilder {
         return UpdateDSL.update(table, tableAlias);
     }
 
-    static WhereDSL where() {
-        return WhereDSL.where();
+    static WhereDSL.StandaloneWhereFinisher where() {
+        return new WhereDSL().where();
     }
 
-    static <T> WhereDSL where(BindableColumn<T> column, VisitableCondition<T> condition,
-                              AndOrCriteriaGroup... subCriteria) {
-        return WhereDSL.where().where(column, condition, subCriteria);
+    static <T> WhereDSL.StandaloneWhereFinisher where(BindableColumn<T> column, VisitableCondition<T> condition,
+                                                      AndOrCriteriaGroup... subCriteria) {
+        return new WhereDSL().where(column, condition, subCriteria);
     }
 
-    static WhereDSL where(SqlCriterion initialCriterion, AndOrCriteriaGroup... subCriteria) {
-        return WhereDSL.where().where(initialCriterion, subCriteria);
+    static WhereDSL.StandaloneWhereFinisher where(SqlCriterion initialCriterion, AndOrCriteriaGroup... subCriteria) {
+        return new WhereDSL().where(initialCriterion, subCriteria);
     }
 
-    static WhereDSL where(ExistsPredicate existsPredicate, AndOrCriteriaGroup... subCriteria) {
-        return WhereDSL.where().where(existsPredicate, subCriteria);
+    static WhereDSL.StandaloneWhereFinisher where(ExistsPredicate existsPredicate, AndOrCriteriaGroup... subCriteria) {
+        return new WhereDSL().where(existsPredicate, subCriteria);
+    }
+
+    static <T> HavingDSL.StandaloneHavingFinisher having(BindableColumn<T> column, VisitableCondition<T> condition,
+                                              AndOrCriteriaGroup... subCriteria) {
+        return new HavingDSL().having(column, condition, subCriteria);
+    }
+
+    static HavingDSL.StandaloneHavingFinisher having(SqlCriterion initialCriterion, AndOrCriteriaGroup... subCriteria) {
+        return new HavingDSL().having(initialCriterion, subCriteria);
     }
 
     // where condition connectors
@@ -409,24 +433,39 @@ public interface SqlBuilder {
     }
 
     // join support
-    static JoinCriterion and(BasicColumn joinColumn, JoinCondition joinCondition) {
-        return new JoinCriterion.Builder()
+    static <T> JoinCriterion<T> and(BindableColumn<T> joinColumn, JoinCondition<T> joinCondition) {
+        return new JoinCriterion.Builder<T>()
                 .withConnector("and") //$NON-NLS-1$
                 .withJoinColumn(joinColumn)
                 .withJoinCondition(joinCondition)
                 .build();
     }
 
-    static JoinCriterion on(BasicColumn joinColumn, JoinCondition joinCondition) {
-        return new JoinCriterion.Builder()
+    static <T> JoinCriterion<T> on(BindableColumn<T> joinColumn, JoinCondition<T> joinCondition) {
+        return new JoinCriterion.Builder<T>()
                 .withConnector("on") //$NON-NLS-1$
                 .withJoinColumn(joinColumn)
                 .withJoinCondition(joinCondition)
                 .build();
     }
 
-    static EqualTo equalTo(BasicColumn column) {
-        return new EqualTo(column);
+    // case expressions
+    @SuppressWarnings("java:S100")
+    static <T> SimpleCaseDSL<T> case_(BindableColumn<T> column) {
+        return SimpleCaseDSL.simpleCase(column);
+    }
+
+    @SuppressWarnings("java:S100")
+    static SearchedCaseDSL case_() {
+        return SearchedCaseDSL.searchedCase();
+    }
+
+    static <T> EqualTo<T> equalTo(BindableColumn<T> column) {
+        return new EqualTo<>(column);
+    }
+
+    static <T> EqualToValue<T> equalTo(T value) {
+        return new EqualToValue<>(value);
     }
 
     // aggregate support
@@ -458,6 +497,10 @@ public interface SqlBuilder {
         return Sum.of(column);
     }
 
+    static <T> Sum<T> sum(BindableColumn<T> column, VisitableCondition<T> condition) {
+        return Sum.of(column, condition);
+    }
+
     // constants
     static <T> Constant<T> constant(String constant) {
         return Constant.of(constant);
@@ -465,6 +508,10 @@ public interface SqlBuilder {
 
     static StringConstant stringConstant(String constant) {
         return StringConstant.of(constant);
+    }
+
+    static <T> BoundValue<T> value(T value) {
+        return BoundValue.of(value);
     }
 
     // functions
@@ -488,9 +535,44 @@ public interface SqlBuilder {
         return Subtract.of(firstColumn, secondColumn, subsequentColumns);
     }
 
+    static CastFinisher cast(String value) {
+        return cast(stringConstant(value));
+    }
+
+    static CastFinisher cast(Double value) {
+        return cast(constant(value.toString()));
+    }
+
+    static CastFinisher cast(BasicColumn column) {
+        return new CastFinisher(column);
+    }
+
+    /**
+     * Concatenate function that renders as "(x || y || z)". This will not work on some
+     * databases like MySql. In that case, use {@link SqlBuilder#concat(BindableColumn, BasicColumn...)}
+     *
+     * @param firstColumn first column
+     * @param secondColumn second column
+     * @param subsequentColumns subsequent columns
+     * @param <T> type of column
+     * @return a Concatenate instance
+     */
     static <T> Concatenate<T> concatenate(BindableColumn<T> firstColumn, BasicColumn secondColumn,
             BasicColumn... subsequentColumns) {
         return Concatenate.concatenate(firstColumn, secondColumn, subsequentColumns);
+    }
+
+    /**
+     * Concatenate function that renders as "concat(x, y, z)". This version works on more databases
+     * than {@link SqlBuilder#concatenate(BindableColumn, BasicColumn, BasicColumn...)}
+     *
+     * @param firstColumn first column
+     * @param subsequentColumns subsequent columns
+     * @param <T> type of column
+     * @return a Concat instance
+     */
+    static <T> Concat<T> concat(BindableColumn<T> firstColumn, BasicColumn... subsequentColumns) {
+        return Concat.concat(firstColumn, subsequentColumns);
     }
 
     static <T> OperatorFunction<T> applyOperator(String operator, BindableColumn<T> firstColumn,
@@ -686,12 +768,12 @@ public interface SqlBuilder {
     }
 
     @SafeVarargs
-    static <T> IsIn<T> isInWhenPresent(T... values) {
-        return IsIn.of(values).filter(Objects::nonNull);
+    static <T> IsInWhenPresent<T> isInWhenPresent(T... values) {
+        return IsInWhenPresent.of(values);
     }
 
-    static <T> IsIn<T> isInWhenPresent(Collection<T> values) {
-        return values == null ? IsIn.empty() : IsIn.of(values).filter(Objects::nonNull);
+    static <T> IsInWhenPresent<T> isInWhenPresent(Collection<T> values) {
+        return values == null ? IsInWhenPresent.empty() : IsInWhenPresent.of(values);
     }
 
     @SafeVarargs
@@ -708,12 +790,12 @@ public interface SqlBuilder {
     }
 
     @SafeVarargs
-    static <T> IsNotIn<T> isNotInWhenPresent(T... values) {
-        return IsNotIn.of(values).filter(Objects::nonNull);
+    static <T> IsNotInWhenPresent<T> isNotInWhenPresent(T... values) {
+        return IsNotInWhenPresent.of(values);
     }
 
-    static <T> IsNotIn<T> isNotInWhenPresent(Collection<T> values) {
-        return values == null ? IsNotIn.empty() : IsNotIn.of(values).filter(Objects::nonNull);
+    static <T> IsNotInWhenPresent<T> isNotInWhenPresent(Collection<T> values) {
+        return values == null ? IsNotInWhenPresent.empty() : IsNotInWhenPresent.of(values);
     }
 
     static <T> IsBetween.Builder<T> isBetween(T value1) {
@@ -831,12 +913,12 @@ public interface SqlBuilder {
         return IsInCaseInsensitive.of(values);
     }
 
-    static IsInCaseInsensitive isInCaseInsensitiveWhenPresent(String... values) {
-        return IsInCaseInsensitive.of(values).filter(Objects::nonNull);
+    static IsInCaseInsensitiveWhenPresent isInCaseInsensitiveWhenPresent(String... values) {
+        return IsInCaseInsensitiveWhenPresent.of(values);
     }
 
-    static IsInCaseInsensitive isInCaseInsensitiveWhenPresent(Collection<String> values) {
-        return values == null ? IsInCaseInsensitive.empty() : IsInCaseInsensitive.of(values).filter(Objects::nonNull);
+    static IsInCaseInsensitiveWhenPresent isInCaseInsensitiveWhenPresent(Collection<String> values) {
+        return values == null ? IsInCaseInsensitiveWhenPresent.empty() : IsInCaseInsensitiveWhenPresent.of(values);
     }
 
     static IsNotInCaseInsensitive isNotInCaseInsensitive(String... values) {
@@ -847,13 +929,13 @@ public interface SqlBuilder {
         return IsNotInCaseInsensitive.of(values);
     }
 
-    static IsNotInCaseInsensitive isNotInCaseInsensitiveWhenPresent(String... values) {
-        return IsNotInCaseInsensitive.of(values).filter(Objects::nonNull);
+    static IsNotInCaseInsensitiveWhenPresent isNotInCaseInsensitiveWhenPresent(String... values) {
+        return IsNotInCaseInsensitiveWhenPresent.of(values);
     }
 
-    static IsNotInCaseInsensitive isNotInCaseInsensitiveWhenPresent(Collection<String> values) {
-        return values == null ? IsNotInCaseInsensitive.empty() :
-                IsNotInCaseInsensitive.of(values).filter(Objects::nonNull);
+    static IsNotInCaseInsensitiveWhenPresent isNotInCaseInsensitiveWhenPresent(Collection<String> values) {
+        return values == null ? IsNotInCaseInsensitiveWhenPresent.empty() :
+                IsNotInCaseInsensitiveWhenPresent.of(values);
     }
 
     // order by support
@@ -914,6 +996,21 @@ public interface SqlBuilder {
         public <T> GeneralInsertDSL.SetClauseFinisher<T> set(SqlColumn<T> column) {
             return GeneralInsertDSL.insertInto(table)
                     .set(column);
+        }
+    }
+
+    class CastFinisher {
+        private final BasicColumn column;
+
+        public CastFinisher(BasicColumn column) {
+            this.column = column;
+        }
+
+        public Cast as(String targetType) {
+            return new Cast.Builder()
+                    .withColumn(column)
+                    .withTargetType(targetType)
+                    .build();
         }
     }
 }

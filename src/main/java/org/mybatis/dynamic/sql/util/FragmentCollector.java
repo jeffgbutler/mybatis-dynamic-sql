@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collector;
-import java.util.stream.Stream;
 
 public class FragmentCollector {
     final List<FragmentAndParameters> fragments = new ArrayList<>();
@@ -42,9 +42,18 @@ public class FragmentCollector {
         return this;
     }
 
-    public Stream<String> fragments() {
-        return fragments.stream()
-                .map(FragmentAndParameters::fragment);
+    public Optional<String> firstFragment() {
+        return fragments.stream().findFirst().map(FragmentAndParameters::fragment);
+    }
+
+    public String collectFragments(Collector<CharSequence, ?, String> fragmentCollector) {
+        return fragments.stream().map(FragmentAndParameters::fragment).collect(fragmentCollector);
+    }
+
+    public FragmentAndParameters toFragmentAndParameters(Collector<CharSequence, ?, String> fragmentCollector) {
+        return FragmentAndParameters.withFragment(collectFragments(fragmentCollector))
+                .withParameters(parameters())
+                .build();
     }
 
     public Map<String, Object> parameters() {
@@ -55,6 +64,10 @@ public class FragmentCollector {
 
     public boolean hasMultipleFragments() {
         return fragments.size() > 1;
+    }
+
+    public boolean isEmpty() {
+        return fragments.isEmpty();
     }
 
     public static Collector<FragmentAndParameters, FragmentCollector, FragmentCollector> collect() {

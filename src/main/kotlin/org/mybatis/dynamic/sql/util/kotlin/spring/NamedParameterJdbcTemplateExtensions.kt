@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -36,12 +36,12 @@ import org.mybatis.dynamic.sql.util.kotlin.KotlinMultiRowInsertCompleter
 import org.mybatis.dynamic.sql.util.kotlin.MyBatisDslMarker
 import org.mybatis.dynamic.sql.util.kotlin.SelectCompleter
 import org.mybatis.dynamic.sql.util.kotlin.UpdateCompleter
+import org.mybatis.dynamic.sql.util.spring.BatchInsertUtility
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils
 import org.springframework.jdbc.support.KeyHolder
 import java.sql.ResultSet
 import kotlin.reflect.KClass
@@ -66,7 +66,7 @@ fun NamedParameterJdbcTemplate.deleteFrom(table: SqlTable, completer: DeleteComp
 
 // batch insert
 fun <T> NamedParameterJdbcTemplate.insertBatch(insertStatement: BatchInsert<T>): IntArray =
-    batchUpdate(insertStatement.insertStatementSQL, SqlParameterSourceUtils.createBatch(insertStatement.records))
+    batchUpdate(insertStatement.insertStatementSQL, BatchInsertUtility.createBatch(insertStatement.records))
 
 fun <T : Any> NamedParameterJdbcTemplate.insertBatch(
     vararg records: T,
@@ -80,30 +80,18 @@ fun <T : Any> NamedParameterJdbcTemplate.insertBatch(
 ): IntArray =
     insertBatch(org.mybatis.dynamic.sql.util.kotlin.spring.insertBatch(records, completer))
 
-@Deprecated("Please move the into phrase inside the lambda")
-fun <T : Any> NamedParameterJdbcTemplate.insertBatch(vararg records: T): BatchInsertHelper<T> =
-    insertBatch(records.asList())
-
-@Deprecated("Please move the into phrase inside the lambda")
-fun <T : Any> NamedParameterJdbcTemplate.insertBatch(records: List<T>): BatchInsertHelper<T> =
-    BatchInsertHelper(records, this)
-
 // single row insert
 fun <T> NamedParameterJdbcTemplate.insert(insertStatement: InsertStatementProvider<T>): Int =
-    update(insertStatement.insertStatement, BeanPropertySqlParameterSource(insertStatement.row))
+    update(insertStatement.insertStatement, BeanPropertySqlParameterSource(insertStatement))
 
 fun <T> NamedParameterJdbcTemplate.insert(
     insertStatement: InsertStatementProvider<T>,
     keyHolder: KeyHolder
 ): Int =
-    update(insertStatement.insertStatement, BeanPropertySqlParameterSource(insertStatement.row), keyHolder)
+    update(insertStatement.insertStatement, BeanPropertySqlParameterSource(insertStatement), keyHolder)
 
 fun <T : Any> NamedParameterJdbcTemplate.insert(row: T, completer: KotlinInsertCompleter<T>): Int =
     insert(org.mybatis.dynamic.sql.util.kotlin.spring.insert(row, completer))
-
-@Deprecated("Please move the into phrase inside the lambda")
-fun <T : Any> NamedParameterJdbcTemplate.insert(row: T): SingleRowInsertHelper<T> =
-    SingleRowInsertHelper(row, this)
 
 // general insert
 fun NamedParameterJdbcTemplate.generalInsert(insertStatement: GeneralInsertStatementProvider): Int =
@@ -131,14 +119,6 @@ fun <T : Any> NamedParameterJdbcTemplate.insertMultiple(
 ): Int =
     insertMultiple(org.mybatis.dynamic.sql.util.kotlin.spring.insertMultiple(records, completer))
 
-@Deprecated("Please move the into phrase inside the lambda")
-fun <T : Any> NamedParameterJdbcTemplate.insertMultiple(vararg records: T): MultiRowInsertHelper<T> =
-    insertMultiple(records.asList())
-
-@Deprecated("Please move the into phrase inside the lambda")
-fun <T : Any> NamedParameterJdbcTemplate.insertMultiple(records: List<T>): MultiRowInsertHelper<T> =
-    MultiRowInsertHelper(records, this)
-
 fun <T> NamedParameterJdbcTemplate.insertMultiple(insertStatement: MultiRowInsertStatementProvider<T>): Int =
     update(insertStatement.insertStatement, BeanPropertySqlParameterSource(insertStatement))
 
@@ -147,10 +127,6 @@ fun <T> NamedParameterJdbcTemplate.insertMultiple(
     keyHolder: KeyHolder
 ): Int =
     update(insertStatement.insertStatement, BeanPropertySqlParameterSource(insertStatement), keyHolder)
-
-@Deprecated("Please use the new form - move the table into the lambda with into(table)")
-fun NamedParameterJdbcTemplate.insertSelect(table: SqlTable, completer: InsertSelectCompleter): Int =
-    insertSelect(org.mybatis.dynamic.sql.util.kotlin.spring.insertSelect(table, completer))
 
 fun NamedParameterJdbcTemplate.insertSelect(completer: InsertSelectCompleter): Int =
     insertSelect(org.mybatis.dynamic.sql.util.kotlin.spring.insertSelect(completer))
@@ -291,10 +267,6 @@ class KeyHolderHelper(private val keyHolder: KeyHolder, private val template: Na
     fun <T : Any> insert(row: T, completer: KotlinInsertCompleter<T>): Int =
         template.insert(org.mybatis.dynamic.sql.util.kotlin.spring.insert(row, completer), keyHolder)
 
-    @Deprecated("Please move the into phrase inside the lambda")
-    fun <T : Any> insert(row: T): SingleRowInsertWithKeyHolderHelper<T> =
-        SingleRowInsertWithKeyHolderHelper(row, template, keyHolder)
-
     fun <T : Any> insertMultiple(vararg records: T, completer: KotlinMultiRowInsertCompleter<T>): Int =
         insertMultiple(records.asList(), completer)
 
@@ -302,91 +274,6 @@ class KeyHolderHelper(private val keyHolder: KeyHolder, private val template: Na
         template.insertMultiple(org.mybatis.dynamic.sql.util.kotlin.spring.insertMultiple(records, completer),
             keyHolder)
 
-    @Deprecated("Please move the into phrase inside the lambda")
-    fun <T : Any> insertMultiple(vararg records: T): MultiRowInsertWithKeyHolderHelper<T> =
-        insertMultiple(records.asList())
-
-    @Deprecated("Please move the into phrase inside the lambda")
-    fun <T : Any> insertMultiple(records: List<T>): MultiRowInsertWithKeyHolderHelper<T> =
-        MultiRowInsertWithKeyHolderHelper(records, template, keyHolder)
-
-    fun insertSelect(table: SqlTable, completer: InsertSelectCompleter): Int =
-        template.insertSelect(org.mybatis.dynamic.sql.util.kotlin.spring.insertSelect(table, completer), keyHolder)
-}
-
-@MyBatisDslMarker
-class BatchInsertHelper<T : Any>(private val records: List<T>, private val template: NamedParameterJdbcTemplate) {
-    fun into(table: SqlTable, completer: KotlinBatchInsertCompleter<T>): IntArray =
-        template.insertBatch(
-            insertBatch(records) {
-                into(table)
-                run(completer)
-            }
-        )
-}
-
-@MyBatisDslMarker
-class MultiRowInsertHelper<T : Any>(
-    private val records: List<T>,
-    private val template: NamedParameterJdbcTemplate
-) {
-    fun into(table: SqlTable, completer: KotlinMultiRowInsertCompleter<T>): Int =
-        with(
-            insertMultiple(records) {
-                into(table)
-                run(completer)
-            }
-        ) {
-            template.insertMultiple(this)
-        }
-}
-
-@MyBatisDslMarker
-class MultiRowInsertWithKeyHolderHelper<T : Any>(
-    private val records: List<T>,
-    private val template: NamedParameterJdbcTemplate,
-    private val keyHolder: KeyHolder
-) {
-    fun into(table: SqlTable, completer: KotlinMultiRowInsertCompleter<T>): Int =
-        with(
-            insertMultiple(records) {
-                into(table)
-                run(completer)
-            }
-        ) {
-            template.insertMultiple(this, keyHolder)
-        }
-}
-
-@MyBatisDslMarker
-class SingleRowInsertHelper<T : Any>(
-    private val row: T,
-    private val template: NamedParameterJdbcTemplate
-) {
-    fun into(table: SqlTable, completer: KotlinInsertCompleter<T>): Int =
-        with(
-            insert(row) {
-                into(table)
-                run(completer)
-            }
-        ) {
-            template.insert(this)
-        }
-}
-
-@MyBatisDslMarker
-class SingleRowInsertWithKeyHolderHelper<T : Any>(
-    private val row: T,
-    private val template: NamedParameterJdbcTemplate,
-    private val keyHolder: KeyHolder
-) {
-    fun into(table: SqlTable, completer: KotlinInsertCompleter<T>): Int =
-        with(
-            insert(row) {
-                into(table)
-                run(completer)
-            }
-        ) {
-            template.insert(this, keyHolder)
-        }
+    fun insertSelect(completer: InsertSelectCompleter): Int =
+        template.insertSelect(org.mybatis.dynamic.sql.util.kotlin.spring.insertSelect(completer), keyHolder)
 }

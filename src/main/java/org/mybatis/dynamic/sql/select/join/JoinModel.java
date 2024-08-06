@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,27 +18,22 @@ package org.mybatis.dynamic.sql.select.join;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.mybatis.dynamic.sql.TableExpression;
-import org.mybatis.dynamic.sql.exception.InvalidSqlException;
-import org.mybatis.dynamic.sql.util.Messages;
+import org.mybatis.dynamic.sql.util.Validator;
 
 public class JoinModel {
     private final List<JoinSpecification> joinSpecifications = new ArrayList<>();
 
     private JoinModel(List<JoinSpecification> joinSpecifications) {
         Objects.requireNonNull(joinSpecifications);
-        if (joinSpecifications.isEmpty()) {
-            throw new InvalidSqlException(Messages.getString("ERROR.15")); //$NON-NLS-1$
-        }
-
+        Validator.assertNotEmpty(joinSpecifications, "ERROR.15"); //$NON-NLS-1$
         this.joinSpecifications.addAll(joinSpecifications);
     }
 
-    public <R> Stream<R> mapJoinSpecifications(Function<JoinSpecification, R> mapper) {
-        return joinSpecifications.stream().map(mapper);
+    public Stream<JoinSpecification> joinSpecifications() {
+        return joinSpecifications.stream();
     }
 
     public static JoinModel of(List<JoinSpecification> joinSpecifications) {

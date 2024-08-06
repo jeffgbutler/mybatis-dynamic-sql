@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mybatis.dynamic.sql.SqlBuilder.*;
 import static org.mybatis.dynamic.sql.subselect.FooDynamicSqlSupport.*;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -32,7 +32,7 @@ class NoInitialConditionTest {
 
     @Test
     void testNoInitialConditionEmptyList() {
-        List<AndOrCriteriaGroup> criteria = new ArrayList<>();
+        List<AndOrCriteriaGroup> criteria = Collections.emptyList();
 
         SelectStatementProvider selectStatement = buildSelectStatement(criteria);
 
@@ -43,8 +43,7 @@ class NoInitialConditionTest {
 
     @Test
     void testNoInitialConditionSingleSub() {
-        List<AndOrCriteriaGroup> criteria = new ArrayList<>();
-        criteria.add(or(column2, isEqualTo(3)));
+        List<AndOrCriteriaGroup> criteria = List.of(or(column2, isEqualTo(3)));
 
         SelectStatementProvider selectStatement = buildSelectStatement(criteria);
 
@@ -56,10 +55,10 @@ class NoInitialConditionTest {
 
     @Test
     void testNoInitialConditionMultipleSubs() {
-        List<AndOrCriteriaGroup> criteria = new ArrayList<>();
-        criteria.add(or(column2, isEqualTo(3)));
-        criteria.add(or(column2, isEqualTo(4)));
-        criteria.add(or(column2, isEqualTo(5)));
+        List<AndOrCriteriaGroup> criteria = List.of(
+            or(column2, isEqualTo(3)),
+            or(column2, isEqualTo(4)),
+            or(column2, isEqualTo(5)));
 
         SelectStatementProvider selectStatement = buildSelectStatement(criteria);
 
@@ -71,10 +70,10 @@ class NoInitialConditionTest {
 
     @Test
     void testNoInitialConditionWhereMultipleSubs() {
-        List<AndOrCriteriaGroup> criteria = new ArrayList<>();
-        criteria.add(or(column2, isEqualTo(3)));
-        criteria.add(or(column2, isEqualTo(4)));
-        criteria.add(or(column2, isEqualTo(5)));
+        List<AndOrCriteriaGroup> criteria = List.of(
+            or(column2, isEqualTo(3)),
+            or(column2, isEqualTo(4)),
+            or(column2, isEqualTo(5)));
 
         SelectStatementProvider selectStatement = select(column1, column2)
                 .from(foo)
@@ -83,17 +82,17 @@ class NoInitialConditionTest {
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
         String expected = "select column1, column2 from foo where " +
-                "(column2 = :p1 or column2 = :p2 or column2 = :p3)";
+                "column2 = :p1 or column2 = :p2 or column2 = :p3";
 
         assertThat(selectStatement.getSelectStatement()).isEqualTo(expected);
     }
 
     @Test
     void testNoInitialConditionWhereNotMultipleSubs() {
-        List<AndOrCriteriaGroup> criteria = new ArrayList<>();
-        criteria.add(or(column2, isEqualTo(3)));
-        criteria.add(or(column2, isEqualTo(4)));
-        criteria.add(or(column2, isEqualTo(5)));
+        List<AndOrCriteriaGroup> criteria = List.of(
+                or(column2, isEqualTo(3)),
+                or(column2, isEqualTo(4)),
+                or(column2, isEqualTo(5)));
 
         SelectStatementProvider selectStatement = select(column1, column2)
                 .from(foo)
@@ -101,19 +100,19 @@ class NoInitialConditionTest {
                 .build()
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
-        String expected = "select column1, column2 from foo where (not " +
+        String expected = "select column1, column2 from foo where not " +
                 "(column2 = :p1 or column2 = :p2 or column2 = :p3) " +
-                "and column1 < :p4)";
+                "and column1 < :p4";
 
         assertThat(selectStatement.getSelectStatement()).isEqualTo(expected);
     }
 
     @Test
     void testNoInitialConditionWhereGroupMultipleSubs() {
-        List<AndOrCriteriaGroup> criteria = new ArrayList<>();
-        criteria.add(or(column2, isEqualTo(3)));
-        criteria.add(or(column2, isEqualTo(4)));
-        criteria.add(or(column2, isEqualTo(5)));
+        List<AndOrCriteriaGroup> criteria = List.of(
+                or(column2, isEqualTo(3)),
+                or(column2, isEqualTo(4)),
+                or(column2, isEqualTo(5)));
 
         SelectStatementProvider selectStatement = select(column1, column2)
                 .from(foo)
@@ -122,18 +121,18 @@ class NoInitialConditionTest {
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
         String expected = "select column1, column2 from foo where " +
-                "((column2 = :p1 or column2 = :p2 or column2 = :p3) " +
-                "and column1 < :p4)";
+                "(column2 = :p1 or column2 = :p2 or column2 = :p3) " +
+                "and column1 < :p4";
 
         assertThat(selectStatement.getSelectStatement()).isEqualTo(expected);
     }
 
     @Test
     void testNoInitialConditionWhereCCAndMultipleSubs() {
-        List<AndOrCriteriaGroup> criteria = new ArrayList<>();
-        criteria.add(or(column2, isEqualTo(3)));
-        criteria.add(or(column2, isEqualTo(4)));
-        criteria.add(or(column2, isEqualTo(5)));
+        List<AndOrCriteriaGroup> criteria = List.of(
+                or(column2, isEqualTo(3)),
+                or(column2, isEqualTo(4)),
+                or(column2, isEqualTo(5)));
 
         SelectStatementProvider selectStatement = select(column1, column2)
                 .from(foo)
@@ -142,17 +141,17 @@ class NoInitialConditionTest {
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
         String expected = "select column1, column2 from foo where " +
-                "(column1 < :p1 and (column2 = :p2 or column2 = :p3 or column2 = :p4))";
+                "column1 < :p1 and (column2 = :p2 or column2 = :p3 or column2 = :p4)";
 
         assertThat(selectStatement.getSelectStatement()).isEqualTo(expected);
     }
 
     @Test
     void testNoInitialConditionWhereCCOrMultipleSubs() {
-        List<AndOrCriteriaGroup> criteria = new ArrayList<>();
-        criteria.add(or(column2, isEqualTo(3)));
-        criteria.add(or(column2, isEqualTo(4)));
-        criteria.add(or(column2, isEqualTo(5)));
+        List<AndOrCriteriaGroup> criteria = List.of(
+                or(column2, isEqualTo(3)),
+                or(column2, isEqualTo(4)),
+                or(column2, isEqualTo(5)));
 
         SelectStatementProvider selectStatement = select(column1, column2)
                 .from(foo)
@@ -161,17 +160,17 @@ class NoInitialConditionTest {
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
         String expected = "select column1, column2 from foo where " +
-                "(column1 < :p1 or (column2 = :p2 or column2 = :p3 or column2 = :p4))";
+                "column1 < :p1 or (column2 = :p2 or column2 = :p3 or column2 = :p4)";
 
         assertThat(selectStatement.getSelectStatement()).isEqualTo(expected);
     }
 
     @Test
     void testNoInitialConditionWhereOrMultipleSubs() {
-        List<AndOrCriteriaGroup> criteria = new ArrayList<>();
-        criteria.add(or(column2, isEqualTo(3)));
-        criteria.add(or(column2, isEqualTo(4)));
-        criteria.add(or(column2, isEqualTo(5)));
+        List<AndOrCriteriaGroup> criteria = List.of(
+                or(column2, isEqualTo(3)),
+                or(column2, isEqualTo(4)),
+                or(column2, isEqualTo(5)));
 
         SelectStatementProvider selectStatement = select(column1, column2)
                 .from(foo)

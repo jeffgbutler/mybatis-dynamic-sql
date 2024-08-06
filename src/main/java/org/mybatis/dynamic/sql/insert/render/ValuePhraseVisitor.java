@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -24,7 +24,9 @@ import org.mybatis.dynamic.sql.util.InsertMappingVisitor;
 import org.mybatis.dynamic.sql.util.NullMapping;
 import org.mybatis.dynamic.sql.util.PropertyMapping;
 import org.mybatis.dynamic.sql.util.PropertyWhenPresentMapping;
+import org.mybatis.dynamic.sql.util.RowMapping;
 import org.mybatis.dynamic.sql.util.StringConstantMapping;
+import org.mybatis.dynamic.sql.util.StringUtilities;
 
 public class ValuePhraseVisitor extends InsertMappingVisitor<Optional<FieldAndValueAndParameters>> {
 
@@ -51,14 +53,14 @@ public class ValuePhraseVisitor extends InsertMappingVisitor<Optional<FieldAndVa
     @Override
     public Optional<FieldAndValueAndParameters> visit(StringConstantMapping mapping) {
         return FieldAndValueAndParameters.withFieldName(mapping.columnName())
-                .withValuePhrase("'" + mapping.constant() + "'") //$NON-NLS-1$ //$NON-NLS-2$
+                .withValuePhrase(StringUtilities.formatConstantForSQL(mapping.constant()))
                 .buildOptional();
     }
 
     @Override
     public Optional<FieldAndValueAndParameters> visit(PropertyMapping mapping) {
         return FieldAndValueAndParameters.withFieldName(mapping.columnName())
-                .withValuePhrase(mapping.mapColumn(c -> calculateJdbcPlaceholder(c, mapping.property())))
+                .withValuePhrase(calculateJdbcPlaceholder(mapping.column(), mapping.property()))
                 .buildOptional();
     }
 
@@ -71,8 +73,20 @@ public class ValuePhraseVisitor extends InsertMappingVisitor<Optional<FieldAndVa
         }
     }
 
+    @Override
+    public Optional<FieldAndValueAndParameters> visit(RowMapping mapping) {
+        return FieldAndValueAndParameters.withFieldName(mapping.columnName())
+                .withValuePhrase(calculateJdbcPlaceholder(mapping.column()))
+                .buildOptional();
+    }
+
+    private String calculateJdbcPlaceholder(SqlColumn<?> column) {
+        return column.renderingStrategy().orElse(renderingStrategy)
+                .getRecordBasedInsertBinding(column, "row"); //$NON-NLS-1$
+    }
+
     private String calculateJdbcPlaceholder(SqlColumn<?> column, String parameterName) {
         return column.renderingStrategy().orElse(renderingStrategy)
-                .getFormattedJdbcPlaceholder(column, "row", parameterName); //$NON-NLS-1$
+                .getRecordBasedInsertBinding(column, "row", parameterName); //$NON-NLS-1$
     }
 }

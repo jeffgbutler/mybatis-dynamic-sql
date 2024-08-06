@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,16 +21,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.TableExpression;
-import org.mybatis.dynamic.sql.exception.InvalidSqlException;
 import org.mybatis.dynamic.sql.select.join.JoinModel;
-import org.mybatis.dynamic.sql.util.Messages;
-import org.mybatis.dynamic.sql.where.WhereModel;
+import org.mybatis.dynamic.sql.util.Validator;
+import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
 public class QueryExpressionModel {
     private final String connector;
@@ -39,8 +37,9 @@ public class QueryExpressionModel {
     private final TableExpression table;
     private final JoinModel joinModel;
     private final Map<SqlTable, String> tableAliases;
-    private final WhereModel whereModel;
+    private final EmbeddedWhereModel whereModel;
     private final GroupByModel groupByModel;
+    private final HavingModel havingModel;
 
     private QueryExpressionModel(Builder builder) {
         connector = builder.connector;
@@ -51,10 +50,8 @@ public class QueryExpressionModel {
         tableAliases = builder.tableAliases;
         whereModel = builder.whereModel;
         groupByModel = builder.groupByModel;
-
-        if (selectList.isEmpty()) {
-            throw new InvalidSqlException(Messages.getString("ERROR.13")); //$NON-NLS-1$
-        }
+        havingModel = builder.havingModel;
+        Validator.assertNotEmpty(selectList, "ERROR.13"); //$NON-NLS-1$
     }
 
     public Optional<String> connector() {
@@ -65,8 +62,8 @@ public class QueryExpressionModel {
         return isDistinct;
     }
 
-    public <R> Stream<R> mapColumns(Function<BasicColumn, R> mapper) {
-        return selectList.stream().map(mapper);
+    public Stream<BasicColumn> columns() {
+        return selectList.stream();
     }
 
     public TableExpression table() {
@@ -77,7 +74,7 @@ public class QueryExpressionModel {
         return tableAliases;
     }
 
-    public Optional<WhereModel> whereModel() {
+    public Optional<EmbeddedWhereModel> whereModel() {
         return Optional.ofNullable(whereModel);
     }
 
@@ -89,7 +86,11 @@ public class QueryExpressionModel {
         return Optional.ofNullable(groupByModel);
     }
 
-    public static Builder withSelectList(List<BasicColumn> columnList) {
+    public Optional<HavingModel> havingModel() {
+        return Optional.ofNullable(havingModel);
+    }
+
+    public static Builder withSelectList(List<? extends BasicColumn> columnList) {
         return new Builder().withSelectList(columnList);
     }
 
@@ -99,9 +100,10 @@ public class QueryExpressionModel {
         private final List<BasicColumn> selectList = new ArrayList<>();
         private TableExpression table;
         private final Map<SqlTable, String> tableAliases = new HashMap<>();
-        private WhereModel whereModel;
+        private EmbeddedWhereModel whereModel;
         private JoinModel joinModel;
         private GroupByModel groupByModel;
+        private HavingModel havingModel;
 
         public Builder withConnector(String connector) {
             this.connector = connector;
@@ -123,7 +125,7 @@ public class QueryExpressionModel {
             return this;
         }
 
-        public Builder withSelectList(List<BasicColumn> selectList) {
+        public Builder withSelectList(List<? extends BasicColumn> selectList) {
             this.selectList.addAll(selectList);
             return this;
         }
@@ -133,7 +135,7 @@ public class QueryExpressionModel {
             return this;
         }
 
-        public Builder withWhereModel(WhereModel whereModel) {
+        public Builder withWhereModel(EmbeddedWhereModel whereModel) {
             this.whereModel = whereModel;
             return this;
         }
@@ -145,6 +147,11 @@ public class QueryExpressionModel {
 
         public Builder withGroupByModel(GroupByModel groupByModel) {
             this.groupByModel = groupByModel;
+            return this;
+        }
+
+        public Builder withHavingModel(HavingModel havingModel) {
+            this.havingModel = havingModel;
             return this;
         }
 

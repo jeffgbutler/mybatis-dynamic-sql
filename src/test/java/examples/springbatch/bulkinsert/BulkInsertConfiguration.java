@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -30,9 +30,10 @@ import org.mybatis.spring.batch.MyBatisBatchItemWriter;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,10 +57,10 @@ import examples.springbatch.mapper.PersonMapper;
 public class BulkInsertConfiguration {
 
     @Autowired
-    private JobBuilderFactory jobBuilderFactory;
+    private JobRepository jobRepository;
 
     @Autowired
-    private StepBuilderFactory stepBuilderFactory;
+    private PlatformTransactionManager transactionManager;
 
     @Bean
     public DataSource dataSource() {
@@ -88,7 +89,7 @@ public class BulkInsertConfiguration {
         MyBatisBatchItemWriter<PersonRecord> writer = new MyBatisBatchItemWriter<>();
         writer.setSqlSessionFactory(sqlSessionFactory);
 
-        writer.setItemToParameterConverter(record -> InsertDSL.insert(record)
+        writer.setItemToParameterConverter(row -> InsertDSL.insert(row)
                     .into(PersonDynamicSqlSupport.person)
                     .map(firstName).toProperty("firstName")
                     .map(lastName).toProperty("lastName")
@@ -102,8 +103,8 @@ public class BulkInsertConfiguration {
 
     @Bean
     public Step step1(ItemProcessor<PersonRecord, PersonRecord> processor, ItemWriter<PersonRecord> writer) {
-        return stepBuilderFactory.get("step1")
-                .<PersonRecord, PersonRecord>chunk(10)
+        return new StepBuilder("step1", jobRepository)
+                .<PersonRecord, PersonRecord>chunk(10, transactionManager)
                 .reader(new TestRecordGenerator())
                 .processor(processor)
                 .writer(writer)
@@ -112,7 +113,7 @@ public class BulkInsertConfiguration {
 
     @Bean
     public Job insertRecords(Step step1) {
-        return jobBuilderFactory.get("insertRecords")
+        return new JobBuilder("insertRecords", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .flow(step1)
                 .end()

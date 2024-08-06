@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,11 +21,12 @@ import java.util.function.UnaryOperator;
 import org.mybatis.dynamic.sql.AbstractSingleValueCondition;
 import org.mybatis.dynamic.sql.util.StringUtilities;
 
-public class IsNotLikeCaseInsensitive extends AbstractSingleValueCondition<String> {
+public class IsNotLikeCaseInsensitive extends AbstractSingleValueCondition<String>
+        implements CaseInsensitiveVisitableCondition {
     private static final IsNotLikeCaseInsensitive EMPTY = new IsNotLikeCaseInsensitive(null) {
         @Override
-        public boolean shouldRender() {
-            return false;
+        public boolean isEmpty() {
+            return true;
         }
     };
 
@@ -38,17 +39,8 @@ public class IsNotLikeCaseInsensitive extends AbstractSingleValueCondition<Strin
     }
 
     @Override
-    public String renderCondition(String columnName, String placeholder) {
-        return "upper(" + columnName + ") not like " + placeholder; //$NON-NLS-1$ //$NON-NLS-2$
-    }
-
-    @Override
-    public String value() {
-        return StringUtilities.safelyUpperCase(super.value());
-    }
-
-    public static IsNotLikeCaseInsensitive of(String value) {
-        return new IsNotLikeCaseInsensitive(value);
+    public String operator() {
+        return "not like"; //$NON-NLS-1$
     }
 
     @Override
@@ -68,5 +60,9 @@ public class IsNotLikeCaseInsensitive extends AbstractSingleValueCondition<Strin
      */
     public IsNotLikeCaseInsensitive map(UnaryOperator<String> mapper) {
         return mapSupport(mapper, IsNotLikeCaseInsensitive::new, IsNotLikeCaseInsensitive::empty);
+    }
+
+    public static IsNotLikeCaseInsensitive of(String value) {
+        return new IsNotLikeCaseInsensitive(value).map(StringUtilities::safelyUpperCase);
     }
 }

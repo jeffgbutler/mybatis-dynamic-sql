@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import org.mybatis.dynamic.sql.AbstractTwoValueCondition;
 public class IsBetween<T> extends AbstractTwoValueCondition<T> {
     private static final IsBetween<?> EMPTY = new IsBetween<Object>(null, null) {
         @Override
-        public boolean shouldRender() {
-            return false;
+        public boolean isEmpty() {
+            return true;
         }
     };
 
@@ -41,8 +41,13 @@ public class IsBetween<T> extends AbstractTwoValueCondition<T> {
     }
 
     @Override
-    public String renderCondition(String columnName, String placeholder1, String placeholder2) {
-        return columnName + " between " + placeholder1 + " and " + placeholder2; //$NON-NLS-1$ //$NON-NLS-2$
+    public String operator1() {
+        return "between"; //$NON-NLS-1$
+    }
+
+    @Override
+    public String operator2() {
+        return "and"; //$NON-NLS-1$
     }
 
     @Override

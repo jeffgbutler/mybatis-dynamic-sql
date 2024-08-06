@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -243,12 +243,14 @@ class ExistsTest {
 
             val selectStatement = select(itemMaster.allColumns()) {
                 from(itemMaster, "im")
-                where { itemMaster.itemId isEqualTo 22 }
-                and {
-                    exists {
-                        select(orderLine.allColumns()) {
-                            from(orderLine, "ol")
-                            where { orderLine.itemId isEqualTo "im"(itemMaster.itemId) }
+                where {
+                    itemMaster.itemId isEqualTo 22
+                    and {
+                        exists {
+                            select(orderLine.allColumns()) {
+                                from(orderLine, "ol")
+                                where { orderLine.itemId isEqualTo "im"(itemMaster.itemId) }
+                            }
                         }
                     }
                 }
@@ -279,15 +281,17 @@ class ExistsTest {
 
             val selectStatement = select(itemMaster.allColumns()) {
                 from(itemMaster, "im")
-                where { itemMaster.itemId isEqualTo 22 }
-                and {
-                    exists {
-                        select(orderLine.allColumns()) {
-                            from(orderLine, "ol")
-                            where { orderLine.itemId isEqualTo "im"(itemMaster.itemId) }
+                where {
+                    itemMaster.itemId isEqualTo 22
+                    and {
+                        exists {
+                            select(orderLine.allColumns()) {
+                                from(orderLine, "ol")
+                                where { orderLine.itemId isEqualTo "im"(itemMaster.itemId) }
+                            }
                         }
+                        and { itemMaster.itemId isGreaterThan 2 }
                     }
-                    and { itemMaster.itemId isGreaterThan 2 }
                 }
                 orderBy(itemMaster.itemId)
             }
@@ -332,9 +336,9 @@ class ExistsTest {
             }
 
             val expectedStatement = "select im.* from ItemMaster im" +
-                " where (im.item_id = #{parameters.p1,jdbcType=INTEGER}" +
+                " where im.item_id = #{parameters.p1,jdbcType=INTEGER}" +
                 " and exists (select ol.* from OrderLine ol where ol.item_id = im.item_id)" +
-                " and im.item_id > #{parameters.p2,jdbcType=INTEGER})" +
+                " and im.item_id > #{parameters.p2,jdbcType=INTEGER}" +
                 " order by item_id"
             assertThat(selectStatement.selectStatement).isEqualTo(expectedStatement)
 
@@ -371,9 +375,9 @@ class ExistsTest {
             }
 
             val expectedStatement = "select im.* from ItemMaster im" +
-                " where (im.item_id = #{parameters.p1,jdbcType=INTEGER}" +
+                " where im.item_id = #{parameters.p1,jdbcType=INTEGER}" +
                 " and (exists (select ol.* from OrderLine ol where ol.item_id = im.item_id)" +
-                " and im.item_id > #{parameters.p2,jdbcType=INTEGER}))" +
+                " and im.item_id > #{parameters.p2,jdbcType=INTEGER})" +
                 " order by item_id"
             assertThat(selectStatement.selectStatement).isEqualTo(expectedStatement)
 
@@ -394,12 +398,14 @@ class ExistsTest {
 
             val selectStatement = select(itemMaster.allColumns()) {
                 from(itemMaster, "im")
-                where { itemMaster.itemId isEqualTo 22 }
-                or {
-                    exists {
-                        select(orderLine.allColumns()) {
-                            from(orderLine, "ol")
-                            where { orderLine.itemId isEqualTo "im"(itemMaster.itemId) }
+                where {
+                    itemMaster.itemId isEqualTo 22
+                    or {
+                        exists {
+                            select(orderLine.allColumns()) {
+                                from(orderLine, "ol")
+                                where { orderLine.itemId isEqualTo "im"(itemMaster.itemId) }
+                            }
                         }
                     }
                 }
@@ -439,15 +445,17 @@ class ExistsTest {
 
             val selectStatement = select(itemMaster.allColumns()) {
                 from(itemMaster, "im")
-                where { itemMaster.itemId isEqualTo 22 }
-                or {
-                    exists {
-                        select(orderLine.allColumns()) {
-                            from(orderLine, "ol")
-                            where { orderLine.itemId isEqualTo "im"(itemMaster.itemId) }
+                where {
+                    itemMaster.itemId isEqualTo 22
+                    or {
+                        exists {
+                            select(orderLine.allColumns()) {
+                                from(orderLine, "ol")
+                                where { orderLine.itemId isEqualTo "im"(itemMaster.itemId) }
+                            }
                         }
+                        and { itemMaster.itemId isGreaterThan 2 }
                     }
-                    and { itemMaster.itemId isGreaterThan 2 }
                 }
                 orderBy(itemMaster.itemId)
             }
@@ -502,9 +510,9 @@ class ExistsTest {
             }
 
             val expectedStatement = "select im.* from ItemMaster im" +
-                " where (im.item_id = #{parameters.p1,jdbcType=INTEGER}" +
+                " where im.item_id = #{parameters.p1,jdbcType=INTEGER}" +
                 " or exists (select ol.* from OrderLine ol where ol.item_id = im.item_id)" +
-                " and im.item_id > #{parameters.p2,jdbcType=INTEGER})" +
+                " and im.item_id > #{parameters.p2,jdbcType=INTEGER}" +
                 " order by item_id"
             assertThat(selectStatement.selectStatement).isEqualTo(expectedStatement)
 
@@ -551,9 +559,9 @@ class ExistsTest {
             }
 
             val expectedStatement = "select im.* from ItemMaster im" +
-                " where (im.item_id = #{parameters.p1,jdbcType=INTEGER}" +
+                " where im.item_id = #{parameters.p1,jdbcType=INTEGER}" +
                 " or (exists (select ol.* from OrderLine ol where ol.item_id = im.item_id)" +
-                " and im.item_id > #{parameters.p2,jdbcType=INTEGER}))" +
+                " and im.item_id > #{parameters.p2,jdbcType=INTEGER})" +
                 " order by item_id"
             assertThat(selectStatement.selectStatement).isEqualTo(expectedStatement)
 
@@ -597,8 +605,8 @@ class ExistsTest {
             }
 
             val expectedStatement = "select im.* from ItemMaster im" +
-                " where (exists (select ol.* from OrderLine ol where ol.item_id = im.item_id)" +
-                " or im.item_id = #{parameters.p1,jdbcType=INTEGER})" +
+                " where exists (select ol.* from OrderLine ol where ol.item_id = im.item_id)" +
+                " or im.item_id = #{parameters.p1,jdbcType=INTEGER}" +
                 " order by item_id"
             assertThat(selectStatement.selectStatement).isEqualTo(expectedStatement)
 
@@ -642,8 +650,8 @@ class ExistsTest {
             }
 
             val expectedStatement = "select im.* from ItemMaster im" +
-                " where (exists (select ol.* from OrderLine ol where ol.item_id = im.item_id)" +
-                " and im.item_id = #{parameters.p1,jdbcType=INTEGER})" +
+                " where exists (select ol.* from OrderLine ol where ol.item_id = im.item_id)" +
+                " and im.item_id = #{parameters.p1,jdbcType=INTEGER}" +
                 " order by item_id"
             assertThat(selectStatement.selectStatement).isEqualTo(expectedStatement)
 

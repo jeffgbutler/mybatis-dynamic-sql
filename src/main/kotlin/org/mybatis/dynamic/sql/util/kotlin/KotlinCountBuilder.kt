@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import org.mybatis.dynamic.sql.SqlTable
 import org.mybatis.dynamic.sql.select.CountDSL
 import org.mybatis.dynamic.sql.select.SelectModel
 import org.mybatis.dynamic.sql.util.Buildable
-import org.mybatis.dynamic.sql.util.Messages
 
 typealias CountCompleter = KotlinCountBuilder.() -> Unit
 
@@ -36,6 +35,5 @@ class KotlinCountBuilder(private val fromGatherer: CountDSL.FromGatherer<SelectM
 
     override fun build(): SelectModel = getDsl().build()
 
-    override fun getDsl(): CountDSL<SelectModel> =
-        dsl?: throw KInvalidSQLException(Messages.getString("ERROR.24")) //$NON-NLS-1$
+    override fun getDsl(): CountDSL<SelectModel> = invalidIfNull(dsl, "ERROR.24") //$NON-NLS-1$
 }

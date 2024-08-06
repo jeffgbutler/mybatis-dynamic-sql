@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,35 +18,31 @@ package org.mybatis.dynamic.sql.select.join;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.mybatis.dynamic.sql.TableExpression;
-import org.mybatis.dynamic.sql.exception.InvalidSqlException;
-import org.mybatis.dynamic.sql.util.Messages;
+import org.mybatis.dynamic.sql.util.Validator;
 
 public class JoinSpecification {
 
     private final TableExpression table;
-    private final List<JoinCriterion> joinCriteria;
+    private final List<JoinCriterion<?>> joinCriteria;
     private final JoinType joinType;
 
     private JoinSpecification(Builder builder) {
         table = Objects.requireNonNull(builder.table);
         joinCriteria = Objects.requireNonNull(builder.joinCriteria);
         joinType = Objects.requireNonNull(builder.joinType);
-
-        if (joinCriteria.isEmpty()) {
-            throw new InvalidSqlException(Messages.getString("ERROR.16")); //$NON-NLS-1$
-        }
+        Validator.assertNotEmpty(joinCriteria, "ERROR.16"); //$NON-NLS-1$
     }
 
     public TableExpression table() {
         return table;
     }
 
-    public <R> Stream<R> mapJoinCriteria(Function<JoinCriterion, R> mapper) {
-        return joinCriteria.stream().map(mapper);
+    @SuppressWarnings("java:S1452")
+    public Stream<JoinCriterion<?>> joinCriteria() {
+        return joinCriteria.stream();
     }
 
     public JoinType joinType() {
@@ -59,7 +55,7 @@ public class JoinSpecification {
 
     public static class Builder {
         private TableExpression table;
-        private final List<JoinCriterion> joinCriteria = new ArrayList<>();
+        private final List<JoinCriterion<?>> joinCriteria = new ArrayList<>();
         private JoinType joinType;
 
         public Builder withJoinTable(TableExpression table) {
@@ -67,12 +63,12 @@ public class JoinSpecification {
             return this;
         }
 
-        public Builder withJoinCriterion(JoinCriterion joinCriterion) {
+        public Builder withJoinCriterion(JoinCriterion<?> joinCriterion) {
             this.joinCriteria.add(joinCriterion);
             return this;
         }
 
-        public Builder withJoinCriteria(List<JoinCriterion> joinCriteria) {
+        public Builder withJoinCriteria(List<JoinCriterion<?>> joinCriteria) {
             this.joinCriteria.addAll(joinCriteria);
             return this;
         }

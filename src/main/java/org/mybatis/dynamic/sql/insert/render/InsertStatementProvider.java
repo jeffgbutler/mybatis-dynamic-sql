@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,16 +18,6 @@ package org.mybatis.dynamic.sql.insert.render;
 import org.jetbrains.annotations.NotNull;
 
 public interface InsertStatementProvider<T> {
-    /**
-     * Return the row associated with this insert statement.
-     *
-     * @return the row associated with this insert statement.
-     *
-     * @deprecated in favor of {@link InsertStatementProvider#getRow()}
-     */
-    @Deprecated
-    T getRecord();
-
     /**
      * Return the row associated with this insert statement.
      *

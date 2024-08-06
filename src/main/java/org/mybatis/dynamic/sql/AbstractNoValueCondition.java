@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -27,12 +27,12 @@ public abstract class AbstractNoValueCondition<T> implements VisitableCondition<
 
     protected <S extends AbstractNoValueCondition<?>> S filterSupport(BooleanSupplier booleanSupplier,
             Supplier<S> emptySupplier, S self) {
-        if (shouldRender()) {
-            return booleanSupplier.getAsBoolean() ? self : emptySupplier.get();
-        } else {
+        if (isEmpty()) {
             return self;
+        } else {
+            return booleanSupplier.getAsBoolean() ? self : emptySupplier.get();
         }
     }
 
-    public abstract String renderCondition(String columnName);
+    public abstract String operator();
 }

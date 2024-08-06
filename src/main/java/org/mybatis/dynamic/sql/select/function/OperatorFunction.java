@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,7 +25,9 @@ import java.util.stream.Stream;
 
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.BindableColumn;
-import org.mybatis.dynamic.sql.render.TableAliasCalculator;
+import org.mybatis.dynamic.sql.render.RenderingContext;
+import org.mybatis.dynamic.sql.util.FragmentAndParameters;
+import org.mybatis.dynamic.sql.util.FragmentCollector;
 
 public class OperatorFunction<T> extends AbstractUniTypeFunction<T, OperatorFunction<T>> {
 
@@ -47,14 +49,16 @@ public class OperatorFunction<T> extends AbstractUniTypeFunction<T, OperatorFunc
     }
 
     @Override
-    public String renderWithTableAlias(TableAliasCalculator tableAliasCalculator) {
+    public FragmentAndParameters render(RenderingContext renderingContext) {
         String paddedOperator = " " + operator + " "; //$NON-NLS-1$ //$NON-NLS-2$
 
-        // note - the cast below is added for a type inference bug in the Java9 compiler.
-        return Stream.of(Stream.of((BasicColumn) column), Stream.of(secondColumn), subsequentColumns.stream())
+        // note - the cast below is added for type inference issues in some compilers
+        return Stream.of(Stream.of((BasicColumn) column),
+                        Stream.of(secondColumn), subsequentColumns.stream())
                 .flatMap(Function.identity())
-                .map(column -> column.renderWithTableAlias(tableAliasCalculator))
-                .collect(Collectors.joining(paddedOperator, "(", ")")); //$NON-NLS-1$ //$NON-NLS-2$
+                .map(column -> column.render(renderingContext))
+                .collect(FragmentCollector.collect())
+                .toFragmentAndParameters(Collectors.joining(paddedOperator, "(", ")")); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public static <T> OperatorFunction<T> of(String operator, BindableColumn<T> firstColumn, BasicColumn secondColumn,
@@ -63,7 +67,7 @@ public class OperatorFunction<T> extends AbstractUniTypeFunction<T, OperatorFunc
     }
 
     public static <T> OperatorFunction<T> of(String operator, BindableColumn<T> firstColumn, BasicColumn secondColumn,
-                                             List<BasicColumn> subsequentColumns) {
+            List<BasicColumn> subsequentColumns) {
         return new OperatorFunction<>(operator, firstColumn, secondColumn, subsequentColumns);
     }
 }

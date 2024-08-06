@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,16 +23,16 @@ import org.mybatis.dynamic.sql.render.RenderingStrategy;
 public class BatchInsertRenderer<T> {
 
     private final BatchInsertModel<T> model;
-    private final RenderingStrategy renderingStrategy;
+    private final MultiRowValuePhraseVisitor visitor;
 
     private BatchInsertRenderer(Builder<T> builder) {
         model = Objects.requireNonNull(builder.model);
-        renderingStrategy = Objects.requireNonNull(builder.renderingStrategy);
+        visitor = new MultiRowValuePhraseVisitor(builder.renderingStrategy, "row"); //$NON-NLS-1$)
     }
 
     public BatchInsert<T> render() {
-        BatchValuePhraseVisitor visitor = new BatchValuePhraseVisitor(renderingStrategy, "row"); //$NON-NLS-1$)
-        FieldAndValueCollector collector = model.mapColumnMappings(m -> m.accept(visitor))
+        FieldAndValueCollector collector = model.columnMappings()
+                .map(m -> m.accept(visitor))
                 .collect(FieldAndValueCollector.collect());
 
         String insertStatement = InsertRenderingUtilities.calculateInsertStatement(model.table(), collector);

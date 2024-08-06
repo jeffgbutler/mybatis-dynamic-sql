@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,7 +17,8 @@ package org.mybatis.dynamic.sql;
 
 import java.util.Optional;
 
-import org.mybatis.dynamic.sql.render.TableAliasCalculator;
+import org.mybatis.dynamic.sql.render.RenderingContext;
+import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 
 /**
  * Describes attributes of columns that are necessary for rendering if the column is not expected to
@@ -46,27 +47,16 @@ public interface BasicColumn {
     BasicColumn as(String alias);
 
     /**
-     * Returns the name of the item aliased with a table name if appropriate.
-     * For example, "a.foo".  This is appropriate for where clauses and order by clauses.
+     * Returns a rendering of the column.
+     * The rendered fragment should include the table alias based on the TableAliasCalculator
+     * in the RenderingContext. The fragment could contain prepared statement parameter
+     * markers and associated parameter values if desired.
      *
-     * @param tableAliasCalculator the table alias calculator for the current renderer
-     * @return the item name with the table alias applied
+     * @param renderingContext the rendering context (strategy, sequence, etc.)
+     * @return a rendered SQL fragment and, optionally, parameters associated with the fragment
+     * @since 1.5.1
      */
-    String renderWithTableAlias(TableAliasCalculator tableAliasCalculator);
-
-    /**
-     * Returns the name of the item aliased with a table name and column alias if appropriate.
-     * For example, "a.foo as bar".  This is appropriate for select list clauses.
-     *
-     * @param tableAliasCalculator the table alias calculator for the current renderer
-     * @return the item name with the table and column aliases applied
-     */
-    default String renderWithTableAndColumnAlias(TableAliasCalculator tableAliasCalculator) {
-        String nameAndTableAlias = renderWithTableAlias(tableAliasCalculator);
-
-        return alias().map(a -> nameAndTableAlias + " as " + a) //$NON-NLS-1$
-                .orElse(nameAndTableAlias);
-    }
+    FragmentAndParameters render(RenderingContext renderingContext);
 
     /**
      * Utility method to make it easier to build column lists for methods that require an

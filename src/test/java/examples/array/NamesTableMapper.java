@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,16 +18,15 @@ package examples.array;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.ResultMap;
 import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.SelectProvider;
-import org.mybatis.dynamic.sql.insert.render.GeneralInsertStatementProvider;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
+import org.mybatis.dynamic.sql.util.mybatis3.CommonGeneralInsertMapper;
 
-public interface NamesTableMapper {
+public interface NamesTableMapper extends CommonGeneralInsertMapper {
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
     @Results(id="NamesTableResult", value={
             @Result(column="id", property="id", id=true),
@@ -38,7 +37,4 @@ public interface NamesTableMapper {
     @SelectProvider(type = SqlProviderAdapter.class, method = "select")
     @ResultMap("NamesTableResult")
     Optional<NamesRecord> selectOne(SelectStatementProvider selectStatement);
-
-    @InsertProvider(type = SqlProviderAdapter.class, method = "generalInsert")
-    int generalInsert(GeneralInsertStatementProvider insertStatement);
 }

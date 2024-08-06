@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -32,6 +32,16 @@ public class MyBatis3RenderingStrategy extends RenderingStrategy {
         return "#{" //$NON-NLS-1$
                 + prefix
                 + "." //$NON-NLS-1$
+                + parameterName
+                + renderJdbcType(column)
+                + renderJavaType(column)
+                + renderTypeHandler(column)
+                + "}"; //$NON-NLS-1$
+    }
+
+    @Override
+    public String getRecordBasedInsertBinding(BindableColumn<?> column, String parameterName) {
+        return "#{" //$NON-NLS-1$
                 + parameterName
                 + renderJdbcType(column)
                 + renderJavaType(column)

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 public class FragmentAndParameters {
 
@@ -38,8 +39,24 @@ public class FragmentAndParameters {
         return parameters;
     }
 
+    /**
+     * Return a new instance with the same parameters and a transformed fragment.
+     *
+     * @param mapper a function that can change the value of the fragment
+     * @return a new instance with the same parameters and a transformed fragment
+     */
+    public FragmentAndParameters mapFragment(UnaryOperator<String> mapper) {
+        return withFragment(mapper.apply(fragment))
+                .withParameters(parameters)
+                .build();
+    }
+
     public static Builder withFragment(String fragment) {
         return new Builder().withFragment(fragment);
+    }
+
+    public static FragmentAndParameters fromFragment(String fragment) {
+        return new Builder().withFragment(fragment).build();
     }
 
     public static class Builder {

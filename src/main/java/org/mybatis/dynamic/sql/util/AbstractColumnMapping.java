@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package org.mybatis.dynamic.sql.util;
 
 import java.util.Objects;
-import java.util.function.Function;
 
 import org.mybatis.dynamic.sql.SqlColumn;
 
@@ -31,8 +30,9 @@ public abstract class AbstractColumnMapping {
         return column.name();
     }
 
-    public <R> R mapColumn(Function<SqlColumn<?>, R> mapper) {
-        return mapper.apply(column);
+    @SuppressWarnings("java:S1452")
+    public SqlColumn<?> column() {
+        return column;
     }
 
     public abstract <R> R accept(ColumnMappingVisitor<R> visitor);

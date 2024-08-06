@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package examples.generated.always.mybatis;
 
 import static examples.generated.always.mybatis.GeneratedAlwaysDynamicSqlSupport.*;
-import static org.mybatis.dynamic.sql.SqlBuilder.*;
+import static org.mybatis.dynamic.sql.SqlBuilder.isEqualTo;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -80,8 +80,8 @@ public interface GeneratedAlwaysMapper extends CommonUpdateMapper {
         return selectOne(c -> c.where(id, isEqualTo(_id)));
     }
 
-    default int insert(GeneratedAlwaysRecord record) {
-        return MyBatis3Utils.insert(this::insert, record, generatedAlways, c ->
+    default int insert(GeneratedAlwaysRecord row) {
+        return MyBatis3Utils.insert(this::insert, row, generatedAlways, c ->
             c.map(id).toProperty("id")
                     .map(firstName).toProperty("firstName")
                     .map(lastName).toProperty("lastName")
@@ -100,11 +100,11 @@ public interface GeneratedAlwaysMapper extends CommonUpdateMapper {
         );
     }
 
-    default int insertSelective(GeneratedAlwaysRecord record) {
-        return MyBatis3Utils.insert(this::insert, record, generatedAlways, c ->
-                c.map(id).toPropertyWhenPresent("id", record::getId)
-                        .map(firstName).toPropertyWhenPresent("firstName", record::getFirstName)
-                        .map(lastName).toPropertyWhenPresent("lastName", record::getLastName)
+    default int insertSelective(GeneratedAlwaysRecord row) {
+        return MyBatis3Utils.insert(this::insert, row, generatedAlways, c ->
+                c.map(id).toPropertyWhenPresent("id", row::getId)
+                        .map(firstName).toPropertyWhenPresent("firstName", row::getFirstName)
+                        .map(lastName).toPropertyWhenPresent("lastName", row::getLastName)
         );
     }
 
@@ -112,25 +112,25 @@ public interface GeneratedAlwaysMapper extends CommonUpdateMapper {
         return MyBatis3Utils.update(this::update, generatedAlways, completer);
     }
 
-    default int updateByPrimaryKey(GeneratedAlwaysRecord record) {
+    default int updateByPrimaryKey(GeneratedAlwaysRecord row) {
         return update(c ->
-                c.set(firstName).equalTo(record::getFirstName)
-                .set(lastName).equalTo(record::getLastName)
-                .where(id, isEqualTo(record::getId))
+                c.set(firstName).equalTo(row::getFirstName)
+                .set(lastName).equalTo(row::getLastName)
+                .where(id, isEqualTo(row::getId))
         );
     }
 
-    default int updateByPrimaryKeySelective(GeneratedAlwaysRecord record) {
+    default int updateByPrimaryKeySelective(GeneratedAlwaysRecord row) {
         return update(c ->
-                c.set(firstName).equalToWhenPresent(record::getFirstName)
-                        .set(lastName).equalToWhenPresent(record::getLastName)
-                        .where(id, isEqualTo(record::getId))
+                c.set(firstName).equalToWhenPresent(row::getFirstName)
+                        .set(lastName).equalToWhenPresent(row::getLastName)
+                        .where(id, isEqualTo(row::getId))
         );
     }
 
-    static UpdateDSL<UpdateModel> updateSelectiveColumns(GeneratedAlwaysRecord record, UpdateDSL<UpdateModel> dsl) {
-        return dsl.set(id).equalToWhenPresent(record::getId)
-                .set(firstName).equalToWhenPresent(record::getFirstName)
-                .set(lastName).equalToWhenPresent(record::getLastName);
+    static UpdateDSL<UpdateModel> updateSelectiveColumns(GeneratedAlwaysRecord row, UpdateDSL<UpdateModel> dsl) {
+        return dsl.set(id).equalToWhenPresent(row::getId)
+                .set(firstName).equalToWhenPresent(row::getFirstName)
+                .set(lastName).equalToWhenPresent(row::getLastName);
     }
 }

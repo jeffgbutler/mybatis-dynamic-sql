@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,32 +18,27 @@ package org.mybatis.dynamic.sql.insert.render;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.mybatis.dynamic.sql.exception.InvalidSqlException;
 import org.mybatis.dynamic.sql.insert.InsertModel;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
-import org.mybatis.dynamic.sql.util.Messages;
+import org.mybatis.dynamic.sql.util.Validator;
 
 public class InsertRenderer<T> {
 
     private final InsertModel<T> model;
-    private final RenderingStrategy renderingStrategy;
+    private final ValuePhraseVisitor visitor;
 
     private InsertRenderer(Builder<T> builder) {
         model = Objects.requireNonNull(builder.model);
-        renderingStrategy = Objects.requireNonNull(builder.renderingStrategy);
+        visitor = new ValuePhraseVisitor(builder.renderingStrategy);
     }
 
     public InsertStatementProvider<T> render() {
-        ValuePhraseVisitor visitor = new ValuePhraseVisitor(renderingStrategy);
-
-        FieldAndValueCollector collector = model.mapColumnMappings(m -> m.accept(visitor))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+        FieldAndValueCollector collector = model.columnMappings()
+                .map(m -> m.accept(visitor))
+                .flatMap(Optional::stream)
                 .collect(FieldAndValueCollector.collect());
 
-        if (collector.isEmpty()) {
-            throw new InvalidSqlException(Messages.getString("ERROR.10")); //$NON-NLS-1$
-        }
+        Validator.assertFalse(collector.isEmpty(), "ERROR.10"); //$NON-NLS-1$
 
         String insertStatement = InsertRenderingUtilities.calculateInsertStatement(model.table(), collector);
 

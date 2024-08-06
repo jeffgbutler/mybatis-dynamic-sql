@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import org.mybatis.dynamic.sql.AbstractNoValueCondition;
 public class IsNotNull<T> extends AbstractNoValueCondition<T> {
     private static final IsNotNull<?> EMPTY = new IsNotNull<Object>() {
         @Override
-        public boolean shouldRender() {
-            return false;
+        public boolean isEmpty() {
+            return true;
         }
     };
 
@@ -38,8 +38,8 @@ public class IsNotNull<T> extends AbstractNoValueCondition<T> {
     }
 
     @Override
-    public String renderCondition(String columnName) {
-        return columnName + " is not null"; //$NON-NLS-1$
+    public String operator() {
+        return "is not null"; //$NON-NLS-1$
     }
 
     /**

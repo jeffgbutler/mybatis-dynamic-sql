@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
+import org.mybatis.dynamic.sql.select.HavingApplier;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.mybatis3.CommonSelectMapper;
 
@@ -53,6 +54,7 @@ class GroupByTest {
     void setup() throws Exception {
         Class.forName(JDBC_DRIVER);
         InputStream is = getClass().getResourceAsStream("/examples/groupby/CreateGroupByDB.sql");
+        assert is != null;
         try (Connection connection = DriverManager.getConnection(JDBC_URL, "sa", "")) {
             ScriptRunner sr = new ScriptRunner(connection);
             sr.setLogWriter(null);
@@ -525,4 +527,190 @@ class GroupByTest {
             assertThat(row).containsEntry("COUNT", 2L);
         }
     }
+
+    @Test
+    void testHaving() {
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            CommonSelectMapper mapper = session.getMapper(CommonSelectMapper.class);
+
+            SelectStatementProvider selectStatement = select(lastName, count())
+                    .from(person)
+                    .groupBy(lastName)
+                    .having(count(), isEqualTo(3L))
+                    .and(lastName, isEqualTo("Rubble"))
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+
+            String expected = "select last_name, count(*) from Person group by last_name " +
+                    "having count(*) = #{parameters.p1} and last_name = #{parameters.p2,jdbcType=VARCHAR}";
+            assertThat(selectStatement.getSelectStatement()).isEqualTo(expected);
+
+            List<Map<String, Object>> rows = mapper.selectManyMappedRows(selectStatement);
+            assertThat(rows).hasSize(1);
+            Map<String, Object> row = rows.get(0);
+            assertThat(row).containsEntry("LAST_NAME", "Rubble");
+        }
+    }
+
+    @Test
+    void testHavingAndOrderBy() {
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            CommonSelectMapper mapper = session.getMapper(CommonSelectMapper.class);
+
+            SelectStatementProvider selectStatement = select(lastName, count())
+                    .from(person)
+                    .groupBy(lastName)
+                    .having(count(), isEqualTo(3L))
+                    .orderBy(lastName)
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+
+            String expected = "select last_name, count(*) from Person group by last_name having count(*) = #{parameters.p1} order by last_name";
+            assertThat(selectStatement.getSelectStatement()).isEqualTo(expected);
+
+            List<Map<String, Object>> rows = mapper.selectManyMappedRows(selectStatement);
+            assertThat(rows).hasSize(1);
+            Map<String, Object> row = rows.get(0);
+            assertThat(row).containsEntry("LAST_NAME", "Rubble");
+        }
+    }
+
+    @Test
+    void testHavingWithGroup() {
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            CommonSelectMapper mapper = session.getMapper(CommonSelectMapper.class);
+
+            SelectStatementProvider selectStatement = select(lastName, count())
+                    .from(person)
+                    .groupBy(lastName)
+                    .having(group(count(), isEqualTo(3L), and(lastName, isEqualTo("Rubble"))))
+                    .limit(1)
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+
+            String expected = "select last_name, count(*) from Person group by last_name " +
+                    "having count(*) = #{parameters.p1} and last_name = #{parameters.p2,jdbcType=VARCHAR} " +
+                    "limit #{parameters.p3}";
+            assertThat(selectStatement.getSelectStatement()).isEqualTo(expected);
+
+            List<Map<String, Object>> rows = mapper.selectManyMappedRows(selectStatement);
+            assertThat(rows).hasSize(1);
+            Map<String, Object> row = rows.get(0);
+            assertThat(row).containsEntry("LAST_NAME", "Rubble");
+        }
+    }
+
+    @Test
+    void testHavingWithUnion() {
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            CommonSelectMapper mapper = session.getMapper(CommonSelectMapper.class);
+
+            SelectStatementProvider selectStatement = select(lastName, count())
+                    .from(person)
+                    .groupBy(lastName)
+                    .having(group(count(), isEqualTo(3L), and(lastName, isEqualTo("Rubble"))))
+                    .union()
+                    .select(lastName, count())
+                    .from(person)
+                    .groupBy(lastName)
+                    .having(group(count(), isGreaterThan(1L), and(lastName, isEqualTo("Flintstone"))))
+                    .fetchFirst(5).rowsOnly()
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+
+            String expected = "select last_name, count(*) from Person group by last_name " +
+                    "having count(*) = #{parameters.p1} and last_name = #{parameters.p2,jdbcType=VARCHAR} " +
+                    "union select last_name, count(*) from Person group by last_name " +
+                    "having count(*) > #{parameters.p3} and last_name = #{parameters.p4,jdbcType=VARCHAR} " +
+                    "fetch first #{parameters.p5} rows only";
+            assertThat(selectStatement.getSelectStatement()).isEqualTo(expected);
+
+            List<Map<String, Object>> rows = mapper.selectManyMappedRows(selectStatement);
+            assertThat(rows).hasSize(2);
+            Map<String, Object> row = rows.get(0);
+            assertThat(row).containsEntry("LAST_NAME", "Flintstone");
+        }
+    }
+
+    @Test
+    void testHavingWithUnionAll() {
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            CommonSelectMapper mapper = session.getMapper(CommonSelectMapper.class);
+
+            SelectStatementProvider selectStatement = select(lastName, count())
+                    .from(person)
+                    .groupBy(lastName)
+                    .having(group(count(), isEqualTo(3L), and(lastName, isEqualTo("Rubble"))))
+                    .unionAll()
+                    .select(lastName, count())
+                    .from(person)
+                    .groupBy(lastName)
+                    .having(group(count(), isGreaterThan(1L), and(lastName, isEqualTo("Flintstone"))))
+                    .offset(1)
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+
+            String expected = "select last_name, count(*) from Person group by last_name " +
+                    "having count(*) = #{parameters.p1} and last_name = #{parameters.p2,jdbcType=VARCHAR} " +
+                    "union all select last_name, count(*) from Person group by last_name " +
+                    "having count(*) > #{parameters.p3} and last_name = #{parameters.p4,jdbcType=VARCHAR} " +
+                    "offset #{parameters.p5} rows";
+            assertThat(selectStatement.getSelectStatement()).isEqualTo(expected);
+
+            List<Map<String, Object>> rows = mapper.selectManyMappedRows(selectStatement);
+            assertThat(rows).hasSize(1);
+            Map<String, Object> row = rows.get(0);
+            assertThat(row).containsEntry("LAST_NAME", "Flintstone");
+        }
+    }
+
+    @Test
+    void testStandaloneHaving() {
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            CommonSelectMapper mapper = session.getMapper(CommonSelectMapper.class);
+
+            SelectStatementProvider selectStatement = select(lastName, count())
+                    .from(person)
+                    .groupBy(lastName)
+                    .applyHaving(commonHaving)
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+
+            String expected = "select last_name, count(*) from Person group by last_name " +
+                    "having count(*) = #{parameters.p1}";
+            assertThat(selectStatement.getSelectStatement()).isEqualTo(expected);
+
+            List<Map<String, Object>> rows = mapper.selectManyMappedRows(selectStatement);
+            assertThat(rows).hasSize(1);
+            Map<String, Object> row = rows.get(0);
+            assertThat(row).containsEntry("LAST_NAME", "Rubble");
+        }
+    }
+
+    @Test
+    void testComposedHaving() {
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            CommonSelectMapper mapper = session.getMapper(CommonSelectMapper.class);
+
+            HavingApplier composedHaving = commonHaving.andThen(d -> d.and(lastName, isEqualTo("Rubble")));
+
+            SelectStatementProvider selectStatement = select(lastName, count())
+                    .from(person)
+                    .groupBy(lastName)
+                    .applyHaving(composedHaving)
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+
+            String expected = "select last_name, count(*) from Person group by last_name " +
+                    "having count(*) = #{parameters.p1} and last_name = #{parameters.p2,jdbcType=VARCHAR}";
+            assertThat(selectStatement.getSelectStatement()).isEqualTo(expected);
+
+            List<Map<String, Object>> rows = mapper.selectManyMappedRows(selectStatement);
+            assertThat(rows).hasSize(1);
+            Map<String, Object> row = rows.get(0);
+            assertThat(row).containsEntry("LAST_NAME", "Rubble");
+        }
+    }
+
+    private final HavingApplier commonHaving = having(count(), isEqualTo(3L)).toHavingApplier();
 }

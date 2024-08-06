@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -39,14 +39,15 @@ import org.mybatis.dynamic.sql.util.ConstantMapping;
 import org.mybatis.dynamic.sql.util.NullMapping;
 import org.mybatis.dynamic.sql.util.SelectMapping;
 import org.mybatis.dynamic.sql.util.StringConstantMapping;
+import org.mybatis.dynamic.sql.util.Utilities;
 import org.mybatis.dynamic.sql.util.ValueMapping;
 import org.mybatis.dynamic.sql.util.ValueOrNullMapping;
 import org.mybatis.dynamic.sql.util.ValueWhenPresentMapping;
-import org.mybatis.dynamic.sql.where.AbstractWhereDSL;
-import org.mybatis.dynamic.sql.where.AbstractWhereSupport;
-import org.mybatis.dynamic.sql.where.WhereModel;
+import org.mybatis.dynamic.sql.where.AbstractWhereFinisher;
+import org.mybatis.dynamic.sql.where.AbstractWhereStarter;
+import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
-public class UpdateDSL<R> extends AbstractWhereSupport<UpdateDSL<R>.UpdateWhereBuilder, UpdateDSL<R>>
+public class UpdateDSL<R> extends AbstractWhereStarter<UpdateDSL<R>.UpdateWhereBuilder, UpdateDSL<R>>
         implements Buildable<R> {
 
     private final Function<UpdateModel, R> adapterFunction;
@@ -70,10 +71,7 @@ public class UpdateDSL<R> extends AbstractWhereSupport<UpdateDSL<R>.UpdateWhereB
 
     @Override
     public UpdateWhereBuilder where() {
-        if (whereBuilder == null) {
-            whereBuilder = new UpdateWhereBuilder();
-        }
-
+        whereBuilder = Utilities.buildIfNecessary(whereBuilder, UpdateWhereBuilder::new);
         return whereBuilder;
     }
 
@@ -86,7 +84,7 @@ public class UpdateDSL<R> extends AbstractWhereSupport<UpdateDSL<R>.UpdateWhereB
         return orderBy(Arrays.asList(columns));
     }
 
-    public UpdateDSL<R> orderBy(Collection<SortSpecification> columns) {
+    public UpdateDSL<R> orderBy(Collection<? extends SortSpecification> columns) {
         orderByModel = OrderByModel.of(columns);
         return this;
     }
@@ -100,17 +98,16 @@ public class UpdateDSL<R> extends AbstractWhereSupport<UpdateDSL<R>.UpdateWhereB
     @NotNull
     @Override
     public R build() {
-        UpdateModel.Builder updateModelBuilder = UpdateModel.withTable(table)
+        UpdateModel updateModel = UpdateModel.withTable(table)
                 .withTableAlias(tableAlias)
                 .withColumnMappings(columnMappings)
                 .withLimit(limit)
-                .withOrderByModel(orderByModel);
+                .withOrderByModel(orderByModel)
+                .withWhereModel(whereBuilder == null ? null : whereBuilder.buildWhereModel())
+                .withStatementConfiguration(statementConfiguration)
+                .build();
 
-        if (whereBuilder != null) {
-            updateModelBuilder.withWhereModel(whereBuilder.buildWhereModel());
-        }
-
-        return adapterFunction.apply(updateModelBuilder.build());
+        return adapterFunction.apply(updateModel);
     }
 
     @Override
@@ -192,10 +189,10 @@ public class UpdateDSL<R> extends AbstractWhereSupport<UpdateDSL<R>.UpdateWhereB
         }
     }
 
-    public class UpdateWhereBuilder extends AbstractWhereDSL<UpdateWhereBuilder> implements Buildable<R> {
+    public class UpdateWhereBuilder extends AbstractWhereFinisher<UpdateWhereBuilder> implements Buildable<R> {
 
         private UpdateWhereBuilder() {
-            super(statementConfiguration);
+            super(UpdateDSL.this);
         }
 
         public UpdateDSL<R> limit(long limit) {
@@ -206,7 +203,7 @@ public class UpdateDSL<R> extends AbstractWhereSupport<UpdateDSL<R>.UpdateWhereB
             return orderBy(Arrays.asList(columns));
         }
 
-        public UpdateDSL<R> orderBy(Collection<SortSpecification> columns) {
+        public UpdateDSL<R> orderBy(Collection<? extends SortSpecification> columns) {
             orderByModel = OrderByModel.of(columns);
             return UpdateDSL.this;
         }
@@ -222,8 +219,8 @@ public class UpdateDSL<R> extends AbstractWhereSupport<UpdateDSL<R>.UpdateWhereB
             return this;
         }
 
-        protected WhereModel buildWhereModel() {
-            return internalBuild();
+        protected EmbeddedWhereModel buildWhereModel() {
+            return buildModel();
         }
     }
 }

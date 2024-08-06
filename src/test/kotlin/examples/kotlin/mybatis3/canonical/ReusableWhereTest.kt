@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.mybatis.dynamic.sql.util.kotlin.WhereApplier
+import org.mybatis.dynamic.sql.util.kotlin.GroupingCriteriaCollector.Companion.where
 import org.mybatis.dynamic.sql.util.kotlin.andThen
 import org.mybatis.dynamic.sql.util.kotlin.mybatis3.select
 
@@ -44,25 +44,12 @@ class ReusableWhereTest {
     }
 
     @Test
-    fun testCount() {
-        sqlSessionFactory.openSession().use { session ->
-            val mapper = session.getMapper(PersonMapper::class.java)
-
-            val rows = mapper.count {
-                applyWhere(commonWhere)
-            }
-
-            assertThat(rows).isEqualTo(3)
-        }
-    }
-
-    @Test
     fun testDelete() {
         sqlSessionFactory.openSession().use { session ->
             val mapper = session.getMapper(PersonMapper::class.java)
 
             val rows = mapper.delete {
-                applyWhere(commonWhere)
+                where(commonWhereClause)
             }
 
             assertThat(rows).isEqualTo(3)
@@ -75,7 +62,7 @@ class ReusableWhereTest {
             val mapper = session.getMapper(PersonMapper::class.java)
 
             val rows = mapper.select {
-                applyWhere(commonWhere)
+                where(commonWhereClause)
                 orderBy(id)
             }
 
@@ -90,7 +77,7 @@ class ReusableWhereTest {
 
             val rows = mapper.update {
                 set(occupation) equalToStringConstant "worker"
-                applyWhere(commonWhere)
+                where(commonWhereClause)
             }
 
             assertThat(rows).isEqualTo(3)
@@ -99,7 +86,7 @@ class ReusableWhereTest {
 
     @Test
     fun testComposition() {
-        val whereApplier = commonWhere.andThen {
+        val composedWhereClause = commonWhereClause.andThen {
             and { birthDate.isNotNull() }
         }.andThen {
             or { addressId isLessThan 3 }
@@ -107,19 +94,19 @@ class ReusableWhereTest {
 
         val selectStatement = select(person.allColumns()) {
             from(person)
-            applyWhere(whereApplier)
+            where(composedWhereClause)
         }
 
         assertThat(selectStatement.selectStatement).isEqualTo(
             "select * from Person " +
-                "where id = #{parameters.p1,jdbcType=INTEGER} or occupation is null " +
-                "and birth_date is not null " +
-                "or address_id < #{parameters.p2,jdbcType=INTEGER}"
+                    "where id = #{parameters.p1,jdbcType=INTEGER} or occupation is null " +
+                    "and birth_date is not null " +
+                    "or address_id < #{parameters.p2,jdbcType=INTEGER}"
         )
     }
 
-    private val commonWhere: WhereApplier = {
-        where { id isEqualTo 1 }
+    private val commonWhereClause = where {
+        id isEqualTo 1
         or { occupation.isNull() }
     }
 }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2022 the original author or authors.
+ *    Copyright 2016-2024 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.apache.ibatis.annotations.ResultMap;
 import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.SelectProvider;
+import org.apache.ibatis.session.RowBounds;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
 import org.mybatis.dynamic.sql.util.mybatis3.CommonDeleteMapper;
@@ -41,7 +42,11 @@ public interface AnimalDataMapper extends CommonDeleteMapper, CommonInsertMapper
     })
     List<AnimalData> selectMany(SelectStatementProvider selectStatement);
 
-    @SelectProvider(type=SqlProviderAdapter.class, method="select")
+    @SelectProvider(type = SqlProviderAdapter.class, method = "select")
+    @ResultMap("AnimalDataResult")
+    List<AnimalData> selectManyWithRowBounds(SelectStatementProvider selectStatement, RowBounds rowBounds);
+
+    @SelectProvider(type = SqlProviderAdapter.class, method = "select")
     @ResultMap("AnimalDataResult")
     AnimalData selectOne(SelectStatementProvider selectStatement);
 
@@ -70,7 +75,7 @@ public interface AnimalDataMapper extends CommonDeleteMapper, CommonInsertMapper
     })
     @ResultMap("AnimalDataResult")
     List<AnimalData> selectWithWhereClauseLimitAndOffset(@Param("whereClauseProvider") WhereClauseProvider whereClause,
-                                                         @Param("limit") int limit, @Param("offset") int offset);
+            @Param("limit") int limit, @Param("offset") int offset);
 
     @Select({
         "select b.id, b.animal_name, b.brain_weight, b.body_weight",
