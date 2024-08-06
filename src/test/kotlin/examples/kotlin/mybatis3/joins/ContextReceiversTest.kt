@@ -65,8 +65,7 @@ class ContextReceiversTest {
 class MatchesWithSubSelect<T>(selectModelBuilder: Buildable<SelectModel>) :
     AbstractSubselectCondition<T>(selectModelBuilder) {
 
-    override fun renderCondition(columnName: String, renderedSelectStatement: String) =
-        "$columnName = any ($renderedSelectStatement)"
+    override fun operator() = "= any"
 }
 
 /**
