@@ -35,6 +35,7 @@ import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 public class DeleteRenderer {
     private final DeleteModel deleteModel;
     private final RenderingContext renderingContext;
+    private final DeleteRendererVisitor visitor;
 
     private DeleteRenderer(Builder builder) {
         deleteModel = Objects.requireNonNull(builder.deleteModel);
@@ -46,15 +47,18 @@ public class DeleteRenderer {
                 .withTableAliasCalculator(tableAliasCalculator)
                 .withStatementConfiguration(builder.statementConfiguration)
                 .build();
+        visitor = Objects.requireNonNull(builder.visitor);
     }
 
     public DeleteStatementProvider render() {
         FragmentCollector fragmentCollector = new FragmentCollector();
 
         fragmentCollector.add(calculateDeleteStatementStart());
+        fragmentCollector.add(calculateTableName());
         calculateWhereClause().ifPresent(fragmentCollector::add);
         calculateOrderByClause().ifPresent(fragmentCollector::add);
         calculateLimitClause().ifPresent(fragmentCollector::add);
+        visitor.visitStatementEnd(renderingContext).ifPresent(fragmentCollector::add);
 
         return toDeleteStatementProvider(fragmentCollector);
     }
@@ -67,12 +71,19 @@ public class DeleteRenderer {
     }
 
     private FragmentAndParameters calculateDeleteStatementStart() {
+        return visitor
+                .visitStatementStart(FragmentAndParameters.fromFragment("delete from"), renderingContext); //$NON-NLS-1$
+    }
+
+    private FragmentAndParameters calculateTableName() {
         String aliasedTableName = renderingContext.aliasedTableName(deleteModel.table());
-        return FragmentAndParameters.fromFragment("delete from " + aliasedTableName); //$NON-NLS-1$
+        return visitor.visitTable(FragmentAndParameters.fromFragment(aliasedTableName), renderingContext);
     }
 
     private Optional<FragmentAndParameters> calculateWhereClause() {
-        return deleteModel.whereModel().flatMap(this::renderWhereClause);
+        return deleteModel.whereModel()
+                .flatMap(this::renderWhereClause)
+                .map(fp -> visitor.visitWhereClause(fp, renderingContext));
     }
 
     private Optional<FragmentAndParameters> renderWhereClause(EmbeddedWhereModel whereModel) {
@@ -80,7 +91,9 @@ public class DeleteRenderer {
     }
 
     private Optional<FragmentAndParameters> calculateLimitClause() {
-        return deleteModel.limit().map(this::renderLimitClause);
+        return deleteModel.limit()
+                .map(this::renderLimitClause)
+                .map(fp -> visitor.visitLimitClause(fp, renderingContext));
     }
 
     private FragmentAndParameters renderLimitClause(Long limit) {
@@ -92,7 +105,9 @@ public class DeleteRenderer {
     }
 
     private Optional<FragmentAndParameters> calculateOrderByClause() {
-        return deleteModel.orderByModel().map(this::renderOrderByClause);
+        return deleteModel.orderByModel()
+                .map(this::renderOrderByClause)
+                .map(fp -> visitor.visitOrderByClause(fp, renderingContext));
     }
 
     private FragmentAndParameters renderOrderByClause(OrderByModel orderByModel) {
@@ -107,6 +122,7 @@ public class DeleteRenderer {
         private DeleteModel deleteModel;
         private RenderingStrategy renderingStrategy;
         private StatementConfiguration statementConfiguration;
+        private DeleteRendererVisitor visitor;
 
         public Builder withDeleteModel(DeleteModel deleteModel) {
             this.deleteModel = deleteModel;
@@ -120,6 +136,11 @@ public class DeleteRenderer {
 
         public Builder withStatementConfiguration(StatementConfiguration statementConfiguration) {
             this.statementConfiguration = statementConfiguration;
+            return this;
+        }
+
+        public Builder withVisitor(DeleteRendererVisitor visitor) {
+            this.visitor = visitor;
             return this;
         }
 

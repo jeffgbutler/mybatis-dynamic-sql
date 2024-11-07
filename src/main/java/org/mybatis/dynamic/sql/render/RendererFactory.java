@@ -18,6 +18,7 @@ package org.mybatis.dynamic.sql.render;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.delete.DeleteModel;
 import org.mybatis.dynamic.sql.delete.render.DeleteRenderer;
+import org.mybatis.dynamic.sql.delete.render.DeleteRendererVisitor;
 import org.mybatis.dynamic.sql.delete.render.DeleteStatementProvider;
 import org.mybatis.dynamic.sql.insert.BatchInsertModel;
 import org.mybatis.dynamic.sql.insert.GeneralInsertModel;
@@ -45,10 +46,11 @@ import org.mybatis.dynamic.sql.update.render.UpdateStatementProvider;
 
 public interface RendererFactory {
     static Renderer<RenderingStrategy, DeleteStatementProvider> createDeleteRenderer(DeleteModel deleteModel,
-                                                                                     StatementConfiguration statementConfiguration) {
+            StatementConfiguration statementConfiguration, DeleteRendererVisitor visitor) {
         return renderingStrategy -> DeleteRenderer.withDeleteModel(deleteModel)
                 .withStatementConfiguration(statementConfiguration)
                 .withRenderingStrategy(renderingStrategy)
+                .withVisitor(visitor)
                 .build()
                 .render();
     }

@@ -23,6 +23,7 @@ import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.common.CommonBuilder;
 import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
+import org.mybatis.dynamic.sql.delete.render.DeleteRendererVisitor;
 import org.mybatis.dynamic.sql.delete.render.DeleteStatementProvider;
 import org.mybatis.dynamic.sql.render.RendererFactory;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
@@ -67,7 +68,12 @@ public class DeleteModel {
 
     @NotNull
     public DeleteStatementProvider render(RenderingStrategy renderingStrategy) {
-        return RendererFactory.createDeleteRenderer(this, statementConfiguration)
+        return render(renderingStrategy, new DeleteRendererVisitor() {});
+    }
+
+    @NotNull
+    public DeleteStatementProvider render(RenderingStrategy renderingStrategy, DeleteRendererVisitor visitor) {
+        return RendererFactory.createDeleteRenderer(this, statementConfiguration, visitor)
                 .render(renderingStrategy);
     }
 
