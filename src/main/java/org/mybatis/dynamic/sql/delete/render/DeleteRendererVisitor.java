@@ -21,6 +21,8 @@ import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 
 public interface DeleteRendererVisitor {
+    DeleteRendererVisitor NOOP = new DeleteRendererVisitor() {};
+
     default FragmentAndParameters visitStatementStart(FragmentAndParameters fragmentAndParameters,
                                                       RenderingContext renderingContext) {
         return fragmentAndParameters;

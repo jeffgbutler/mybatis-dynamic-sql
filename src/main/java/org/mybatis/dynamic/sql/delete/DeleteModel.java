@@ -68,7 +68,7 @@ public class DeleteModel {
 
     @NotNull
     public DeleteStatementProvider render(RenderingStrategy renderingStrategy) {
-        return render(renderingStrategy, new DeleteRendererVisitor() {});
+        return render(renderingStrategy, DeleteRendererVisitor.NOOP);
     }
 
     @NotNull
