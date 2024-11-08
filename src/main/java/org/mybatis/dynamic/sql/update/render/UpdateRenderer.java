@@ -38,6 +38,7 @@ public class UpdateRenderer {
     private final UpdateModel updateModel;
     private final RenderingContext renderingContext;
     private final SetPhraseVisitor visitor;
+    private final UpdateRendererVisitor updateRendererVisitor;
 
     private UpdateRenderer(Builder builder) {
         updateModel = Objects.requireNonNull(builder.updateModel);
@@ -50,16 +51,19 @@ public class UpdateRenderer {
                 .withStatementConfiguration(builder.statementConfiguration)
                 .build();
         visitor = new SetPhraseVisitor(renderingContext);
+        updateRendererVisitor = Objects.requireNonNull(builder.visitor);
     }
 
     public UpdateStatementProvider render() {
         FragmentCollector fragmentCollector = new FragmentCollector();
 
         fragmentCollector.add(calculateUpdateStatementStart());
+        fragmentCollector.add(calculateTableName());
         fragmentCollector.add(calculateSetPhrase());
         calculateWhereClause().ifPresent(fragmentCollector::add);
         calculateOrderByClause().ifPresent(fragmentCollector::add);
         calculateLimitClause().ifPresent(fragmentCollector::add);
+        updateRendererVisitor.visitStatementEnd(renderingContext).ifPresent(fragmentCollector::add);
 
         return toUpdateStatementProvider(fragmentCollector);
     }
@@ -72,8 +76,13 @@ public class UpdateRenderer {
     }
 
     private FragmentAndParameters calculateUpdateStatementStart() {
+        return updateRendererVisitor.visitStatementStart(FragmentAndParameters.fromFragment("update"), //$NON-NLS-1$
+                renderingContext);
+    }
+
+    private FragmentAndParameters calculateTableName() {
         String aliasedTableName = renderingContext.aliasedTableName(updateModel.table());
-        return FragmentAndParameters.fromFragment("update " + aliasedTableName); //$NON-NLS-1$
+        return updateRendererVisitor.visitTable(FragmentAndParameters.fromFragment(aliasedTableName), renderingContext);
     }
 
     private FragmentAndParameters calculateSetPhrase() {
@@ -88,7 +97,7 @@ public class UpdateRenderer {
                 .flatMap(Optional::stream)
                 .collect(FragmentCollector.collect());
 
-        return toSetPhrase(fragmentCollector);
+        return updateRendererVisitor.visitSetClause(toSetPhrase(fragmentCollector), renderingContext);
     }
 
     private FragmentAndParameters toSetPhrase(FragmentCollector fragmentCollector) {
@@ -97,7 +106,8 @@ public class UpdateRenderer {
     }
 
     private Optional<FragmentAndParameters> calculateWhereClause() {
-        return updateModel.whereModel().flatMap(this::renderWhereClause);
+        return updateModel.whereModel().flatMap(this::renderWhereClause)
+                .map(fp -> updateRendererVisitor.visitWhereClause(fp, renderingContext));
     }
 
     private Optional<FragmentAndParameters> renderWhereClause(EmbeddedWhereModel whereModel) {
@@ -105,7 +115,8 @@ public class UpdateRenderer {
     }
 
     private Optional<FragmentAndParameters> calculateLimitClause() {
-        return updateModel.limit().map(this::renderLimitClause);
+        return updateModel.limit().map(this::renderLimitClause)
+                .map(fp -> updateRendererVisitor.visitLimitClause(fp, renderingContext));
     }
 
     private FragmentAndParameters renderLimitClause(Long limit) {
@@ -117,7 +128,8 @@ public class UpdateRenderer {
     }
 
     private Optional<FragmentAndParameters> calculateOrderByClause() {
-        return updateModel.orderByModel().map(this::renderOrderByClause);
+        return updateModel.orderByModel().map(this::renderOrderByClause)
+                .map(fp -> updateRendererVisitor.visitOrderByClause(fp, renderingContext));
     }
 
     private FragmentAndParameters renderOrderByClause(OrderByModel orderByModel) {
@@ -132,6 +144,7 @@ public class UpdateRenderer {
         private UpdateModel updateModel;
         private RenderingStrategy renderingStrategy;
         private StatementConfiguration statementConfiguration;
+        private UpdateRendererVisitor visitor;
 
         public Builder withUpdateModel(UpdateModel updateModel) {
             this.updateModel = updateModel;
@@ -145,6 +158,11 @@ public class UpdateRenderer {
 
         public Builder withStatementConfiguration(StatementConfiguration statementConfiguration) {
             this.statementConfiguration = statementConfiguration;
+            return this;
+        }
+
+        public Builder withVisitor(UpdateRendererVisitor visitor) {
+            this.visitor = visitor;
             return this;
         }
 

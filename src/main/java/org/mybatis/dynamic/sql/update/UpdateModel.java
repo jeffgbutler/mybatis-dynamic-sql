@@ -28,6 +28,7 @@ import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.render.RendererFactory;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
+import org.mybatis.dynamic.sql.update.render.UpdateRendererVisitor;
 import org.mybatis.dynamic.sql.update.render.UpdateStatementProvider;
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping;
 import org.mybatis.dynamic.sql.util.Validator;
@@ -79,7 +80,12 @@ public class UpdateModel {
 
     @NotNull
     public UpdateStatementProvider render(RenderingStrategy renderingStrategy) {
-        return RendererFactory.createUpdateRenderer(this, statementConfiguration)
+        return render(renderingStrategy, UpdateRendererVisitor.NOOP);
+    }
+
+    @NotNull
+    public UpdateStatementProvider render(RenderingStrategy renderingStrategy, UpdateRendererVisitor visitor) {
+        return RendererFactory.createUpdateRenderer(this, statementConfiguration, visitor)
                 .render(renderingStrategy);
     }
 

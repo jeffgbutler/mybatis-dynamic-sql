@@ -42,6 +42,7 @@ import org.mybatis.dynamic.sql.select.render.SelectRenderer;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.update.UpdateModel;
 import org.mybatis.dynamic.sql.update.render.UpdateRenderer;
+import org.mybatis.dynamic.sql.update.render.UpdateRendererVisitor;
 import org.mybatis.dynamic.sql.update.render.UpdateStatementProvider;
 
 public interface RendererFactory {
@@ -116,10 +117,11 @@ public interface RendererFactory {
     }
 
     static Renderer<RenderingStrategy, UpdateStatementProvider> createUpdateRenderer(
-            UpdateModel updateModel, StatementConfiguration statementConfiguration) {
+            UpdateModel updateModel, StatementConfiguration statementConfiguration, UpdateRendererVisitor visitor) {
         return renderingStrategy -> UpdateRenderer.withUpdateModel(updateModel)
                 .withStatementConfiguration(statementConfiguration)
                 .withRenderingStrategy(renderingStrategy)
+                .withVisitor(visitor)
                 .build()
                 .render();
     }
