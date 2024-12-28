@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 
 import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.common.OrderByRenderer;
-import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.delete.DeleteModel;
 import org.mybatis.dynamic.sql.render.ExplicitTableAliasCalculator;
 import org.mybatis.dynamic.sql.render.RenderedParameterInfo;
@@ -45,7 +44,7 @@ public class DeleteRenderer {
         renderingContext = RenderingContext
                 .withRenderingStrategy(Objects.requireNonNull(builder.renderingStrategy))
                 .withTableAliasCalculator(tableAliasCalculator)
-                .withStatementConfiguration(builder.statementConfiguration)
+                .withStatementConfiguration(deleteModel.statementConfiguration())
                 .build();
         visitor = Objects.requireNonNull(builder.visitor);
     }
@@ -121,7 +120,6 @@ public class DeleteRenderer {
     public static class Builder {
         private DeleteModel deleteModel;
         private RenderingStrategy renderingStrategy;
-        private StatementConfiguration statementConfiguration;
         private DeleteRendererVisitor visitor;
 
         public Builder withDeleteModel(DeleteModel deleteModel) {
@@ -131,11 +129,6 @@ public class DeleteRenderer {
 
         public Builder withRenderingStrategy(RenderingStrategy renderingStrategy) {
             this.renderingStrategy = renderingStrategy;
-            return this;
-        }
-
-        public Builder withStatementConfiguration(StatementConfiguration statementConfiguration) {
-            this.statementConfiguration = statementConfiguration;
             return this;
         }
 
