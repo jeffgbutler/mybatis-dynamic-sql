@@ -27,7 +27,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mybatis.dynamic.sql.delete.DeleteDSL;
-import org.mybatis.dynamic.sql.delete.DeleteModel;
 import org.mybatis.dynamic.sql.delete.render.DeleteStatementProvider;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.QueryExpressionDSL;
@@ -90,7 +89,7 @@ class EmptyWhereTest {
         String fName = "Fred";
         String lName = "Flintstone";
 
-        DeleteDSL<DeleteModel>.DeleteWhereBuilder builder = deleteFrom(person)
+        DeleteDSL.DeleteWhereBuilder builder = deleteFrom(person)
                 .where(id, isEqualTo(3));
 
         builder.and(firstName, isEqualTo(fName).filter(Objects::nonNull));
@@ -109,7 +108,7 @@ class EmptyWhereTest {
     @ParameterizedTest
     @MethodSource("whereVariations")
     void testDeleteVariations(Variation variation) {
-        DeleteDSL<DeleteModel>.DeleteWhereBuilder builder = deleteFrom(person)
+        DeleteDSL.DeleteWhereBuilder builder = deleteFrom(person)
                 .where();
 
         builder.and(firstName, isEqualTo(variation.firstName).filter(Objects::nonNull));

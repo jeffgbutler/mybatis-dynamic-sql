@@ -23,7 +23,6 @@ import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.delete.DeleteDSL;
-import org.mybatis.dynamic.sql.delete.DeleteModel;
 import org.mybatis.dynamic.sql.insert.BatchInsertDSL;
 import org.mybatis.dynamic.sql.insert.GeneralInsertDSL;
 import org.mybatis.dynamic.sql.insert.InsertDSL;
@@ -138,11 +137,11 @@ public interface SqlBuilder {
         return CountDSL.countFrom(table);
     }
 
-    static DeleteDSL<DeleteModel> deleteFrom(SqlTable table) {
+    static DeleteDSL deleteFrom(SqlTable table) {
         return DeleteDSL.deleteFrom(table);
     }
 
-    static DeleteDSL<DeleteModel> deleteFrom(SqlTable table, String tableAlias) {
+    static DeleteDSL deleteFrom(SqlTable table, String tableAlias) {
         return DeleteDSL.deleteFrom(table, tableAlias);
     }
 
