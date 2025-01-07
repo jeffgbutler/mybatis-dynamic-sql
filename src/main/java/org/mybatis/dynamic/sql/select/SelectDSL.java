@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
@@ -53,19 +52,14 @@ public class SelectDSL implements Buildable<SelectModel>, ConfigurableStatement<
         return select(Arrays.asList(selectList));
     }
 
-    public static <R> QueryExpressionDSL.FromGatherer select(Function<SelectModel, R> adapterFunction,
-            BasicColumn... selectList) {
-        return select(Arrays.asList(selectList));
-    }
-
-    public static <R> QueryExpressionDSL.FromGatherer select(Collection<? extends BasicColumn> selectList) {
+    public static QueryExpressionDSL.FromGatherer select(Collection<? extends BasicColumn> selectList) {
         return new FromGatherer.Builder()
                 .withSelectList(selectList)
                 .withSelectDSL(new SelectDSL())
                 .build();
     }
 
-    public static <R> QueryExpressionDSL.FromGatherer selectDistinct(BasicColumn... selectList) {
+    public static QueryExpressionDSL.FromGatherer selectDistinct(BasicColumn... selectList) {
         return selectDistinct(Arrays.asList(selectList));
     }
 
