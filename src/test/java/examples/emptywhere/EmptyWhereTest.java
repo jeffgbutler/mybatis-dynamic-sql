@@ -32,7 +32,6 @@ import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.QueryExpressionDSL;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.update.UpdateDSL;
-import org.mybatis.dynamic.sql.update.UpdateModel;
 import org.mybatis.dynamic.sql.update.render.UpdateStatementProvider;
 import org.mybatis.dynamic.sql.where.WhereDSL;
 import org.mybatis.dynamic.sql.where.render.WhereClauseProvider;
@@ -212,7 +211,7 @@ class EmptyWhereTest {
         String fName = "Fred";
         String lName = "Flintstone";
 
-        UpdateDSL<UpdateModel>.UpdateWhereBuilder builder = update(person)
+        UpdateDSL.UpdateWhereBuilder builder = update(person)
                 .set(id).equalTo(3)
                 .where(id, isEqualTo(3));
 
@@ -233,7 +232,7 @@ class EmptyWhereTest {
     @ParameterizedTest
     @MethodSource("updateWhereVariations")
     void testUpdateVariations(Variation variation) {
-        UpdateDSL<UpdateModel>.UpdateWhereBuilder builder = update(person)
+        UpdateDSL.UpdateWhereBuilder builder = update(person)
                 .set(id).equalTo(3)
                 .where();
 

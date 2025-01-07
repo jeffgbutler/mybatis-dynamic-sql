@@ -57,7 +57,6 @@ import org.mybatis.dynamic.sql.select.function.Substring;
 import org.mybatis.dynamic.sql.select.function.Subtract;
 import org.mybatis.dynamic.sql.select.function.Upper;
 import org.mybatis.dynamic.sql.update.UpdateDSL;
-import org.mybatis.dynamic.sql.update.UpdateModel;
 import org.mybatis.dynamic.sql.util.Buildable;
 import org.mybatis.dynamic.sql.where.WhereDSL;
 import org.mybatis.dynamic.sql.where.condition.IsBetween;
@@ -237,11 +236,11 @@ public interface SqlBuilder {
         return new MultiSelectDSL(selectModelBuilder);
     }
 
-    static UpdateDSL<UpdateModel> update(SqlTable table) {
+    static UpdateDSL update(SqlTable table) {
         return UpdateDSL.update(table);
     }
 
-    static UpdateDSL<UpdateModel> update(SqlTable table, String tableAlias) {
+    static UpdateDSL update(SqlTable table, String tableAlias) {
         return UpdateDSL.update(table, tableAlias);
     }
 

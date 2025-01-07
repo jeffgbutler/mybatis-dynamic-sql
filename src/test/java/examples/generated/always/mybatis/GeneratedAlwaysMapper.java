@@ -36,7 +36,6 @@ import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.update.UpdateDSL;
 import org.mybatis.dynamic.sql.update.UpdateDSLCompleter;
-import org.mybatis.dynamic.sql.update.UpdateModel;
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
 import org.mybatis.dynamic.sql.util.mybatis3.CommonUpdateMapper;
 import org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils;
@@ -128,7 +127,7 @@ public interface GeneratedAlwaysMapper extends CommonUpdateMapper {
         );
     }
 
-    static UpdateDSL<UpdateModel> updateSelectiveColumns(GeneratedAlwaysRecord row, UpdateDSL<UpdateModel> dsl) {
+    static UpdateDSL updateSelectiveColumns(GeneratedAlwaysRecord row, UpdateDSL dsl) {
         return dsl.set(id).equalToWhenPresent(row::getId)
                 .set(firstName).equalToWhenPresent(row::getFirstName)
                 .set(lastName).equalToWhenPresent(row::getLastName);

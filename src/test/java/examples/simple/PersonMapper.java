@@ -38,7 +38,6 @@ import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.update.UpdateDSL;
 import org.mybatis.dynamic.sql.update.UpdateDSLCompleter;
-import org.mybatis.dynamic.sql.update.UpdateModel;
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
 import org.mybatis.dynamic.sql.util.mybatis3.CommonCountMapper;
 import org.mybatis.dynamic.sql.util.mybatis3.CommonDeleteMapper;
@@ -162,8 +161,7 @@ public interface PersonMapper extends CommonCountMapper, CommonDeleteMapper, Com
         return MyBatis3Utils.update(this::update, person, completer);
     }
 
-    static UpdateDSL<UpdateModel> updateAllColumns(PersonRecord row,
-            UpdateDSL<UpdateModel> dsl) {
+    static UpdateDSL updateAllColumns(PersonRecord row, UpdateDSL dsl) {
         return dsl.set(id).equalTo(row::getId)
                 .set(firstName).equalTo(row::getFirstName)
                 .set(lastName).equalTo(row::getLastName)
@@ -173,8 +171,7 @@ public interface PersonMapper extends CommonCountMapper, CommonDeleteMapper, Com
                 .set(addressId).equalTo(row::getAddressId);
     }
 
-    static UpdateDSL<UpdateModel> updateSelectiveColumns(PersonRecord row,
-            UpdateDSL<UpdateModel> dsl) {
+    static UpdateDSL updateSelectiveColumns(PersonRecord row, UpdateDSL dsl) {
         return dsl.set(id).equalToWhenPresent(row::getId)
                 .set(firstName).equalToWhenPresent(row::getFirstName)
                 .set(lastName).equalToWhenPresent(row::getLastName)

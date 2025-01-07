@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
@@ -47,10 +46,9 @@ import org.mybatis.dynamic.sql.where.AbstractWhereFinisher;
 import org.mybatis.dynamic.sql.where.AbstractWhereStarter;
 import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
-public class UpdateDSL<R> implements AbstractWhereStarter<UpdateDSL<R>.UpdateWhereBuilder, UpdateDSL<R>>,
-        Buildable<R> {
+public class UpdateDSL implements AbstractWhereStarter<UpdateDSL.UpdateWhereBuilder, UpdateDSL>,
+        Buildable<UpdateModel> {
 
-    private final Function<UpdateModel, R> adapterFunction;
     private final List<AbstractColumnMapping> columnMappings = new ArrayList<>();
     private final SqlTable table;
     private final @Nullable String tableAlias;
@@ -59,10 +57,9 @@ public class UpdateDSL<R> implements AbstractWhereStarter<UpdateDSL<R>.UpdateWhe
     private @Nullable Long limit;
     private @Nullable OrderByModel orderByModel;
 
-    private UpdateDSL(SqlTable table, @Nullable String tableAlias, Function<UpdateModel, R> adapterFunction) {
+    private UpdateDSL(SqlTable table, @Nullable String tableAlias) {
         this.table = Objects.requireNonNull(table);
         this.tableAlias = tableAlias;
-        this.adapterFunction = Objects.requireNonNull(adapterFunction);
     }
 
     public <T> SetClauseFinisher<T> set(SqlColumn<T> column) {
@@ -75,20 +72,20 @@ public class UpdateDSL<R> implements AbstractWhereStarter<UpdateDSL<R>.UpdateWhe
         return whereBuilder;
     }
 
-    public UpdateDSL<R> limit(long limit) {
+    public UpdateDSL limit(long limit) {
         return limitWhenPresent(limit);
     }
 
-    public UpdateDSL<R> limitWhenPresent(@Nullable Long limit) {
+    public UpdateDSL limitWhenPresent(@Nullable Long limit) {
         this.limit = limit;
         return this;
     }
 
-    public UpdateDSL<R> orderBy(SortSpecification... columns) {
+    public UpdateDSL orderBy(SortSpecification... columns) {
         return orderBy(Arrays.asList(columns));
     }
 
-    public UpdateDSL<R> orderBy(Collection<? extends SortSpecification> columns) {
+    public UpdateDSL orderBy(Collection<? extends SortSpecification> columns) {
         orderByModel = OrderByModel.of(columns);
         return this;
     }
@@ -100,8 +97,8 @@ public class UpdateDSL<R> implements AbstractWhereStarter<UpdateDSL<R>.UpdateWhe
      * @return the update model
      */
     @Override
-    public R build() {
-        UpdateModel updateModel = UpdateModel.withTable(table)
+    public UpdateModel build() {
+        return UpdateModel.withTable(table)
                 .withTableAlias(tableAlias)
                 .withColumnMappings(columnMappings)
                 .withLimit(limit)
@@ -109,27 +106,20 @@ public class UpdateDSL<R> implements AbstractWhereStarter<UpdateDSL<R>.UpdateWhe
                 .withWhereModel(whereBuilder == null ? null : whereBuilder.buildWhereModel())
                 .withStatementConfiguration(statementConfiguration)
                 .build();
-
-        return adapterFunction.apply(updateModel);
     }
 
     @Override
-    public UpdateDSL<R> configureStatement(Consumer<StatementConfiguration> consumer) {
+    public UpdateDSL configureStatement(Consumer<StatementConfiguration> consumer) {
         consumer.accept(statementConfiguration);
         return this;
     }
 
-    public static <R> UpdateDSL<R> update(Function<UpdateModel, R> adapterFunction, SqlTable table,
-                                          @Nullable String tableAlias) {
-        return new UpdateDSL<>(table, tableAlias, adapterFunction);
+    public static UpdateDSL update(SqlTable table, @Nullable String tableAlias) {
+        return new UpdateDSL(table, tableAlias);
     }
 
-    public static UpdateDSL<UpdateModel> update(SqlTable table) {
-        return update(Function.identity(), table, null);
-    }
-
-    public static UpdateDSL<UpdateModel> update(SqlTable table, String tableAlias) {
-        return update(Function.identity(), table, tableAlias);
+    public static UpdateDSL update(SqlTable table) {
+        return update(table, null);
     }
 
     public class SetClauseFinisher<T> {
@@ -140,84 +130,85 @@ public class UpdateDSL<R> implements AbstractWhereStarter<UpdateDSL<R>.UpdateWhe
             this.column = column;
         }
 
-        public UpdateDSL<R> equalToNull() {
+        public UpdateDSL equalToNull() {
             columnMappings.add(NullMapping.of(column));
             return UpdateDSL.this;
         }
 
-        public UpdateDSL<R> equalToConstant(String constant) {
+        public UpdateDSL equalToConstant(String constant) {
             columnMappings.add(ConstantMapping.of(column, constant));
             return UpdateDSL.this;
         }
 
-        public UpdateDSL<R> equalToStringConstant(String constant) {
+        public UpdateDSL equalToStringConstant(String constant) {
             columnMappings.add(StringConstantMapping.of(column, constant));
             return UpdateDSL.this;
         }
 
-        public UpdateDSL<R> equalTo(T value) {
+        public UpdateDSL equalTo(T value) {
             return equalTo(() -> value);
         }
 
-        public UpdateDSL<R> equalTo(Supplier<T> valueSupplier) {
+        public UpdateDSL equalTo(Supplier<T> valueSupplier) {
             columnMappings.add(ValueMapping.of(column, valueSupplier));
             return UpdateDSL.this;
         }
 
-        public UpdateDSL<R> equalTo(Buildable<SelectModel> buildable) {
+        public UpdateDSL equalTo(Buildable<SelectModel> buildable) {
             columnMappings.add(SelectMapping.of(column, buildable));
             return UpdateDSL.this;
         }
 
-        public UpdateDSL<R> equalTo(BasicColumn rightColumn) {
+        public UpdateDSL equalTo(BasicColumn rightColumn) {
             columnMappings.add(ColumnToColumnMapping.of(column, rightColumn));
             return UpdateDSL.this;
         }
 
-        public UpdateDSL<R> equalToOrNull(@Nullable T value) {
+        public UpdateDSL equalToOrNull(@Nullable T value) {
             return equalToOrNull(() -> value);
         }
 
-        public UpdateDSL<R> equalToOrNull(Supplier<@Nullable T> valueSupplier) {
+        public UpdateDSL equalToOrNull(Supplier<@Nullable T> valueSupplier) {
             columnMappings.add(ValueOrNullMapping.of(column, valueSupplier));
             return UpdateDSL.this;
         }
 
-        public UpdateDSL<R> equalToWhenPresent(@Nullable T value) {
+        public UpdateDSL equalToWhenPresent(@Nullable T value) {
             return equalToWhenPresent(() -> value);
         }
 
-        public UpdateDSL<R> equalToWhenPresent(Supplier<@Nullable T> valueSupplier) {
+        public UpdateDSL equalToWhenPresent(Supplier<@Nullable T> valueSupplier) {
             columnMappings.add(ValueWhenPresentMapping.of(column, valueSupplier));
             return UpdateDSL.this;
         }
     }
 
-    public class UpdateWhereBuilder extends AbstractWhereFinisher<UpdateWhereBuilder> implements Buildable<R> {
+    public class UpdateWhereBuilder extends AbstractWhereFinisher<UpdateWhereBuilder>
+            implements Buildable<UpdateModel> {
 
         private UpdateWhereBuilder() {
             super(UpdateDSL.this);
         }
 
-        public UpdateDSL<R> limit(long limit) {
+        public UpdateDSL limit(long limit) {
             return limitWhenPresent(limit);
         }
 
-        public UpdateDSL<R> limitWhenPresent(Long limit) {
+        public UpdateDSL limitWhenPresent(Long limit) {
             return UpdateDSL.this.limitWhenPresent(limit);
         }
 
-        public UpdateDSL<R> orderBy(SortSpecification... columns) {
+        public UpdateDSL orderBy(SortSpecification... columns) {
             return orderBy(Arrays.asList(columns));
         }
 
-        public UpdateDSL<R> orderBy(Collection<? extends SortSpecification> columns) {
+        public UpdateDSL orderBy(Collection<? extends SortSpecification> columns) {
             orderByModel = OrderByModel.of(columns);
             return UpdateDSL.this;
         }
 
         @Override
-        public R build() {
+        public UpdateModel build() {
             return UpdateDSL.this.build();
         }
 

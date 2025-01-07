@@ -88,5 +88,5 @@ import org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils;
  */
 @FunctionalInterface
 public interface UpdateDSLCompleter extends
-        Function<UpdateDSL<UpdateModel>, Buildable<UpdateModel>> {
+        Function<UpdateDSL, Buildable<UpdateModel>> {
 }
