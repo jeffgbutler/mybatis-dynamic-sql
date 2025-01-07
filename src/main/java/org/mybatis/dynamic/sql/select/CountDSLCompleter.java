@@ -62,8 +62,7 @@ import org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils;
  * @author Jeff Butler
  */
 @FunctionalInterface
-public interface CountDSLCompleter extends
-        Function<CountDSL<SelectModel>, Buildable<SelectModel>> {
+public interface CountDSLCompleter extends Function<CountDSL, Buildable<SelectModel>> {
 
     /**
      * Returns a completer that can be used to count every row in a table.

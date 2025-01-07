@@ -80,14 +80,14 @@ public class MyBatis3Utils {
         return mapper.applyAsLong(countFrom(table, completer));
     }
 
-    public static SelectStatementProvider countFrom(CountDSL<SelectModel> start, CountDSLCompleter completer) {
+    public static SelectStatementProvider countFrom(CountDSL start, CountDSLCompleter completer) {
         return completer.apply(start)
                 .build()
                 .render(RenderingStrategies.MYBATIS3);
     }
 
     public static long countFrom(ToLongFunction<SelectStatementProvider> mapper,
-            CountDSL<SelectModel> start, CountDSLCompleter completer) {
+            CountDSL start, CountDSLCompleter completer) {
         return mapper.applyAsLong(countFrom(start, completer));
     }
 

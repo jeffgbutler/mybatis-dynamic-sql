@@ -22,11 +22,11 @@ import org.mybatis.dynamic.sql.util.Buildable
 
 typealias CountCompleter = KotlinCountBuilder.() -> Unit
 
-class KotlinCountBuilder(private val fromGatherer: CountDSL.FromGatherer<SelectModel>) :
-    KotlinBaseJoiningBuilder<CountDSL<SelectModel>>(),
+class KotlinCountBuilder(private val fromGatherer: CountDSL.FromGatherer) :
+    KotlinBaseJoiningBuilder<CountDSL>(),
     Buildable<SelectModel> {
 
-    private var dsl: CountDSL<SelectModel>? = null
+    private var dsl: CountDSL? = null
 
     fun from(table: SqlTable): KotlinCountBuilder =
         apply {
@@ -35,5 +35,5 @@ class KotlinCountBuilder(private val fromGatherer: CountDSL.FromGatherer<SelectM
 
     override fun build(): SelectModel = getDsl().build()
 
-    override fun getDsl(): CountDSL<SelectModel> = invalidIfNull(dsl, "ERROR.24") //$NON-NLS-1$
+    override fun getDsl(): CountDSL = invalidIfNull(dsl, "ERROR.24") //$NON-NLS-1$
 }
