@@ -30,7 +30,6 @@ import org.mybatis.dynamic.sql.delete.DeleteDSL;
 import org.mybatis.dynamic.sql.delete.render.DeleteStatementProvider;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.QueryExpressionDSL;
-import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.update.UpdateDSL;
 import org.mybatis.dynamic.sql.update.UpdateModel;
@@ -127,7 +126,7 @@ class EmptyWhereTest {
         String fName = "Fred";
         String lName = "Flintstone";
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder = select(id, firstName, PersonDynamicSqlSupport.lastName)
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder = select(id, firstName, PersonDynamicSqlSupport.lastName)
                 .from(person)
                 .where(id, isEqualTo(3));
 
@@ -148,7 +147,7 @@ class EmptyWhereTest {
     @ParameterizedTest
     @MethodSource("whereVariations")
     void testSelectVariations(Variation variation) {
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder = select(person.allColumns())
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder = select(person.allColumns())
                 .from(person)
                 .where();
 
@@ -168,7 +167,7 @@ class EmptyWhereTest {
         String fName = "Fred";
         String lName = "Flintstone";
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder = select(id, firstName, PersonDynamicSqlSupport.lastName, orderDate)
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder = select(id, firstName, PersonDynamicSqlSupport.lastName, orderDate)
                 .from(person).join(order).on(person.id, isEqualTo(order.personId))
                 .where(id, isEqualTo(3));
 
@@ -190,7 +189,7 @@ class EmptyWhereTest {
     @ParameterizedTest
     @MethodSource("joinWhereVariations")
     void testJoinVariations(Variation variation) {
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder = select(id, firstName, PersonDynamicSqlSupport.lastName, orderDate)
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder = select(id, firstName, PersonDynamicSqlSupport.lastName, orderDate)
                 .from(person).join(order).on(person.id, isEqualTo(order.personId))
                 .where();
 

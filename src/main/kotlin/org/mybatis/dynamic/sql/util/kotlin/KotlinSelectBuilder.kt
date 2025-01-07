@@ -27,8 +27,8 @@ import org.mybatis.dynamic.sql.util.Buildable
 typealias SelectCompleter = KotlinSelectBuilder.() -> Unit
 
 @Suppress("TooManyFunctions")
-class KotlinSelectBuilder(private val fromGatherer: QueryExpressionDSL.FromGatherer<SelectModel>) :
-    KotlinBaseJoiningBuilder<QueryExpressionDSL<SelectModel>>(), Buildable<SelectModel>, KotlinPagingDSL {
+class KotlinSelectBuilder(private val fromGatherer: QueryExpressionDSL.FromGatherer) :
+    KotlinBaseJoiningBuilder<QueryExpressionDSL>(), Buildable<SelectModel>, KotlinPagingDSL {
 
     private var dsl: KQueryExpressionDSL? = null
 
@@ -86,13 +86,13 @@ class KotlinSelectBuilder(private val fromGatherer: QueryExpressionDSL.FromGathe
  * We do this especially for having support because we don't want to publicly expose a "having" method
  * directly in QueryExpressionDSL as it would be in an odd place for the Java DSL.
  */
-class KQueryExpressionDSL: QueryExpressionDSL<SelectModel> {
-    constructor(fromGatherer: FromGatherer<SelectModel>, table: SqlTable) : super(fromGatherer, table)
+class KQueryExpressionDSL: QueryExpressionDSL {
+    constructor(fromGatherer: FromGatherer, table: SqlTable) : super(fromGatherer, table)
 
-    constructor(fromGatherer: FromGatherer<SelectModel>, table: SqlTable, alias: String) :
+    constructor(fromGatherer: FromGatherer, table: SqlTable, alias: String) :
             super(fromGatherer, table, alias)
 
-    constructor(fromGatherer: FromGatherer<SelectModel>, subQuery: KotlinQualifiedSubQueryBuilder) :
+    constructor(fromGatherer: FromGatherer, subQuery: KotlinQualifiedSubQueryBuilder) :
             super(fromGatherer, buildSubQuery(subQuery))
 
     internal fun applyHaving(collector: GroupingCriteriaCollector) {

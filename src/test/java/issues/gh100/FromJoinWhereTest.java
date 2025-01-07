@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.QueryExpressionDSL;
 import org.mybatis.dynamic.sql.select.SelectDSL;
-import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 
 class FromJoinWhereTest {
@@ -59,7 +58,7 @@ class FromJoinWhereTest {
 
     @Test
     void testFrom() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
         String expected = "select id, name, idcard"
@@ -72,7 +71,7 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
         builder1.join(StudentRegDynamicSqlSupport.studentReg)
@@ -89,10 +88,10 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
         String expected = "select student.id, student.name, student.idcard"
@@ -106,10 +105,10 @@ class FromJoinWhereTest {
 
     @Test
     void testfromJoinWhereB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
         builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
@@ -126,10 +125,10 @@ class FromJoinWhereTest {
 
     @Test
     void testfromJoinWhereB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
         builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
@@ -146,13 +145,13 @@ class FromJoinWhereTest {
 
     @Test
     void testfromJoinWhereB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         String expected = "select student.id, student.name, student.idcard"
                 + " from student"
@@ -166,13 +165,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
@@ -193,13 +192,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
@@ -220,13 +219,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
@@ -247,15 +246,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -274,15 +273,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionUnionB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder4 = builder3.union()
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student)
                 .where(StudentDynamicSqlSupport.id, isNotNull());
@@ -312,15 +311,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionUnionB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder4 = builder3.union()
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student)
                 .where(StudentDynamicSqlSupport.id, isNotNull());
@@ -350,15 +349,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionUnionB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder4 = builder3.union()
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student)
                 .where(StudentDynamicSqlSupport.id, isNotNull());
@@ -388,15 +387,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionUnionB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder4 = builder3.union()
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student)
                 .where(StudentDynamicSqlSupport.id, isNotNull());
@@ -426,20 +425,20 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionUnionB5() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder4 = builder3.union()
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student)
                 .where(StudentDynamicSqlSupport.id, isNotNull());
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder5 = builder4.union()
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder5 = builder4.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student)
                 .where(StudentDynamicSqlSupport.id, isNull());
@@ -464,15 +463,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -494,15 +493,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -524,15 +523,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -554,15 +553,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -584,19 +583,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByB5() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         String expected = "select student.id, student.name, student.idcard"
                 + " from student"
@@ -614,19 +613,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByLimitB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         builder5.limit(3);
 
@@ -647,19 +646,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByLimitB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         builder5.limit(3);
 
@@ -680,19 +679,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByLimitB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         builder5.limit(3);
 
@@ -713,19 +712,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByLimitB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         builder5.limit(3);
 
@@ -746,19 +745,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByLimitB5() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         builder5.limit(3);
 
@@ -779,19 +778,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByLimitB6() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         var builder6 = builder5.limit(3);
 
@@ -812,19 +811,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByLimitOffsetB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         var builder6 = builder5.limit(3);
 
@@ -848,19 +847,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByLimitOffsetB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         var builder6 = builder5.limit(3);
 
@@ -884,19 +883,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByLimitOffsetB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         var builder6 = builder5.limit(3);
 
@@ -920,19 +919,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByLimitOffsetB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         var builder6 = builder5.limit(3);
 
@@ -956,19 +955,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByLimitOffsetB5() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         var builder6 = builder5.limit(3);
 
@@ -992,19 +991,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByLimitOffsetB6() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         var builder6 = builder5.limit(3);
 
@@ -1028,19 +1027,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByLimitOffsetB7() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         var builder6 = builder5.limit(3);
 
@@ -1064,19 +1063,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByOffsetB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         builder5.offset(2);
 
@@ -1098,19 +1097,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByOffsetB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         builder5.offset(2);
 
@@ -1132,19 +1131,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByOffsetB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         builder5.offset(2);
 
@@ -1166,19 +1165,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByOffsetB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         builder5.offset(2);
 
@@ -1200,19 +1199,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByOffsetB5() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         builder5.offset(2);
 
@@ -1234,19 +1233,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByOffsetB6() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         var builder6 = builder5.offset(2);
 
@@ -1268,19 +1267,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByOffsetFetchFirstB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         var builder6 = builder5.offset(2);
 
@@ -1304,19 +1303,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByOffsetFetchFirstB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         var builder6 = builder5.offset(2);
 
@@ -1340,19 +1339,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByOffsetFetchFirstB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         var builder6 = builder5.offset(2);
 
@@ -1376,19 +1375,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByOffsetFetchFirstB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         var builder6 = builder5.offset(2);
 
@@ -1412,19 +1411,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByOffsetFetchFirstB5() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         var builder6 = builder5.offset(2);
 
@@ -1448,19 +1447,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByOffsetFetchFirstB6() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         var builder6 = builder5.offset(2);
 
@@ -1484,19 +1483,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByOffsetFetchFirstB7() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         var builder6 = builder5.offset(2);
 
@@ -1520,19 +1519,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByFetchFirstB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         builder5.fetchFirst(3).rowsOnly();
 
@@ -1553,19 +1552,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByFetchFirstB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         builder5.fetchFirst(3).rowsOnly();
 
@@ -1586,19 +1585,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByFetchFirstB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         builder5.fetchFirst(3).rowsOnly();
 
@@ -1619,19 +1618,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByFetchFirstB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         builder5.fetchFirst(3).rowsOnly();
 
@@ -1652,19 +1651,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByFetchFirstB5() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         builder5.fetchFirst(3).rowsOnly();
 
@@ -1685,19 +1684,19 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOrderByFetchFirstB6() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        SelectDSL<SelectModel> builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder5 = builder4.orderBy(StudentDynamicSqlSupport.id);
 
         var builder6 = builder5.fetchFirst(3).rowsOnly();
 
@@ -1718,15 +1717,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionLimitB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -1748,15 +1747,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionLimitB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -1778,15 +1777,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionLimitB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -1808,15 +1807,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionLimitB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -1838,15 +1837,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionLimitB5() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -1868,15 +1867,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionLimitOffsetB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -1901,15 +1900,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionLimitOffsetB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -1934,15 +1933,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionLimitOffsetB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -1967,15 +1966,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionLimitOffsetB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -2000,15 +1999,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionLimitOffsetB5() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -2033,15 +2032,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionLimitOffsetB6() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -2066,15 +2065,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOffsetB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -2096,15 +2095,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOffsetB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -2126,15 +2125,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOffsetB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -2156,15 +2155,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOffsetB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -2186,15 +2185,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOffsetB5() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -2216,15 +2215,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOffsetFetchFirstB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -2249,15 +2248,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOffsetFetchFirstB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -2282,15 +2281,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOffsetFetchFirstB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -2315,15 +2314,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOffsetFetchFirstB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -2348,15 +2347,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOffsetFetchFirstB5() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -2381,15 +2380,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionOffsetFetchFirstB6() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -2414,15 +2413,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionFetchFirstB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -2444,15 +2443,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionFetchFirstB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -2474,15 +2473,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionFetchFirstB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -2504,15 +2503,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionFetchFirstB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -2534,15 +2533,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereUnionFetchFirstB5() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        QueryExpressionDSL<SelectModel> builder4 = builder3.union()
+        QueryExpressionDSL builder4 = builder3.union()
                 .select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
@@ -2564,13 +2563,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         builder3.orderBy(StudentDynamicSqlSupport.id);
 
@@ -2587,13 +2586,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         builder3.orderBy(StudentDynamicSqlSupport.id);
 
@@ -2610,13 +2609,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         builder3.orderBy(StudentDynamicSqlSupport.id);
 
@@ -2633,15 +2632,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         String expected = "select student.id, student.name, student.idcard"
                 + " from student"
@@ -2656,15 +2655,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByLimitB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         builder4.limit(3);
 
@@ -2682,15 +2681,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByLimitB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         builder4.limit(3);
 
@@ -2708,15 +2707,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByLimitB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         builder4.limit(3);
 
@@ -2734,15 +2733,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByLimitB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         builder4.limit(3);
 
@@ -2760,15 +2759,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByLimitB5() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         var builder5 = builder4.limit(3);
 
@@ -2786,15 +2785,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByLimitOffsetB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         var builder5 = builder4.limit(3);
 
@@ -2815,15 +2814,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByLimitOffsetB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         var builder5 = builder4.limit(3);
 
@@ -2844,15 +2843,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByLimitOffsetB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         var builder5 = builder4.limit(3);
 
@@ -2873,15 +2872,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByLimitOffsetB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         var builder5 = builder4.limit(3);
 
@@ -2902,15 +2901,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByLimitOffsetB5() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         var builder5 = builder4.limit(3);
 
@@ -2931,15 +2930,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByLimitOffsetB6() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         var builder5 = builder4.limit(3);
 
@@ -2960,15 +2959,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByOffsetB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         builder4.offset(2);
 
@@ -2986,15 +2985,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByOffsetB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         builder4.offset(2);
 
@@ -3012,15 +3011,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByOffsetB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         builder4.offset(2);
 
@@ -3038,15 +3037,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByOffsetB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         builder4.offset(2);
 
@@ -3064,15 +3063,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByOffsetB5() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         var builder5 = builder4.offset(2);
 
@@ -3090,15 +3089,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByOffsetFetchFirstB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         var builder5 = builder4.offset(2);
 
@@ -3119,15 +3118,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByOffsetFetchFirstB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         var builder5 = builder4.offset(2);
 
@@ -3148,15 +3147,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByOffsetFetchFirstB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         var builder5 = builder4.offset(2);
 
@@ -3177,15 +3176,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByOffsetFetchFirstB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         var builder5 = builder4.offset(2);
 
@@ -3206,15 +3205,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByOffsetFetchFirstB5() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         var builder5 = builder4.offset(2);
 
@@ -3235,15 +3234,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByOffsetFetchFirstB6() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         var builder5 = builder4.offset(2);
 
@@ -3264,15 +3263,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByFetchFirstB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         builder4.fetchFirst(3).rowsOnly();
 
@@ -3290,15 +3289,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByFetchFirstB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         builder4.fetchFirst(3).rowsOnly();
 
@@ -3316,15 +3315,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByFetchFirstB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         builder4.fetchFirst(3).rowsOnly();
 
@@ -3342,15 +3341,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByFetchFirstB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         builder4.fetchFirst(3).rowsOnly();
 
@@ -3368,15 +3367,15 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOrderByFetchFirstB5() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
-        SelectDSL<SelectModel> builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
+        SelectDSL builder4 = builder3.orderBy(StudentDynamicSqlSupport.id);
 
         var builder5 = builder4.fetchFirst(3).rowsOnly();
 
@@ -3394,13 +3393,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereLimitB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         builder3.limit(2);
 
@@ -3417,13 +3416,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereLimitB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         builder3.limit(2);
 
@@ -3440,13 +3439,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereLimitB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         builder3.limit(2);
 
@@ -3463,13 +3462,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereLimitB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         var builder4 = builder3.limit(2);
 
@@ -3486,13 +3485,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereLimitOffsetB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         var builder4 = builder3.limit(2);
 
@@ -3512,13 +3511,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereLimitOffsetB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         var builder4 = builder3.limit(2);
 
@@ -3538,13 +3537,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereLimitOffsetB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         var builder4 = builder3.limit(2);
 
@@ -3564,13 +3563,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereLimitOffsetB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         var builder4 = builder3.limit(2);
 
@@ -3590,13 +3589,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereLimitOffsetB5() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         var builder4 = builder3.limit(2);
 
@@ -3616,13 +3615,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOffsetB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         builder3.offset(3);
 
@@ -3639,13 +3638,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOffsetB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         builder3.offset(3);
 
@@ -3662,13 +3661,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOffsetB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         builder3.offset(3);
 
@@ -3685,13 +3684,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOffsetB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         var builder4 = builder3.offset(3);
 
@@ -3708,13 +3707,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOffsetFetchFirstB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         var builder4 = builder3.offset(3);
 
@@ -3734,13 +3733,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOffsetFetchFirstB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         var builder4 = builder3.offset(3);
 
@@ -3760,13 +3759,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOffsetFetchFirstB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         var builder4 = builder3.offset(3);
 
@@ -3786,13 +3785,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOffsetFetchFirstB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         var builder4 = builder3.offset(3);
 
@@ -3812,13 +3811,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereOffsetFetchFirstB5() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         var builder4 = builder3.offset(3);
 
@@ -3838,13 +3837,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereFetchFirstB1() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         builder3.fetchFirst(2).rowsOnly();
 
@@ -3861,13 +3860,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereFetchFirstB2() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         builder3.fetchFirst(2).rowsOnly();
 
@@ -3884,13 +3883,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereFetchFirstB3() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         builder3.fetchFirst(2).rowsOnly();
 
@@ -3907,13 +3906,13 @@ class FromJoinWhereTest {
 
     @Test
     void testFromJoinWhereFetchFirstB4() {
-        QueryExpressionDSL<SelectModel> builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder1 = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
+        QueryExpressionDSL.JoinSpecificationFinisher builder2 = builder1.join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));
 
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder3 = builder2.where(StudentDynamicSqlSupport.idcard, isEqualTo("fred"));
 
         var builder4 = builder3.fetchFirst(2).rowsOnly();
 

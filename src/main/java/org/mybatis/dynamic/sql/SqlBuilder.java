@@ -217,19 +217,19 @@ public interface SqlBuilder {
         return new InsertIntoNextStep(table);
     }
 
-    static FromGatherer<SelectModel> select(BasicColumn... selectList) {
+    static FromGatherer select(BasicColumn... selectList) {
         return SelectDSL.select(selectList);
     }
 
-    static FromGatherer<SelectModel> select(Collection<? extends BasicColumn> selectList) {
+    static FromGatherer select(Collection<? extends BasicColumn> selectList) {
         return SelectDSL.select(selectList);
     }
 
-    static FromGatherer<SelectModel> selectDistinct(BasicColumn... selectList) {
+    static FromGatherer selectDistinct(BasicColumn... selectList) {
         return SelectDSL.selectDistinct(selectList);
     }
 
-    static FromGatherer<SelectModel> selectDistinct(Collection<? extends BasicColumn> selectList) {
+    static FromGatherer selectDistinct(Collection<? extends BasicColumn> selectList) {
         return SelectDSL.selectDistinct(selectList);
     }
 

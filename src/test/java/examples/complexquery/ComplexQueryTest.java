@@ -108,7 +108,7 @@ class ComplexQueryTest {
     }
 
     SelectStatementProvider search(Integer targetId, String fName, String lName) {
-        QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder = select(id, firstName, lastName)
+        QueryExpressionDSL.QueryExpressionWhereBuilder builder = select(id, firstName, lastName)
                 .from(person)
                 .where()
                 .configureStatement(c -> c.setNonRenderingWhereClauseAllowed(true));

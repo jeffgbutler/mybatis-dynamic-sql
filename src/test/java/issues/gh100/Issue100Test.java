@@ -21,7 +21,6 @@ import static org.mybatis.dynamic.sql.SqlBuilder.*;
 import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.QueryExpressionDSL;
-import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 
 class Issue100Test {
@@ -56,7 +55,7 @@ class Issue100Test {
 
     @Test
     void testSuccessiveBuild01() {
-        QueryExpressionDSL<SelectModel> builder = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
         builder.join(StudentRegDynamicSqlSupport.studentReg)
@@ -72,7 +71,7 @@ class Issue100Test {
 
     @Test
     void testSuccessiveBuild02() {
-        QueryExpressionDSL<SelectModel> builder = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
         builder.join(StudentRegDynamicSqlSupport.studentReg)
@@ -90,7 +89,7 @@ class Issue100Test {
 
     @Test
     void testSuccessiveBuild03() {
-        QueryExpressionDSL<SelectModel> builder = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
         builder.join(StudentRegDynamicSqlSupport.studentReg)
@@ -110,7 +109,7 @@ class Issue100Test {
 
     @Test
     void testSuccessiveBuild04() {
-        QueryExpressionDSL<SelectModel> builder = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
         builder.join(StudentRegDynamicSqlSupport.studentReg)
@@ -132,7 +131,7 @@ class Issue100Test {
 
     @Test
     void testSuccessiveBuild05() {
-        QueryExpressionDSL<SelectModel> builder = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
         builder.join(StudentRegDynamicSqlSupport.studentReg)
@@ -156,7 +155,7 @@ class Issue100Test {
 
     @Test
     void testSuccessiveBuild06() {
-        QueryExpressionDSL<SelectModel> builder = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
         builder.join(StudentRegDynamicSqlSupport.studentReg)
@@ -178,7 +177,7 @@ class Issue100Test {
 
     @Test
     void testSuccessiveBuild07() {
-        QueryExpressionDSL<SelectModel> builder = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
         builder.join(StudentRegDynamicSqlSupport.studentReg)
@@ -202,7 +201,7 @@ class Issue100Test {
 
     @Test
     void testSuccessiveBuild08() {
-        QueryExpressionDSL<SelectModel> builder = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL builder = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student);
 
         builder.join(StudentRegDynamicSqlSupport.studentReg)
@@ -224,7 +223,7 @@ class Issue100Test {
 
     @Test
     void test3() {
-        QueryExpressionDSL<SelectModel>.JoinSpecificationFinisher on = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
+        QueryExpressionDSL.JoinSpecificationFinisher on = select(StudentDynamicSqlSupport.id, StudentDynamicSqlSupport.name, StudentDynamicSqlSupport.idcard)
                 .from(StudentDynamicSqlSupport.student)
                 .join(StudentRegDynamicSqlSupport.studentReg)
                 .on(StudentDynamicSqlSupport.id, isEqualTo(StudentRegDynamicSqlSupport.studentid));

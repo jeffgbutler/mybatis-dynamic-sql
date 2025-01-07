@@ -17,9 +17,9 @@ package examples.paging;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 
+import org.jspecify.annotations.NullMarked;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
@@ -40,33 +40,21 @@ import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
  *
  * @author Jeff Butler
  */
-public class LimitAndOffsetAdapter<R> {
-    private final SelectModel selectModel;
-    private final Function<SelectStatementProvider, R> mapperMethod;
+@NullMarked
+public class LimitAndOffsetAdapter implements Function<SelectModel, SelectStatementProvider> {
     private final int limit;
     private final int offset;
 
-    private LimitAndOffsetAdapter(SelectModel selectModel, Function<SelectStatementProvider, R> mapperMethod,
-            int limit, int offset) {
-        this.selectModel = Objects.requireNonNull(selectModel);
-        this.mapperMethod = Objects.requireNonNull(mapperMethod);
+    public LimitAndOffsetAdapter(int limit, int offset) {
         this.limit = limit;
         this.offset = offset;
     }
 
-    public R execute() {
-        return mapperMethod.apply(selectStatement());
+    @Override
+    public SelectStatementProvider apply(SelectModel selectModel) {
+        return new LimitAndOffsetDecorator(selectModel.render(RenderingStrategies.MYBATIS3));
     }
 
-    private SelectStatementProvider selectStatement() {
-        return new LimitAndOffsetDecorator(
-                selectModel.render(RenderingStrategies.MYBATIS3));
-    }
-
-    public static <R> LimitAndOffsetAdapter<R> of(SelectModel selectModel,
-            Function<SelectStatementProvider, R> mapperMethod, int limit, int offset) {
-        return new LimitAndOffsetAdapter<>(selectModel, mapperMethod, limit, offset);
-    }
 
     public class LimitAndOffsetDecorator implements SelectStatementProvider {
         private final Map<String, Object> parameters = new HashMap<>();

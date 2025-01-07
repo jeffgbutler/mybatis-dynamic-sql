@@ -41,7 +41,6 @@ import org.mybatis.dynamic.sql.select.CountDSL;
 import org.mybatis.dynamic.sql.select.CountDSLCompleter;
 import org.mybatis.dynamic.sql.select.QueryExpressionDSL;
 import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
-import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
 import org.mybatis.dynamic.sql.util.mybatis3.CommonCountMapper;
@@ -79,13 +78,13 @@ public interface PersonWithAddressMapper extends CommonCountMapper {
                     address.streetAddress, address.city, address.state, address.addressType);
 
     default Optional<PersonWithAddress> selectOne(SelectDSLCompleter completer) {
-        QueryExpressionDSL<SelectModel> start = SqlBuilder.select(selectList).from(person)
+        QueryExpressionDSL start = SqlBuilder.select(selectList).from(person)
                 .join(address, on(person.addressId, isEqualTo(address.id)));
         return MyBatis3Utils.selectOne(this::selectOne, start, completer);
     }
 
     default List<PersonWithAddress> select(SelectDSLCompleter completer) {
-        QueryExpressionDSL<SelectModel> start = SqlBuilder.select(selectList).from(person)
+        QueryExpressionDSL start = SqlBuilder.select(selectList).from(person)
                 .join(address, on(person.addressId, isEqualTo(address.id)));
         return MyBatis3Utils.selectList(this::selectMany, start, completer);
     }

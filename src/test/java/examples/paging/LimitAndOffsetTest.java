@@ -15,7 +15,8 @@
  */
 package examples.paging;
 
-import static examples.animal.data.AnimalDataDynamicSqlSupport.id;
+import static examples.animal.data.AnimalDataDynamicSqlSupport.*;
+import static examples.animal.data.AnimalDataDynamicSqlSupport.bodyWeight;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.InputStream;
@@ -36,6 +37,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import examples.animal.data.AnimalData;
+import org.mybatis.dynamic.sql.SqlBuilder;
+import org.mybatis.dynamic.sql.select.SelectModel;
+import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 
 class LimitAndOffsetTest {
 
@@ -67,10 +71,14 @@ class LimitAndOffsetTest {
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
             LimitAndOffsetMapper mapper = sqlSession.getMapper(LimitAndOffsetMapper.class);
 
-            List<AnimalData> rows = mapper.selectWithLimitAndOffset(5, 3)
+            SelectModel selectModel = SqlBuilder.select(id, animalName, brainWeight, bodyWeight)
+                    .from(animalData)
                     .orderBy(id)
-                    .build()
-                    .execute();
+                    .build();
+
+            SelectStatementProvider selectStatement = new LimitAndOffsetAdapter(5, 3).apply(selectModel);
+
+            List<AnimalData> rows = mapper.selectMany(selectStatement);
 
             assertThat(rows).hasSize(5);
             assertThat(rows.get(0).getId()).isEqualTo(4);

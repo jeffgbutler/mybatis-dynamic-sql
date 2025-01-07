@@ -149,7 +149,7 @@ public class MyBatis3Utils {
         return select(SqlBuilder.select(selectList).from(table), completer);
     }
 
-    public static SelectStatementProvider select(QueryExpressionDSL<SelectModel> start,
+    public static SelectStatementProvider select(QueryExpressionDSL start,
             SelectDSLCompleter completer) {
         return completer.apply(start)
                 .build()
@@ -172,7 +172,7 @@ public class MyBatis3Utils {
     }
 
     public static <R> List<R> selectList(Function<SelectStatementProvider, List<R>> mapper,
-            QueryExpressionDSL<SelectModel> start, SelectDSLCompleter completer) {
+            QueryExpressionDSL start, SelectDSLCompleter completer) {
         return mapper.apply(select(start, completer));
     }
 
@@ -182,7 +182,7 @@ public class MyBatis3Utils {
     }
 
     public static <R> R selectOne(Function<SelectStatementProvider, R> mapper,
-            QueryExpressionDSL<SelectModel> start, SelectDSLCompleter completer) {
+            QueryExpressionDSL start, SelectDSLCompleter completer) {
         return mapper.apply(select(start, completer));
     }
 

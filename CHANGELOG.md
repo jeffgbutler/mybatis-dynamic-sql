@@ -10,6 +10,23 @@ you are unable to move to this version of Java then the releases in the 1.x line
 In addition, we have taken the opportunity to make changes to the library that may break existing code. We have
 worked to make these changes as minimal as possible.
 
+### Breaking Changes:
+
+We have removed the generic type parameters from DeleteDSL, CountDSL, QueryExpressionDSL, SelectDSL, and UpdateDSL.
+We have also removed the adapter function arguments that could be passed into the DSLs.
+The generics added quite a lot of complexity for very little value. They were inconsistently applied, not available
+in the Kotlin DSLs, etc. Unfortunately, there was no way to do this without introducing breaking changes.
+
+1. If you are a user of MyBatis Generator, then Java mappers generated prior to this release will have errors
+   related to UpdateDSL. The solution is simply to change `UpdateDSL<UpdateModel>` to `UpdateDSL`. MyBatis
+   Generator will be updated so that it generates code without errors.
+2. Anywhere you have code that declares variables with the generic type parameter, you will need to remove the
+   type parameter.
+3. If you had had written any code that actually made use of the generic function (through the use of an adapter
+   function passed into the DSL constructor) then you will need to rewrite that code. See the code in the test
+   package `examples.paging` for an example of how we now recommend modifying the generated SQL if there is no other
+   option available to you in the library.
+
 ### Potentially Breaking Changes:
 
 - If you use this library with MyBatis' Spring Batch integration, you will need to make changes as we have
