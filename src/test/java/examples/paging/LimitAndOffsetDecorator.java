@@ -21,6 +21,22 @@ import java.util.Map;
 import org.jspecify.annotations.NullMarked;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 
+/**
+ * This decorator modifies the generated SQL by adding a LIMIT and OFFSET clause at the end
+ * of the generated SQL.  This can be used to create a paginated query.
+ *
+ * <p>LIMIT and OFFSET has limited support in relational databases, so this cannot be considered
+ * a general solution for all paginated queries (and that is why this adapter lives only in the
+ * test source tree and is not packaged with the core library code).
+ *
+ * <p>I believe it works in MySQL, HSQLDB, and Postgres.
+ *
+ * <p><b>Important Note: </b> this decorator is no longer required for limit and offset support as the
+ * library now supports limit and offset natively. However, this remains a good example of altering the generated
+ * SQL before it is executed.
+ *
+ * @author Jeff Butler
+ */
 @NullMarked
 public class LimitAndOffsetDecorator implements SelectStatementProvider {
     private final Map<String, Object> parameters = new HashMap<>();
@@ -31,8 +47,7 @@ public class LimitAndOffsetDecorator implements SelectStatementProvider {
         parameters.put("limit", limit);
         parameters.put("offset", offset);
 
-        selectStatement = delegate.getSelectStatement() +
-                " LIMIT #{parameters.limit} OFFSET #{parameters.offset}";
+        selectStatement = delegate.getSelectStatement() + " LIMIT #{parameters.limit} OFFSET #{parameters.offset}";
     }
 
     @Override
