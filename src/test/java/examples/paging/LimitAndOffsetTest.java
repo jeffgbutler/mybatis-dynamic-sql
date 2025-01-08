@@ -25,6 +25,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.List;
 
+import examples.animal.data.AnimalData;
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSource;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.ibatis.mapping.Environment;
@@ -35,10 +36,8 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import examples.animal.data.AnimalData;
 import org.mybatis.dynamic.sql.SqlBuilder;
-import org.mybatis.dynamic.sql.select.SelectModel;
+import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 
 class LimitAndOffsetTest {
@@ -71,14 +70,27 @@ class LimitAndOffsetTest {
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
             LimitAndOffsetMapper mapper = sqlSession.getMapper(LimitAndOffsetMapper.class);
 
-            SelectModel selectModel = SqlBuilder.select(id, animalName, brainWeight, bodyWeight)
+            List<AnimalData> rows = mapper.selectWithLimitAndOffset(5, 3, d -> d.orderBy(id));
+
+            assertThat(rows).hasSize(5);
+            assertThat(rows.get(0).getId()).isEqualTo(4);
+        }
+    }
+
+    @Test
+    void testLimitAndOffsetDirect() {
+        try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+            LimitAndOffsetMapper mapper = sqlSession.getMapper(LimitAndOffsetMapper.class);
+
+            SelectStatementProvider selectStatement = SqlBuilder.select(id, animalName, brainWeight, bodyWeight)
                     .from(animalData)
                     .orderBy(id)
-                    .build();
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
 
-            SelectStatementProvider selectStatement = new LimitAndOffsetAdapter(5, 3).apply(selectModel);
+            SelectStatementProvider decorator = new LimitAndOffsetDecorator(5, 3, selectStatement);
 
-            List<AnimalData> rows = mapper.selectMany(selectStatement);
+            List<AnimalData> rows = mapper.selectMany(decorator);
 
             assertThat(rows).hasSize(5);
             assertThat(rows.get(0).getId()).isEqualTo(4);

@@ -15,11 +15,15 @@
  */
 package examples.paging;
 
+import static examples.animal.data.AnimalDataDynamicSqlSupport.*;
+
 import java.util.List;
 
 import org.apache.ibatis.annotations.Result;
-import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.SelectProvider;
+import org.mybatis.dynamic.sql.render.RenderingStrategies;
+import org.mybatis.dynamic.sql.select.SelectDSL;
+import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
 
@@ -28,11 +32,16 @@ import examples.animal.data.AnimalData;
 public interface LimitAndOffsetMapper {
 
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
-    @Results(id="AnimalDataResult", value={
-        @Result(column="id", property="id", id=true),
-        @Result(column="animal_name", property="animalName"),
-        @Result(column="brain_weight", property="brainWeight"),
-        @Result(column="body_weight", property="bodyWeight")
-    })
+    @Result(column="id", property="id", id=true)
+    @Result(column="animal_name", property="animalName")
+    @Result(column="brain_weight", property="brainWeight")
+    @Result(column="body_weight", property="bodyWeight")
     List<AnimalData> selectMany(SelectStatementProvider selectStatement);
+
+    default List<AnimalData> selectWithLimitAndOffset(int limit, int offset, SelectDSLCompleter completer) {
+        var dslStart = SelectDSL.select(id, animalName, brainWeight, bodyWeight).from(animalData);
+        var selectStatement = completer.apply(dslStart).build().render(RenderingStrategies.MYBATIS3);
+        var decorator = new LimitAndOffsetDecorator(limit, offset, selectStatement);
+        return selectMany(decorator);
+    }
 }
