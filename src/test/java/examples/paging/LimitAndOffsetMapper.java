@@ -19,6 +19,7 @@ import static examples.animal.data.AnimalDataDynamicSqlSupport.*;
 
 import java.util.List;
 
+import examples.animal.data.AnimalData;
 import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
@@ -26,8 +27,6 @@ import org.mybatis.dynamic.sql.select.SelectDSL;
 import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
-
-import examples.animal.data.AnimalData;
 
 public interface LimitAndOffsetMapper {
 
