@@ -17,28 +17,28 @@ package org.mybatis.dynamic.sql.select;
 
 import org.jspecify.annotations.Nullable;
 
-public interface SelectDSLOperations<R> extends SelectDSLForAndWaitOperations<R> {
-    default SelectDSL<R>.LimitFinisher limit(long limit) {
+public interface SelectDSLOperations extends SelectDSLForAndWaitOperations {
+    default SelectDSL.LimitFinisher limit(long limit) {
         return getSelectDSL().limit(limit);
     }
 
-    default SelectDSL<R>.LimitFinisher limitWhenPresent(@Nullable Long limit) {
+    default SelectDSL.LimitFinisher limitWhenPresent(@Nullable Long limit) {
         return getSelectDSL().limitWhenPresent(limit);
     }
 
-    default SelectDSL<R>.OffsetFirstFinisher offset(long offset) {
+    default SelectDSL.OffsetFirstFinisher offset(long offset) {
         return getSelectDSL().offset(offset);
     }
 
-    default SelectDSL<R>.OffsetFirstFinisher offsetWhenPresent(@Nullable Long offset) {
+    default SelectDSL.OffsetFirstFinisher offsetWhenPresent(@Nullable Long offset) {
         return getSelectDSL().offsetWhenPresent(offset);
     }
 
-    default SelectDSL<R>.FetchFirstFinisher fetchFirst(long fetchFirstRows) {
+    default SelectDSL.FetchFirstFinisher fetchFirst(long fetchFirstRows) {
         return getSelectDSL().fetchFirst(fetchFirstRows);
     }
 
-    default SelectDSL<R>.FetchFirstFinisher fetchFirstWhenPresent(@Nullable Long fetchFirstRows) {
+    default SelectDSL.FetchFirstFinisher fetchFirstWhenPresent(@Nullable Long fetchFirstRows) {
         return getSelectDSL().fetchFirstWhenPresent(fetchFirstRows);
     }
 }

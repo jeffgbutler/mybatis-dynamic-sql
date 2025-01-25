@@ -19,10 +19,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
@@ -32,6 +30,7 @@ import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.select.QueryExpressionDSL.FromGatherer;
 import org.mybatis.dynamic.sql.util.Buildable;
 import org.mybatis.dynamic.sql.util.ConfigurableStatement;
+import org.mybatis.dynamic.sql.util.Validator;
 
 /**
  * Implements a SQL DSL for building select statements.
@@ -39,8 +38,7 @@ import org.mybatis.dynamic.sql.util.ConfigurableStatement;
  * @author Jeff Butler
  *
  */
-public class SelectDSL implements Buildable<SelectModel>, ConfigurableStatement<SelectDSL>, PagingDSL<SelectModel> {
-public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectDSL<R>> {
+public class SelectDSL implements Buildable<SelectModel>, ConfigurableStatement<SelectDSL> {
 
     private final List<QueryExpressionDSL> queryExpressions = new ArrayList<>();
     private @Nullable OrderByModel orderByModel;
@@ -111,37 +109,37 @@ public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectD
         return new FetchFirstFinisher();
     }
 
-    public SelectDSL<R> forUpdate() {
+    public SelectDSL forUpdate() {
         Validator.assertNull(forClause, "ERROR.48"); //$NON-NLS-1$
         forClause = "for update"; //$NON-NLS-1$
         return this;
     }
 
-    public SelectDSL<R> forNoKeyUpdate() {
+    public SelectDSL forNoKeyUpdate() {
         Validator.assertNull(forClause, "ERROR.48"); //$NON-NLS-1$
         forClause = "for no key update"; //$NON-NLS-1$
         return this;
     }
 
-    public SelectDSL<R> forShare() {
+    public SelectDSL forShare() {
         Validator.assertNull(forClause, "ERROR.48"); //$NON-NLS-1$
         forClause = "for share"; //$NON-NLS-1$
         return this;
     }
 
-    public SelectDSL<R> forKeyShare() {
+    public SelectDSL forKeyShare() {
         Validator.assertNull(forClause, "ERROR.48"); //$NON-NLS-1$
         forClause = "for key share"; //$NON-NLS-1$
         return this;
     }
 
-    public SelectDSL<R> skipLocked() {
+    public SelectDSL skipLocked() {
         Validator.assertNull(waitClause, "ERROR.49"); //$NON-NLS-1$
         waitClause = "skip locked"; //$NON-NLS-1$
         return this;
     }
 
-    public SelectDSL<R> nowait() {
+    public SelectDSL nowait() {
         Validator.assertNull(waitClause, "ERROR.49"); //$NON-NLS-1$
         waitClause = "nowait"; //$NON-NLS-1$
         return this;
@@ -178,8 +176,7 @@ public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectD
                 .build();
     }
 
-    abstract class BaseBuildable implements Buildable<SelectModel> {
-    public class OffsetFirstFinisher implements SelectDSLForAndWaitOperations<R>, Buildable<R> {
+    public class OffsetFirstFinisher implements SelectDSLForAndWaitOperations, Buildable<SelectModel> {
         public FetchFirstFinisher fetchFirst(long fetchFirstRows) {
             return fetchFirstWhenPresent(fetchFirstRows);
         }
@@ -190,7 +187,7 @@ public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectD
         }
 
         @Override
-        public SelectDSL<R> getSelectDSL() {
+        public SelectDSL getSelectDSL() {
             return SelectDSL.this;
         }
 
@@ -200,29 +197,29 @@ public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectD
         }
     }
 
-    public class LimitFinisher implements SelectDSLForAndWaitOperations<R>, Buildable<R> {
-        public SelectDSL<R> offset(long offset) {
+    public class LimitFinisher implements SelectDSLForAndWaitOperations, Buildable<SelectModel> {
+        public SelectDSL offset(long offset) {
             return offsetWhenPresent(offset);
         }
 
-        public SelectDSL<R> offsetWhenPresent(@Nullable Long offset) {
+        public SelectDSL offsetWhenPresent(@Nullable Long offset) {
             SelectDSL.this.offset = offset;
             return SelectDSL.this;
         }
 
         @Override
-        public SelectDSL<R> getSelectDSL() {
+        public SelectDSL getSelectDSL() {
             return SelectDSL.this;
         }
 
         @Override
-        public R build() {
+        public SelectModel build() {
             return SelectDSL.this.build();
         }
     }
 
     public class FetchFirstFinisher {
-        public SelectDSL<R> rowsOnly() {
+        public SelectDSL rowsOnly() {
             return SelectDSL.this;
         }
     }

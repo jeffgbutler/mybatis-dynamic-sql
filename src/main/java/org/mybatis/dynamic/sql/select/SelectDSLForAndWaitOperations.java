@@ -15,28 +15,28 @@
  */
 package org.mybatis.dynamic.sql.select;
 
-public interface SelectDSLForAndWaitOperations<R> {
-    default SelectDSL<R> forUpdate() {
+public interface SelectDSLForAndWaitOperations {
+    default SelectDSL forUpdate() {
         return getSelectDSL().forUpdate();
     }
 
-    default SelectDSL<R> forNoKeyUpdate() {
+    default SelectDSL forNoKeyUpdate() {
         return getSelectDSL().forNoKeyUpdate();
     }
 
-    default SelectDSL<R> forShare() {
+    default SelectDSL forShare() {
         return getSelectDSL().forShare();
     }
 
-    default SelectDSL<R> forKeyShare() {
+    default SelectDSL forKeyShare() {
         return getSelectDSL().forKeyShare();
     }
 
-    default SelectDSL<R> skipLocked() {
+    default SelectDSL skipLocked() {
         return getSelectDSL().skipLocked();
     }
 
-    default SelectDSL<R> nowait() {
+    default SelectDSL nowait() {
         return getSelectDSL().nowait();
     }
 
@@ -49,5 +49,5 @@ public interface SelectDSLForAndWaitOperations<R> {
      *
      * @return the SelectDSL instance associated with this interface instance
      */
-    SelectDSL<R> getSelectDSL();
+    SelectDSL getSelectDSL();
 }

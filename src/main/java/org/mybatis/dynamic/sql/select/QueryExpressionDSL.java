@@ -44,7 +44,7 @@ import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
 public class QueryExpressionDSL
         extends AbstractQueryExpressionDSL<QueryExpressionDSL.QueryExpressionWhereBuilder, QueryExpressionDSL>
-        implements Buildable<SelectModel>, SelectDSLOperations<SelectModel> {
+        implements Buildable<SelectModel>, SelectDSLOperations {
 
     private final @Nullable String connector;
     private final SelectDSL selectDSL;
@@ -75,7 +75,7 @@ public class QueryExpressionDSL
     }
 
     @Override
-    public QueryExpressionDSL<R> configureStatement(Consumer<StatementConfiguration> consumer) {
+    public QueryExpressionDSL configureStatement(Consumer<StatementConfiguration> consumer) {
         selectDSL.configureStatement(consumer);
         return this;
     }
@@ -196,23 +196,13 @@ public class QueryExpressionDSL
     }
 
     @Override
-    public PagingDSL.LimitFinisher<R> limitWhenPresent(@Nullable Long limit) {
-        return selectDSL.limitWhenPresent(limit);
-    }
-
-    @Override
-    public PagingDSL.OffsetFirstFinisher<R> offsetWhenPresent(@Nullable Long offset) {
-        return selectDSL.offsetWhenPresent(offset);
-    }
-
-    @Override
-    public PagingDSL.FetchFirstFinisher<R> fetchFirstWhenPresent(@Nullable Long fetchFirstRows) {
-        return selectDSL.fetchFirstWhenPresent(fetchFirstRows);
-    }
-
-    @Override
     protected QueryExpressionDSL getThis() {
         return this;
+    }
+
+    @Override
+    public SelectDSL getSelectDSL() {
+        return selectDSL;
     }
 
     public static class FromGatherer {
@@ -277,7 +267,7 @@ public class QueryExpressionDSL
     }
 
     public class QueryExpressionWhereBuilder extends AbstractWhereFinisher<QueryExpressionWhereBuilder>
-            implements Buildable<SelectModel>, SelectDSLOperations<R> {
+            implements Buildable<SelectModel>, SelectDSLOperations {
         private QueryExpressionWhereBuilder() {
             super(QueryExpressionDSL.this);
         }
@@ -307,7 +297,7 @@ public class QueryExpressionDSL
         }
 
         @Override
-        public R build() {
+        public SelectModel build() {
             return QueryExpressionDSL.this.build();
         }
 
@@ -317,7 +307,7 @@ public class QueryExpressionDSL
         }
 
         @Override
-        public SelectDSL<R> getSelectDSL() {
+        public SelectDSL getSelectDSL() {
             return QueryExpressionDSL.this.getSelectDSL();
         }
 
@@ -347,8 +337,8 @@ public class QueryExpressionDSL
 
     public class JoinSpecificationFinisher
             extends AbstractBooleanExpressionDSL<JoinSpecificationFinisher>
-            implements AbstractWhereStarter<QueryExpressionWhereBuilder, JoinSpecificationFinisher>, Buildable<R>,
-            SelectDSLOperations<R> {
+            implements AbstractWhereStarter<QueryExpressionWhereBuilder, JoinSpecificationFinisher>, Buildable<SelectModel>,
+            SelectDSLOperations {
 
         private final TableExpression table;
         private final JoinType joinType;
@@ -482,14 +472,14 @@ public class QueryExpressionDSL
         }
 
         @Override
-        public SelectDSL<R> getSelectDSL() {
+        public SelectDSL getSelectDSL() {
             return QueryExpressionDSL.this.getSelectDSL();
         }
     }
 
     public class GroupByFinisher implements AbstractHavingStarter<QueryExpressionHavingBuilder>,
-            Buildable<R>, SelectDSLOperations<R> {
-        public SelectDSL<R> orderBy(SortSpecification... columns) {
+            Buildable<SelectModel>, SelectDSLOperations {
+        public SelectDSL orderBy(SortSpecification... columns) {
             return orderBy(Arrays.asList(columns));
         }
 
@@ -516,7 +506,7 @@ public class QueryExpressionDSL
         }
 
         @Override
-        public SelectDSL<R> getSelectDSL() {
+        public SelectDSL getSelectDSL() {
             return QueryExpressionDSL.this.getSelectDSL();
         }
     }
@@ -555,7 +545,7 @@ public class QueryExpressionDSL
     }
 
     public class QueryExpressionHavingBuilder extends AbstractHavingFinisher<QueryExpressionHavingBuilder>
-            implements Buildable<R>, SelectDSLOperations<R> {
+            implements Buildable<SelectModel>, SelectDSLOperations {
 
         public SelectDSL orderBy(SortSpecification... columns) {
             return orderBy(Arrays.asList(columns));
@@ -588,7 +578,7 @@ public class QueryExpressionDSL
         }
 
         @Override
-        public SelectDSL<R> getSelectDSL() {
+        public SelectDSL getSelectDSL() {
             return QueryExpressionDSL.this.getSelectDSL();
         }
     }
