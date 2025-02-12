@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.mybatis.dynamic.sql.insert.render;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.insert.GeneralInsertModel;
 import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
@@ -30,7 +31,8 @@ public class GeneralInsertRenderer {
 
     private GeneralInsertRenderer(Builder builder) {
         model = Objects.requireNonNull(builder.model);
-        RenderingContext renderingContext = RenderingContext.withRenderingStrategy(builder.renderingStrategy)
+        RenderingContext renderingContext = RenderingContext
+                .withRenderingStrategy(Objects.requireNonNull(builder.renderingStrategy))
                 .withStatementConfiguration(model.statementConfiguration())
                 .build();
         visitor = new GeneralInsertValuePhraseVisitor(renderingContext);
@@ -56,8 +58,8 @@ public class GeneralInsertRenderer {
     }
 
     public static class Builder {
-        private GeneralInsertModel model;
-        private RenderingStrategy renderingStrategy;
+        private @Nullable GeneralInsertModel model;
+        private @Nullable RenderingStrategy renderingStrategy;
 
         public Builder withInsertModel(GeneralInsertModel model) {
             this.model = model;

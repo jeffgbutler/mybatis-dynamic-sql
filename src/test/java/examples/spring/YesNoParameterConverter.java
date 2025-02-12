@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,12 +15,14 @@
  */
 package examples.spring;
 
+import org.jspecify.annotations.NullMarked;
 import org.mybatis.dynamic.sql.ParameterTypeConverter;
 
+@NullMarked
 public class YesNoParameterConverter implements ParameterTypeConverter<Boolean, String> {
 
     @Override
     public String convert(Boolean source) {
-        return source == null ? null : source ? "Yes" : "No";
+        return source ? "Yes" : "No";
     }
 }

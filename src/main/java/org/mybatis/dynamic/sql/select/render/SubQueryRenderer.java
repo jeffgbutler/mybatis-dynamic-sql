@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 package org.mybatis.dynamic.sql.select.render;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.common.OrderByRenderer;
 import org.mybatis.dynamic.sql.render.RenderingContext;
@@ -47,8 +47,21 @@ public class SubQueryRenderer {
                 .map(this::renderQueryExpression)
                 .collect(FragmentCollector.collect());
 
-        renderOrderBy().ifPresent(fragmentCollector::add);
-        renderPagingModel().ifPresent(fragmentCollector::add);
+        selectModel.orderByModel()
+                .map(this::renderOrderBy)
+                .ifPresent(fragmentCollector::add);
+
+        selectModel.pagingModel()
+                .map(this::renderPagingModel)
+                .ifPresent(fragmentCollector::add);
+
+        selectModel.forClause()
+                .map(FragmentAndParameters::fromFragment)
+                .ifPresent(fragmentCollector::add);
+
+        selectModel.waitClause()
+                .map(FragmentAndParameters::fromFragment)
+                .ifPresent(fragmentCollector::add);
 
         return fragmentCollector.toFragmentAndParameters(Collectors.joining(" ", prefix, suffix)); //$NON-NLS-1$
     }
@@ -60,16 +73,8 @@ public class SubQueryRenderer {
                 .render();
     }
 
-    private Optional<FragmentAndParameters> renderOrderBy() {
-        return selectModel.orderByModel().map(this::renderOrderBy);
-    }
-
     private FragmentAndParameters renderOrderBy(OrderByModel orderByModel) {
         return new OrderByRenderer(renderingContext).render(orderByModel);
-    }
-
-    private Optional<FragmentAndParameters> renderPagingModel() {
-        return selectModel.pagingModel().map(this::renderPagingModel);
     }
 
     private FragmentAndParameters renderPagingModel(PagingModel pagingModel) {
@@ -85,10 +90,10 @@ public class SubQueryRenderer {
     }
 
     public static class Builder {
-        private SelectModel selectModel;
-        private RenderingContext renderingContext;
-        private String prefix;
-        private String suffix;
+        private @Nullable SelectModel selectModel;
+        private @Nullable RenderingContext renderingContext;
+        private @Nullable String prefix;
+        private @Nullable String suffix;
 
         public Builder withRenderingContext(RenderingContext renderingContext) {
             this.renderingContext = renderingContext;

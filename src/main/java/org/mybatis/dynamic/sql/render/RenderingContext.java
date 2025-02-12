@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static org.mybatis.dynamic.sql.util.StringUtilities.spaceBefore;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BindableColumn;
 import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.SqlTable;
@@ -37,7 +38,7 @@ public class RenderingContext {
     private final RenderingStrategy renderingStrategy;
     private final AtomicInteger sequence;
     private final TableAliasCalculator tableAliasCalculator;
-    private final String configuredParameterName;
+    private final @Nullable String configuredParameterName;
     private final String calculatedParameterName;
     private final StatementConfiguration statementConfiguration;
 
@@ -134,11 +135,11 @@ public class RenderingContext {
     }
 
     public static class Builder {
-        private RenderingStrategy renderingStrategy;
-        private AtomicInteger sequence;
-        private TableAliasCalculator tableAliasCalculator = TableAliasCalculator.empty();
-        private String parameterName;
-        private StatementConfiguration statementConfiguration;
+        private @Nullable RenderingStrategy renderingStrategy;
+        private @Nullable AtomicInteger sequence;
+        private @Nullable TableAliasCalculator tableAliasCalculator = TableAliasCalculator.empty();
+        private @Nullable String parameterName;
+        private @Nullable StatementConfiguration statementConfiguration;
 
         public Builder withRenderingStrategy(RenderingStrategy renderingStrategy) {
             this.renderingStrategy = renderingStrategy;
@@ -155,7 +156,7 @@ public class RenderingContext {
             return this;
         }
 
-        public Builder withParameterName(String parameterName) {
+        public Builder withParameterName(@Nullable String parameterName) {
             this.parameterName = parameterName;
             return this;
         }

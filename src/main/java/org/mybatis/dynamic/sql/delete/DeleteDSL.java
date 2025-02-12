@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,13 +21,12 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.util.Buildable;
-import org.mybatis.dynamic.sql.util.Utilities;
 import org.mybatis.dynamic.sql.where.AbstractWhereFinisher;
 import org.mybatis.dynamic.sql.where.AbstractWhereStarter;
 import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
@@ -37,13 +36,13 @@ public class DeleteDSL<R> implements AbstractWhereStarter<DeleteDSL<R>.DeleteWhe
 
     private final Function<DeleteModel, R> adapterFunction;
     private final SqlTable table;
-    private final String tableAlias;
-    private DeleteWhereBuilder whereBuilder;
+    private final @Nullable String tableAlias;
+    private @Nullable DeleteWhereBuilder whereBuilder;
     private final StatementConfiguration statementConfiguration = new StatementConfiguration();
-    private Long limit;
-    private OrderByModel orderByModel;
+    private @Nullable Long limit;
+    private @Nullable OrderByModel orderByModel;
 
-    private DeleteDSL(SqlTable table, String tableAlias, Function<DeleteModel, R> adapterFunction) {
+    private DeleteDSL(SqlTable table, @Nullable String tableAlias, Function<DeleteModel, R> adapterFunction) {
         this.table = Objects.requireNonNull(table);
         this.tableAlias = tableAlias;
         this.adapterFunction = Objects.requireNonNull(adapterFunction);
@@ -51,7 +50,7 @@ public class DeleteDSL<R> implements AbstractWhereStarter<DeleteDSL<R>.DeleteWhe
 
     @Override
     public DeleteWhereBuilder where() {
-        whereBuilder = Utilities.buildIfNecessary(whereBuilder, DeleteWhereBuilder::new);
+        whereBuilder = Objects.requireNonNullElseGet(whereBuilder, DeleteWhereBuilder::new);
         return whereBuilder;
     }
 
@@ -59,7 +58,7 @@ public class DeleteDSL<R> implements AbstractWhereStarter<DeleteDSL<R>.DeleteWhe
         return limitWhenPresent(limit);
     }
 
-    public DeleteDSL<R> limitWhenPresent(Long limit) {
+    public DeleteDSL<R> limitWhenPresent(@Nullable Long limit) {
         this.limit = limit;
         return this;
     }
@@ -79,7 +78,6 @@ public class DeleteDSL<R> implements AbstractWhereStarter<DeleteDSL<R>.DeleteWhe
      *
      * @return the model class
      */
-    @NotNull
     @Override
     public R build() {
         DeleteModel deleteModel = DeleteModel.withTable(table)
@@ -100,7 +98,7 @@ public class DeleteDSL<R> implements AbstractWhereStarter<DeleteDSL<R>.DeleteWhe
     }
 
     public static <R> DeleteDSL<R> deleteFrom(Function<DeleteModel, R> adapterFunction, SqlTable table,
-            String tableAlias) {
+            @Nullable String tableAlias) {
         return new DeleteDSL<>(table, tableAlias, adapterFunction);
     }
 
@@ -135,7 +133,6 @@ public class DeleteDSL<R> implements AbstractWhereStarter<DeleteDSL<R>.DeleteWhe
             return DeleteDSL.this;
         }
 
-        @NotNull
         @Override
         public R build() {
             return DeleteDSL.this.build();

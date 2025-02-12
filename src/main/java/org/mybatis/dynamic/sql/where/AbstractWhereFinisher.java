@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.AndOrCriteriaGroup;
 import org.mybatis.dynamic.sql.SqlCriterion;
 import org.mybatis.dynamic.sql.common.AbstractBooleanExpressionDSL;
@@ -37,11 +39,12 @@ public abstract class AbstractWhereFinisher<T extends AbstractWhereFinisher<T>> 
         setInitialCriterion(sqlCriterion, StatementType.WHERE);
     }
 
-    void initialize(SqlCriterion sqlCriterion, List<AndOrCriteriaGroup> subCriteria) {
+    void initialize(@Nullable SqlCriterion sqlCriterion, List<AndOrCriteriaGroup> subCriteria) {
         setInitialCriterion(sqlCriterion, StatementType.WHERE);
         super.subCriteria.addAll(subCriteria);
     }
 
+    @NonNull
     @Override
     public T configureStatement(Consumer<StatementConfiguration> consumer) {
         parentStatement.configureStatement(consumer);

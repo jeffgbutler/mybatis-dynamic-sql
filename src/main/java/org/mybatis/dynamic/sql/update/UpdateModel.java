@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.common.CommonBuilder;
 import org.mybatis.dynamic.sql.common.OrderByModel;
@@ -36,11 +36,11 @@ import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
 public class UpdateModel {
     private final SqlTable table;
-    private final String tableAlias;
-    private final EmbeddedWhereModel whereModel;
+    private final @Nullable String tableAlias;
+    private final @Nullable EmbeddedWhereModel whereModel;
     private final List<AbstractColumnMapping> columnMappings;
-    private final Long limit;
-    private final OrderByModel orderByModel;
+    private final @Nullable Long limit;
+    private final @Nullable OrderByModel orderByModel;
     private final StatementConfiguration statementConfiguration;
 
     private UpdateModel(Builder builder) {
@@ -82,7 +82,6 @@ public class UpdateModel {
         return statementConfiguration;
     }
 
-    @NotNull
     public UpdateStatementProvider render(RenderingStrategy renderingStrategy) {
         return render(renderingStrategy, UpdateRendererVisitor.NOOP);
     }

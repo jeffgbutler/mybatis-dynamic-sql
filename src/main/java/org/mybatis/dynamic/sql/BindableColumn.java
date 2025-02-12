@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 package org.mybatis.dynamic.sql;
 
 import java.util.Optional;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * Describes a column with a known data type. The type is only used by the compiler to assure type safety
@@ -34,7 +36,7 @@ public interface BindableColumn<T> extends BasicColumn {
     @Override
     BindableColumn<T> as(String alias);
 
-    default Object convertParameterType(T value) {
+    default @Nullable Object convertParameterType(T value) {
         return value;
     }
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-       Copyright 2016-2024 the original author or authors.
+       Copyright 2016-2025 the original author or authors.
 
        Licensed under the Apache License, Version 2.0 (the "License");
        you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@
 
     <module.name>org.mybatis.dynamic.sql</module.name>
 
-    <kotlin.version>2.1.0</kotlin.version>
+    <kotlin.version>2.1.10</kotlin.version>
     <kotlin.compiler.jvmTarget>17</kotlin.compiler.jvmTarget>
     <kotlin.compiler.languageVersion>2.0</kotlin.compiler.languageVersion>
     <kotlin.compiler.apiVersion>2.0</kotlin.compiler.apiVersion>
@@ -87,6 +87,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.jspecify</groupId>
+      <artifactId>jspecify</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-stdlib-jdk8</artifactId>
       <version>${kotlin.version}</version>
@@ -96,14 +101,14 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>6.2.1</version>
+      <version>6.2.2</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.mybatis</groupId>
       <artifactId>mybatis</artifactId>
-      <version>3.5.17</version>
+      <version>3.5.19</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
@@ -129,7 +134,7 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.27.0</version>
+      <version>3.27.3</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -165,13 +170,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.5.15</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>${test.containers.version}</version>
+      <version>1.5.16</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -181,9 +180,15 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>${test.containers.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>42.7.4</version>
+      <version>42.7.5</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -195,7 +200,19 @@
     <dependency>
       <groupId>org.mariadb.jdbc</groupId>
       <artifactId>mariadb-java-client</artifactId>
-      <version>3.5.1</version>
+      <version>3.5.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>mysql</artifactId>
+      <version>${test.containers.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.mysql</groupId>
+      <artifactId>mysql-connector-j</artifactId>
+      <version>9.2.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

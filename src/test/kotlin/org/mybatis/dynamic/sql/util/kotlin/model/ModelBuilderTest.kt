@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -45,5 +45,51 @@ class ModelBuilderTest {
         }.render(RenderingStrategies.SPRING_NAMED_PARAMETER)
 
         assertThat(provider.selectStatement).isEqualTo("select distinct id, description from Table where id = :p1")
+    }
+
+    @Test
+    fun testSelectBuilderForUpdate() {
+        val provider = select(id, description) {
+            from(table)
+            where { id isEqualTo 3 }
+            forUpdate()
+            skipLocked()
+        }.render(RenderingStrategies.SPRING_NAMED_PARAMETER)
+
+        assertThat(provider.selectStatement).isEqualTo("select id, description from Table where id = :p1 for update skip locked")
+    }
+
+    @Test
+    fun testSelectBuilderForShare() {
+        val provider = select(id, description) {
+            from(table)
+            where { id isEqualTo 3 }
+            forShare()
+            nowait()
+        }.render(RenderingStrategies.SPRING_NAMED_PARAMETER)
+
+        assertThat(provider.selectStatement).isEqualTo("select id, description from Table where id = :p1 for share nowait")
+    }
+
+    @Test
+    fun testSelectBuilderForKeyShare() {
+        val provider = select(id, description) {
+            from(table)
+            where { id isEqualTo 3 }
+            forKeyShare()
+        }.render(RenderingStrategies.SPRING_NAMED_PARAMETER)
+
+        assertThat(provider.selectStatement).isEqualTo("select id, description from Table where id = :p1 for key share")
+    }
+
+    @Test
+    fun testSelectBuilderForKeyNoKeyUpdate() {
+        val provider = select(id, description) {
+            from(table)
+            where { id isEqualTo 3 }
+            forNoKeyUpdate()
+        }.render(RenderingStrategies.SPRING_NAMED_PARAMETER)
+
+        assertThat(provider.selectStatement).isEqualTo("select id, description from Table where id = :p1 for no key update")
     }
 }

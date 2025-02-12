@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.mybatis.dynamic.sql.select.join;
 
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.TableExpression;
 import org.mybatis.dynamic.sql.common.AbstractBooleanExpressionModel;
 import org.mybatis.dynamic.sql.util.Validator;
@@ -47,8 +48,8 @@ public class JoinSpecification extends AbstractBooleanExpressionModel {
     }
 
     public static class Builder extends AbstractBuilder<Builder> {
-        private TableExpression table;
-        private JoinType joinType;
+        private @Nullable TableExpression table;
+        private @Nullable JoinType joinType;
 
         public Builder withJoinTable(TableExpression table) {
             this.table = table;

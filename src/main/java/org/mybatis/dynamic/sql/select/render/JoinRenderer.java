@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.mybatis.dynamic.sql.select.render;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.exception.InvalidSqlException;
 import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.select.join.JoinModel;
@@ -63,9 +64,9 @@ public class JoinRenderer {
     }
 
     public static class Builder {
-        private JoinModel joinModel;
-        private TableExpressionRenderer tableExpressionRenderer;
-        private RenderingContext renderingContext;
+        private @Nullable JoinModel joinModel;
+        private @Nullable TableExpressionRenderer tableExpressionRenderer;
+        private @Nullable RenderingContext renderingContext;
 
         public Builder withJoinModel(JoinModel joinModel) {
             this.joinModel = joinModel;

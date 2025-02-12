@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -920,6 +920,17 @@ class KCaseExpressionTest {
                 }
             }
         }.withMessage(Messages.getString("ERROR.41"))
+    }
+
+    @Test
+    fun testInvalidMissingThen() {
+        assertThatExceptionOfType(KInvalidSQLException::class.java).isThrownBy {
+            case {
+                `when` {
+                    id isEqualTo 22
+                }
+            }
+        }.withMessage(Messages.getString("ERROR.47"))
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,50 +15,49 @@
  */
 package org.mybatis.dynamic.sql.where.render;
 
-import static org.mybatis.dynamic.sql.util.StringUtilities.spaceBefore;
-
 import java.util.Objects;
+import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BindableColumn;
 import org.mybatis.dynamic.sql.VisitableCondition;
 import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
+import org.mybatis.dynamic.sql.util.FragmentCollector;
 
 public class ColumnAndConditionRenderer<T> {
     private final BindableColumn<T> column;
     private final VisitableCondition<T> condition;
     private final RenderingContext renderingContext;
+    private final DefaultConditionVisitor<T> visitor;
 
     private ColumnAndConditionRenderer(Builder<T> builder) {
         column = Objects.requireNonNull(builder.column);
         condition = Objects.requireNonNull(builder.condition);
         renderingContext = Objects.requireNonNull(builder.renderingContext);
+        visitor = DefaultConditionVisitor.withColumn(column)
+                .withRenderingContext(renderingContext)
+                .build();
     }
 
     public FragmentAndParameters render() {
-        FragmentAndParameters renderedLeftColumn = column.alias()
+        FragmentCollector fc = new FragmentCollector();
+        fc.add(renderLeftColumn());
+        fc.add(condition.accept(visitor));
+        return fc.toFragmentAndParameters(Collectors.joining(" ")); //$NON-NLS-1$
+    }
+
+    private FragmentAndParameters renderLeftColumn() {
+        return column.alias()
                 .map(FragmentAndParameters::fromFragment)
-                .orElseGet(() -> column.render(renderingContext));
-
-        DefaultConditionVisitor<T> visitor = DefaultConditionVisitor.withColumn(column)
-                .withRenderingContext(renderingContext)
-                .build();
-
-        FragmentAndParameters renderedCondition = condition.accept(visitor);
-
-        String finalFragment = condition.overrideRenderedLeftColumn(renderedLeftColumn.fragment())
-                + spaceBefore(renderedCondition.fragment());
-
-        return FragmentAndParameters.withFragment(finalFragment)
-                .withParameters(renderedLeftColumn.parameters())
-                .withParameters(renderedCondition.parameters())
-                .build();
+                .orElseGet(() -> column.render(renderingContext))
+                .mapFragment(condition::overrideRenderedLeftColumn);
     }
 
     public static class Builder<T> {
-        private BindableColumn<T> column;
-        private VisitableCondition<T> condition;
-        private RenderingContext renderingContext;
+        private @Nullable BindableColumn<T> column;
+        private @Nullable VisitableCondition<T> condition;
+        private @Nullable RenderingContext renderingContext;
 
         public Builder<T> withColumn(BindableColumn<T> column) {
             this.column = column;

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.mybatis.dynamic.sql.insert.render;
 
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.insert.BatchInsertModel;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
 
@@ -27,7 +28,8 @@ public class BatchInsertRenderer<T> {
 
     private BatchInsertRenderer(Builder<T> builder) {
         model = Objects.requireNonNull(builder.model);
-        visitor = new MultiRowValuePhraseVisitor(builder.renderingStrategy, "row"); //$NON-NLS-1$)
+        visitor = new MultiRowValuePhraseVisitor(Objects.requireNonNull(builder.renderingStrategy),
+                "row"); //$NON-NLS-1$)
     }
 
     public BatchInsert<T> render() {
@@ -47,8 +49,8 @@ public class BatchInsertRenderer<T> {
     }
 
     public static class Builder<T> {
-        private BatchInsertModel<T> model;
-        private RenderingStrategy renderingStrategy;
+        private @Nullable BatchInsertModel<T> model;
+        private @Nullable RenderingStrategy renderingStrategy;
 
         public Builder<T> withBatchInsertModel(BatchInsertModel<T> model) {
             this.model = model;

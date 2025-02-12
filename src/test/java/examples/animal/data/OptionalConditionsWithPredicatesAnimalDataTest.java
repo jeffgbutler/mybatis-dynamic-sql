@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -89,6 +89,26 @@ class OptionalConditionsWithPredicatesAnimalDataTest {
                     () -> assertThat(animals).hasSize(65),
                     () -> assertThat(animals).first().isNotNull().extracting(AnimalData::getId).isEqualTo(1),
                     () -> assertThat(animals).element(1).isNotNull().extracting(AnimalData::getId).isEqualTo(2)
+            );
+        }
+    }
+
+    @Test
+    void testSelectByNull() {
+        // this method demonstrates that ignoring the null value warning will still work
+        try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+            AnimalDataMapper mapper = sqlSession.getMapper(AnimalDataMapper.class);
+            SelectStatementProvider selectStatement = select(id, animalName, bodyWeight, brainWeight)
+                    .from(animalData)
+                    .where(id, isGreaterThan(NULL_INTEGER))  // should be an IDE warning about passing null to a nonnull method
+                    .orderBy(id)
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+            List<AnimalData> animals = mapper.selectMany(selectStatement);
+            assertAll(
+                    () -> assertThat(selectStatement.getSelectStatement()).isEqualTo("select id, animal_name, body_weight, brain_weight from AnimalData where id > #{parameters.p1,jdbcType=INTEGER} order by id"),
+                    () -> assertThat(selectStatement.getParameters()).containsEntry("p1", null),
+                    () -> assertThat(animals).isEmpty()
             );
         }
     }

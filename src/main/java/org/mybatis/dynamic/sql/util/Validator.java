@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.mybatis.dynamic.sql.util;
 
 import java.util.Collection;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.exception.InvalidSqlException;
 
 public class Validator {
@@ -48,5 +49,11 @@ public class Validator {
 
     public static void assertTrue(boolean condition, String messageNumber, String p1) {
         assertFalse(!condition, messageNumber, p1);
+    }
+
+    public static void assertNull(@Nullable Object object, String messageNumber) {
+        if (object != null) {
+            throw new InvalidSqlException(Messages.getString(messageNumber));
+        }
     }
 }

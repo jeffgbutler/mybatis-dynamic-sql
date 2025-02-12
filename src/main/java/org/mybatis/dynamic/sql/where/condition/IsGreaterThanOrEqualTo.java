@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,13 +15,19 @@
  */
 package org.mybatis.dynamic.sql.where.condition;
 
+import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import org.mybatis.dynamic.sql.AbstractSingleValueCondition;
 
 public class IsGreaterThanOrEqualTo<T> extends AbstractSingleValueCondition<T> {
-    private static final IsGreaterThanOrEqualTo<?> EMPTY = new IsGreaterThanOrEqualTo<Object>(null) {
+    private static final IsGreaterThanOrEqualTo<?> EMPTY = new IsGreaterThanOrEqualTo<Object>(-1) {
+        @Override
+        public Object value() {
+            throw new NoSuchElementException("No value present"); //$NON-NLS-1$
+        }
+
         @Override
         public boolean isEmpty() {
             return true;

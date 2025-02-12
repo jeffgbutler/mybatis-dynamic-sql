@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@ package org.mybatis.dynamic.sql;
 
 import java.util.Optional;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * This class represents a criteria group without an AND or an OR connector. This is useful
  * in situations where the initial SqlCriterion in a list should be further grouped
@@ -27,7 +29,7 @@ import java.util.Optional;
  * @since 1.4.0
  */
 public class CriteriaGroup extends SqlCriterion {
-    private final SqlCriterion initialCriterion;
+    private final @Nullable SqlCriterion initialCriterion;
 
     protected CriteriaGroup(AbstractGroupBuilder<?> builder) {
         super(builder);
@@ -44,9 +46,9 @@ public class CriteriaGroup extends SqlCriterion {
     }
 
     public abstract static class AbstractGroupBuilder<T extends AbstractGroupBuilder<T>> extends AbstractBuilder<T> {
-        private SqlCriterion initialCriterion;
+        private @Nullable SqlCriterion initialCriterion;
 
-        public T withInitialCriterion(SqlCriterion initialCriterion) {
+        public T withInitialCriterion(@Nullable SqlCriterion initialCriterion) {
             this.initialCriterion = initialCriterion;
             return getThis();
         }

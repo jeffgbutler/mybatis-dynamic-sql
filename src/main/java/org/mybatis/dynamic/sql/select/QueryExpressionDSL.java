@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.AndOrCriteriaGroup;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.BindableColumn;
@@ -37,22 +37,21 @@ import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.select.join.JoinSpecification;
 import org.mybatis.dynamic.sql.select.join.JoinType;
 import org.mybatis.dynamic.sql.util.Buildable;
-import org.mybatis.dynamic.sql.util.Utilities;
 import org.mybatis.dynamic.sql.where.AbstractWhereFinisher;
 import org.mybatis.dynamic.sql.where.AbstractWhereStarter;
 import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
 public class QueryExpressionDSL<R>
         extends AbstractQueryExpressionDSL<QueryExpressionDSL<R>.QueryExpressionWhereBuilder, QueryExpressionDSL<R>>
-        implements Buildable<R>, PagingDSL<R> {
+        implements Buildable<R>, SelectDSLOperations<R> {
 
-    private final String connector;
+    private final @Nullable String connector;
     private final SelectDSL<R> selectDSL;
     private final boolean isDistinct;
     private final List<BasicColumn> selectList;
-    private QueryExpressionWhereBuilder whereBuilder;
-    private GroupByModel groupByModel;
-    private QueryExpressionHavingBuilder havingBuilder;
+    private @Nullable QueryExpressionWhereBuilder whereBuilder;
+    private @Nullable GroupByModel groupByModel;
+    private @Nullable QueryExpressionHavingBuilder havingBuilder;
 
     protected QueryExpressionDSL(FromGatherer<R> fromGatherer, TableExpression table) {
         super(table);
@@ -70,7 +69,7 @@ public class QueryExpressionDSL<R>
 
     @Override
     public QueryExpressionWhereBuilder where() {
-        whereBuilder = Utilities.buildIfNecessary(whereBuilder, QueryExpressionWhereBuilder::new);
+        whereBuilder = Objects.requireNonNullElseGet(whereBuilder, QueryExpressionWhereBuilder::new);
         return whereBuilder;
     }
 
@@ -86,7 +85,7 @@ public class QueryExpressionDSL<R>
      * @return The having builder
      */
     protected QueryExpressionHavingBuilder having() {
-        havingBuilder = Utilities.buildIfNecessary(havingBuilder, QueryExpressionHavingBuilder::new);
+        havingBuilder = Objects.requireNonNullElseGet(havingBuilder, QueryExpressionHavingBuilder::new);
         return havingBuilder;
     }
 
@@ -99,7 +98,6 @@ public class QueryExpressionDSL<R>
         having().initialize(criteriaGroup);
     }
 
-    @NotNull
     @Override
     public R build() {
         return selectDSL.build();
@@ -197,27 +195,17 @@ public class QueryExpressionDSL<R>
     }
 
     @Override
-    public PagingDSL.LimitFinisher<R> limitWhenPresent(Long limit) {
-        return selectDSL.limitWhenPresent(limit);
-    }
-
-    @Override
-    public PagingDSL.OffsetFirstFinisher<R> offsetWhenPresent(Long offset) {
-        return selectDSL.offsetWhenPresent(offset);
-    }
-
-    @Override
-    public PagingDSL.FetchFirstFinisher<R> fetchFirstWhenPresent(Long fetchFirstRows) {
-        return selectDSL.fetchFirstWhenPresent(fetchFirstRows);
-    }
-
-    @Override
     protected QueryExpressionDSL<R> getThis() {
         return this;
     }
 
+    @Override
+    public SelectDSL<R> getSelectDSL() {
+        return selectDSL;
+    }
+
     public static class FromGatherer<R> {
-        private final String connector;
+        private final @Nullable String connector;
         private final List<BasicColumn> selectList;
         private final SelectDSL<R> selectDSL;
         private final boolean isDistinct;
@@ -246,9 +234,9 @@ public class QueryExpressionDSL<R>
         }
 
         public static class Builder<R> {
-            private String connector;
+            private @Nullable String connector;
             private final List<BasicColumn> selectList = new ArrayList<>();
-            private SelectDSL<R> selectDSL;
+            private @Nullable SelectDSL<R> selectDSL;
             private boolean isDistinct;
 
             public Builder<R> withConnector(String connector) {
@@ -278,7 +266,7 @@ public class QueryExpressionDSL<R>
     }
 
     public class QueryExpressionWhereBuilder extends AbstractWhereFinisher<QueryExpressionWhereBuilder>
-            implements Buildable<R>, PagingDSL<R> {
+            implements Buildable<R>, SelectDSLOperations<R> {
         private QueryExpressionWhereBuilder() {
             super(QueryExpressionDSL.this);
         }
@@ -308,22 +296,6 @@ public class QueryExpressionDSL<R>
         }
 
         @Override
-        public PagingDSL.LimitFinisher<R> limitWhenPresent(Long limit) {
-            return QueryExpressionDSL.this.limitWhenPresent(limit);
-        }
-
-        @Override
-        public PagingDSL.OffsetFirstFinisher<R> offsetWhenPresent(Long offset) {
-            return QueryExpressionDSL.this.offsetWhenPresent(offset);
-        }
-
-        @Override
-        public PagingDSL.FetchFirstFinisher<R> fetchFirstWhenPresent(Long fetchFirstRows) {
-            return QueryExpressionDSL.this.fetchFirstWhenPresent(fetchFirstRows);
-        }
-
-        @NotNull
-        @Override
         public R build() {
             return QueryExpressionDSL.this.build();
         }
@@ -331,6 +303,11 @@ public class QueryExpressionDSL<R>
         @Override
         protected QueryExpressionWhereBuilder getThis() {
             return this;
+        }
+
+        @Override
+        public SelectDSL<R> getSelectDSL() {
+            return QueryExpressionDSL.this.getSelectDSL();
         }
 
         protected EmbeddedWhereModel buildWhereModel() {
@@ -360,7 +337,7 @@ public class QueryExpressionDSL<R>
     public class JoinSpecificationFinisher
             extends AbstractBooleanExpressionDSL<JoinSpecificationFinisher>
             implements AbstractWhereStarter<QueryExpressionWhereBuilder, JoinSpecificationFinisher>, Buildable<R>,
-            PagingDSL<R> {
+            SelectDSLOperations<R> {
 
         private final TableExpression table;
         private final JoinType joinType;
@@ -400,7 +377,6 @@ public class QueryExpressionDSL<R>
                     .build();
         }
 
-        @NotNull
         @Override
         public R build() {
             return QueryExpressionDSL.this.build();
@@ -490,28 +466,18 @@ public class QueryExpressionDSL<R>
         }
 
         @Override
-        public PagingDSL.LimitFinisher<R> limitWhenPresent(Long limit) {
-            return QueryExpressionDSL.this.limitWhenPresent(limit);
-        }
-
-        @Override
-        public PagingDSL.OffsetFirstFinisher<R> offsetWhenPresent(Long offset) {
-            return QueryExpressionDSL.this.offsetWhenPresent(offset);
-        }
-
-        @Override
-        public PagingDSL.FetchFirstFinisher<R> fetchFirstWhenPresent(Long fetchFirstRows) {
-            return QueryExpressionDSL.this.fetchFirstWhenPresent(fetchFirstRows);
-        }
-
-        @Override
         protected JoinSpecificationFinisher getThis() {
             return this;
         }
+
+        @Override
+        public SelectDSL<R> getSelectDSL() {
+            return QueryExpressionDSL.this.getSelectDSL();
+        }
     }
 
-    public class GroupByFinisher extends AbstractHavingStarter<QueryExpressionHavingBuilder>
-            implements Buildable<R>, PagingDSL<R> {
+    public class GroupByFinisher implements AbstractHavingStarter<QueryExpressionHavingBuilder>,
+            Buildable<R>, SelectDSLOperations<R> {
         public SelectDSL<R> orderBy(SortSpecification... columns) {
             return orderBy(Arrays.asList(columns));
         }
@@ -520,7 +486,6 @@ public class QueryExpressionDSL<R>
             return QueryExpressionDSL.this.orderBy(columns);
         }
 
-        @NotNull
         @Override
         public R build() {
             return QueryExpressionDSL.this.build();
@@ -535,23 +500,13 @@ public class QueryExpressionDSL<R>
         }
 
         @Override
-        public PagingDSL.LimitFinisher<R> limitWhenPresent(Long limit) {
-            return QueryExpressionDSL.this.limitWhenPresent(limit);
-        }
-
-        @Override
-        public PagingDSL.OffsetFirstFinisher<R> offsetWhenPresent(Long offset) {
-            return QueryExpressionDSL.this.offsetWhenPresent(offset);
-        }
-
-        @Override
-        public PagingDSL.FetchFirstFinisher<R> fetchFirstWhenPresent(Long fetchFirstRows) {
-            return QueryExpressionDSL.this.fetchFirstWhenPresent(fetchFirstRows);
-        }
-
-        @Override
         public QueryExpressionHavingBuilder having() {
             return QueryExpressionDSL.this.having();
+        }
+
+        @Override
+        public SelectDSL<R> getSelectDSL() {
+            return QueryExpressionDSL.this.getSelectDSL();
         }
     }
 
@@ -589,22 +544,7 @@ public class QueryExpressionDSL<R>
     }
 
     public class QueryExpressionHavingBuilder extends AbstractHavingFinisher<QueryExpressionHavingBuilder>
-            implements Buildable<R>, PagingDSL<R> {
-
-        @Override
-        public PagingDSL.LimitFinisher<R> limitWhenPresent(Long limit) {
-            return QueryExpressionDSL.this.limitWhenPresent(limit);
-        }
-
-        @Override
-        public PagingDSL.OffsetFirstFinisher<R> offsetWhenPresent(Long offset) {
-            return QueryExpressionDSL.this.offsetWhenPresent(offset);
-        }
-
-        @Override
-        public PagingDSL.FetchFirstFinisher<R> fetchFirstWhenPresent(Long fetchFirstRows) {
-            return QueryExpressionDSL.this.fetchFirstWhenPresent(fetchFirstRows);
-        }
+            implements Buildable<R>, SelectDSLOperations<R> {
 
         public SelectDSL<R> orderBy(SortSpecification... columns) {
             return orderBy(Arrays.asList(columns));
@@ -622,7 +562,6 @@ public class QueryExpressionDSL<R>
             return QueryExpressionDSL.this.unionAll();
         }
 
-        @NotNull
         @Override
         public R build() {
             return QueryExpressionDSL.this.build();
@@ -635,6 +574,11 @@ public class QueryExpressionDSL<R>
 
         protected HavingModel buildHavingModel() {
             return super.buildModel();
+        }
+
+        @Override
+        public SelectDSL<R> getSelectDSL() {
+            return QueryExpressionDSL.this.getSelectDSL();
         }
     }
 }

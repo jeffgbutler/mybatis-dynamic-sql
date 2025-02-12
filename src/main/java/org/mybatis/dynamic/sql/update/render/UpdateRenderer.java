@@ -20,6 +20,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.common.OrderByRenderer;
 import org.mybatis.dynamic.sql.render.ExplicitTableAliasCalculator;
@@ -85,24 +86,18 @@ public class UpdateRenderer {
     }
 
     private FragmentAndParameters calculateSetPhrase() {
-        List<Optional<FragmentAndParameters>> fragmentsAndParameters = updateModel.columnMappings()
+        FragmentCollector fragmentCollector = updateModel.columnMappings()
                 .map(m -> m.accept(visitor))
-                .toList();
-
-        Validator.assertFalse(fragmentsAndParameters.stream().noneMatch(Optional::isPresent),
-                "ERROR.18"); //$NON-NLS-1$
-
-        FragmentCollector fragmentCollector = fragmentsAndParameters.stream()
                 .flatMap(Optional::stream)
                 .collect(FragmentCollector.collect());
 
+        Validator.assertFalse(fragmentCollector.isEmpty(), "ERROR.18"); //$NON-NLS-1$
         return updateRendererVisitor.visitSetClause(toSetPhrase(fragmentCollector), renderingContext);
     }
 
-    private FragmentAndParameters toSetPhrase(FragmentCollector fragmentCollector) {
-        return fragmentCollector.toFragmentAndParameters(
-                Collectors.joining(", ", "set ", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    }
+//        return fragmentCollector.toFragmentAndParameters(
+//                        Collectors.joining(", ", "set ", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+//    }
 
     private Optional<FragmentAndParameters> calculateWhereClause() {
         return updateModel.whereModel().flatMap(this::renderWhereClause)
@@ -140,8 +135,8 @@ public class UpdateRenderer {
     }
 
     public static class Builder {
-        private UpdateModel updateModel;
-        private RenderingStrategy renderingStrategy;
+        private @Nullable UpdateModel updateModel;
+        private @Nullable RenderingStrategy renderingStrategy;
         private UpdateRendererVisitor visitor;
 
         public Builder withUpdateModel(UpdateModel updateModel) {

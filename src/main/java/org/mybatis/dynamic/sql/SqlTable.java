@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,8 +19,6 @@ import java.sql.JDBCType;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.jetbrains.annotations.NotNull;
-
 public class SqlTable implements TableExpression {
 
     protected String tableName;
@@ -37,17 +35,14 @@ public class SqlTable implements TableExpression {
         return SqlColumn.of("*", this); //$NON-NLS-1$
     }
 
-    @NotNull
     public <T> SqlColumn<T> column(String name) {
         return SqlColumn.of(name, this);
     }
 
-    @NotNull
     public <T> SqlColumn<T> column(String name, JDBCType jdbcType) {
         return SqlColumn.of(name, this, jdbcType);
     }
 
-    @NotNull
     public <T> SqlColumn<T> column(String name, JDBCType jdbcType, String typeHandler) {
         SqlColumn<T> column = SqlColumn.of(name, this, jdbcType);
         return column.withTypeHandler(typeHandler);

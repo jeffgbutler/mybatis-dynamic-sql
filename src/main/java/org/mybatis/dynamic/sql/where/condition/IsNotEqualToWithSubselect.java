@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.mybatis.dynamic.sql.where.condition;
 
-import org.jetbrains.annotations.NotNull;
 import org.mybatis.dynamic.sql.AbstractSubselectCondition;
 import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.util.Buildable;
@@ -26,7 +25,6 @@ public class IsNotEqualToWithSubselect<T> extends AbstractSubselectCondition<T> 
         super(selectModelBuilder);
     }
 
-    @NotNull
     public static <T> IsNotEqualToWithSubselect<T> of(Buildable<SelectModel> selectModelBuilder) {
         return new IsNotEqualToWithSubselect<>(selectModelBuilder);
     }

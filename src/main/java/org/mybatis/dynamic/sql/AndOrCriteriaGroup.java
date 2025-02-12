@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * This class represents a criteria group with either an AND or an OR connector.
  * This class is intentionally NOT derived from SqlCriterion because we only want it to be
@@ -32,7 +34,7 @@ import java.util.Optional;
  */
 public class AndOrCriteriaGroup {
     private final String connector;
-    private final SqlCriterion initialCriterion;
+    private final @Nullable SqlCriterion initialCriterion;
     private final List<AndOrCriteriaGroup> subCriteria;
 
     private AndOrCriteriaGroup(Builder builder) {
@@ -54,8 +56,8 @@ public class AndOrCriteriaGroup {
     }
 
     public static class Builder {
-        private String connector;
-        private SqlCriterion initialCriterion;
+        private @Nullable String connector;
+        private @Nullable SqlCriterion initialCriterion;
         private final List<AndOrCriteriaGroup> subCriteria = new ArrayList<>();
 
         public Builder withConnector(String connector) {
@@ -63,7 +65,7 @@ public class AndOrCriteriaGroup {
             return this;
         }
 
-        public Builder withInitialCriterion(SqlCriterion initialCriterion) {
+        public Builder withInitialCriterion(@Nullable SqlCriterion initialCriterion) {
             this.initialCriterion = initialCriterion;
             return this;
         }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -75,6 +75,30 @@ class KotlinSelectBuilder(private val fromGatherer: QueryExpressionDSL.FromGathe
 
     fun unionAll(unionAll: KotlinUnionBuilder.() -> Unit): Unit =
         unionAll(KotlinUnionBuilder(getDsl().unionAll()))
+
+    fun forUpdate() {
+        getDsl().forUpdate()
+    }
+
+    fun forNoKeyUpdate() {
+        getDsl().forNoKeyUpdate()
+    }
+
+    fun forShare() {
+        getDsl().forShare()
+    }
+
+    fun forKeyShare() {
+        getDsl().forKeyShare()
+    }
+
+    fun skipLocked() {
+        getDsl().skipLocked()
+    }
+
+    fun nowait() {
+        getDsl().nowait()
+    }
 
     override fun build(): SelectModel = getDsl().build()
 

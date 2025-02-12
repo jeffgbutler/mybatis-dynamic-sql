@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,14 +15,23 @@
  */
 package org.mybatis.dynamic.sql.util;
 
-import java.util.function.Supplier;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public interface Utilities {
-    static <T> T buildIfNecessary(T current, Supplier<T> builder) {
-        return current == null ? builder.get() : current;
+    static long safelyUnbox(@Nullable Long l) {
+        return l == null ? 0 : l;
     }
 
-    static long safelyUnbox(Long l) {
-        return l == null ? 0 : l;
+    static <T> Stream<@NonNull T> filterNullValues(Stream<@Nullable T> values) {
+        return values.filter(Objects::nonNull);
+    }
+
+    static <T> Collection<@NonNull T> removeNullElements(Collection<@Nullable T> values) {
+        return filterNullValues(values.stream()).toList();
     }
 }

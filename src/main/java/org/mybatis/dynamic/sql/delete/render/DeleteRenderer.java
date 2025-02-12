@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.common.OrderByRenderer;
 import org.mybatis.dynamic.sql.delete.DeleteModel;
@@ -118,8 +119,8 @@ public class DeleteRenderer {
     }
 
     public static class Builder {
-        private DeleteModel deleteModel;
-        private RenderingStrategy renderingStrategy;
+        private @Nullable DeleteModel deleteModel;
+        private @Nullable RenderingStrategy renderingStrategy;
         private DeleteRendererVisitor visitor;
 
         public Builder withDeleteModel(DeleteModel deleteModel) {

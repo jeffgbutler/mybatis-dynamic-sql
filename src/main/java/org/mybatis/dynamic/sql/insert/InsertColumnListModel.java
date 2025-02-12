@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,13 +20,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.util.Validator;
 
 public class InsertColumnListModel {
     private final List<SqlColumn<?>> columns = new ArrayList<>();
 
-    private InsertColumnListModel(List<SqlColumn<?>> columns) {
+    private InsertColumnListModel(@Nullable List<SqlColumn<?>> columns) {
         Objects.requireNonNull(columns);
         Validator.assertNotEmpty(columns, "ERROR.4"); //$NON-NLS-1$
         this.columns.addAll(columns);
@@ -37,7 +38,7 @@ public class InsertColumnListModel {
         return columns.stream();
     }
 
-    public static InsertColumnListModel of(List<SqlColumn<?>> columns) {
+    public static InsertColumnListModel of(@Nullable List<SqlColumn<?>> columns) {
         return new InsertColumnListModel(columns);
     }
 }

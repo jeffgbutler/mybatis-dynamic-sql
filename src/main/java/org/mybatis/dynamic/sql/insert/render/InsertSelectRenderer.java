@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static org.mybatis.dynamic.sql.util.StringUtilities.spaceAfter;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.insert.InsertColumnListModel;
 import org.mybatis.dynamic.sql.insert.InsertSelectModel;
@@ -35,7 +36,7 @@ public class InsertSelectRenderer {
 
     private InsertSelectRenderer(Builder builder) {
         model = Objects.requireNonNull(builder.model);
-        renderingContext = RenderingContext.withRenderingStrategy(builder.renderingStrategy)
+        renderingContext = RenderingContext.withRenderingStrategy(Objects.requireNonNull(builder.renderingStrategy))
                 .withStatementConfiguration(model.statementConfiguration())
                 .build();
     }
@@ -71,8 +72,8 @@ public class InsertSelectRenderer {
     }
 
     public static class Builder {
-        private InsertSelectModel model;
-        private RenderingStrategy renderingStrategy;
+        private @Nullable InsertSelectModel model;
+        private @Nullable RenderingStrategy renderingStrategy;
 
         public Builder withInsertSelectModel(InsertSelectModel model) {
             this.model = model;
