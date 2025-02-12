@@ -86,7 +86,6 @@ public class UpdateModel {
         return render(renderingStrategy, UpdateRendererVisitor.NOOP);
     }
 
-    @NotNull
     public UpdateStatementProvider render(RenderingStrategy renderingStrategy, UpdateRendererVisitor visitor) {
         return UpdateRenderer.withUpdateModel(this)
                 .withRenderingStrategy(renderingStrategy)

@@ -15,7 +15,6 @@
  */
 package org.mybatis.dynamic.sql.update.render;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -92,12 +91,11 @@ public class UpdateRenderer {
                 .collect(FragmentCollector.collect());
 
         Validator.assertFalse(fragmentCollector.isEmpty(), "ERROR.18"); //$NON-NLS-1$
-        return updateRendererVisitor.visitSetClause(toSetPhrase(fragmentCollector), renderingContext);
-    }
 
-//        return fragmentCollector.toFragmentAndParameters(
-//                        Collectors.joining(", ", "set ", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-//    }
+        FragmentAndParameters fp = fragmentCollector.toFragmentAndParameters(
+                Collectors.joining(", ", "set ", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        return updateRendererVisitor.visitSetClause(fp, renderingContext);
+    }
 
     private Optional<FragmentAndParameters> calculateWhereClause() {
         return updateModel.whereModel().flatMap(this::renderWhereClause)
@@ -137,7 +135,7 @@ public class UpdateRenderer {
     public static class Builder {
         private @Nullable UpdateModel updateModel;
         private @Nullable RenderingStrategy renderingStrategy;
-        private UpdateRendererVisitor visitor;
+        private @Nullable UpdateRendererVisitor visitor;
 
         public Builder withUpdateModel(UpdateModel updateModel) {
             this.updateModel = updateModel;

@@ -74,7 +74,6 @@ public class DeleteModel {
         return render(renderingStrategy, DeleteRendererVisitor.NOOP);
     }
 
-    @NotNull
     public DeleteStatementProvider render(RenderingStrategy renderingStrategy, DeleteRendererVisitor visitor) {
         return DeleteRenderer.withDeleteModel(this)
                 .withRenderingStrategy(renderingStrategy)

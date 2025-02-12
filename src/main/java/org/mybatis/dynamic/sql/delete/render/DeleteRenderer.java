@@ -121,7 +121,7 @@ public class DeleteRenderer {
     public static class Builder {
         private @Nullable DeleteModel deleteModel;
         private @Nullable RenderingStrategy renderingStrategy;
-        private DeleteRendererVisitor visitor;
+        private @Nullable DeleteRendererVisitor visitor;
 
         public Builder withDeleteModel(DeleteModel deleteModel) {
             this.deleteModel = deleteModel;
