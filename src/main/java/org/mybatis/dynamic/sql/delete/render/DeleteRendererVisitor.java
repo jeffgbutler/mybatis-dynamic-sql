@@ -21,34 +21,31 @@ import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 
 public interface DeleteRendererVisitor {
-    DeleteRendererVisitor NOOP = new DeleteRendererVisitor() {};
+    DeleteRendererVisitor NOOP = renderingContext -> {};
 
-    default FragmentAndParameters visitStatementStart(FragmentAndParameters fragmentAndParameters,
-                                                      RenderingContext renderingContext) {
+    void setRenderingContext(RenderingContext renderingContext);
+
+    default FragmentAndParameters visitStatementStart(FragmentAndParameters fragmentAndParameters) {
         return fragmentAndParameters;
     }
 
-    default FragmentAndParameters visitTable(FragmentAndParameters fragmentAndParameters,
-                                             RenderingContext renderingContext) {
+    default FragmentAndParameters visitTable(FragmentAndParameters fragmentAndParameters) {
         return fragmentAndParameters;
     }
 
-    default FragmentAndParameters visitWhereClause(FragmentAndParameters fragmentAndParameters,
-                                                   RenderingContext renderingContext) {
+    default FragmentAndParameters visitWhereClause(FragmentAndParameters fragmentAndParameters) {
         return fragmentAndParameters;
     }
 
-    default FragmentAndParameters visitOrderByClause(FragmentAndParameters fragmentAndParameters,
-                                                     RenderingContext renderingContext) {
+    default FragmentAndParameters visitOrderByClause(FragmentAndParameters fragmentAndParameters) {
         return fragmentAndParameters;
     }
 
-    default FragmentAndParameters visitLimitClause(FragmentAndParameters fragmentAndParameters,
-                                                   RenderingContext renderingContext) {
+    default FragmentAndParameters visitLimitClause(FragmentAndParameters fragmentAndParameters) {
         return fragmentAndParameters;
     }
 
-    default Optional<FragmentAndParameters> visitStatementEnd(RenderingContext renderingContext) {
+    default Optional<FragmentAndParameters> visitStatementEnd() {
         return Optional.empty();
     }
 }

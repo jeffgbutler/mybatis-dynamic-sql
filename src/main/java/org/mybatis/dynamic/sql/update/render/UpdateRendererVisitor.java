@@ -21,39 +21,35 @@ import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 import java.util.Optional;
 
 public interface UpdateRendererVisitor {
-    UpdateRendererVisitor NOOP = new UpdateRendererVisitor() {};
+    UpdateRendererVisitor NOOP = renderingContext -> {};
 
-    default FragmentAndParameters visitStatementStart(FragmentAndParameters fragmentAndParameters,
-                                                      RenderingContext renderingContext) {
+    void setRenderingContext(RenderingContext renderingContext);
+
+    default FragmentAndParameters visitStatementStart(FragmentAndParameters fragmentAndParameters) {
         return fragmentAndParameters;
     }
 
-    default FragmentAndParameters visitTable(FragmentAndParameters fragmentAndParameters,
-                                             RenderingContext renderingContext) {
+    default FragmentAndParameters visitTable(FragmentAndParameters fragmentAndParameters) {
         return fragmentAndParameters;
     }
 
-    default FragmentAndParameters visitSetClause(FragmentAndParameters fragmentAndParameters,
-                                                 RenderingContext renderingContext) {
+    default FragmentAndParameters visitSetClause(FragmentAndParameters fragmentAndParameters) {
         return fragmentAndParameters;
     }
 
-    default FragmentAndParameters visitWhereClause(FragmentAndParameters fragmentAndParameters,
-                                                   RenderingContext renderingContext) {
+    default FragmentAndParameters visitWhereClause(FragmentAndParameters fragmentAndParameters) {
         return fragmentAndParameters;
     }
 
-    default FragmentAndParameters visitOrderByClause(FragmentAndParameters fragmentAndParameters,
-                                                     RenderingContext renderingContext) {
+    default FragmentAndParameters visitOrderByClause(FragmentAndParameters fragmentAndParameters) {
         return fragmentAndParameters;
     }
 
-    default FragmentAndParameters visitLimitClause(FragmentAndParameters fragmentAndParameters,
-                                                   RenderingContext renderingContext) {
+    default FragmentAndParameters visitLimitClause(FragmentAndParameters fragmentAndParameters) {
         return fragmentAndParameters;
     }
 
-    default Optional<FragmentAndParameters> visitStatementEnd(RenderingContext renderingContext) {
+    default Optional<FragmentAndParameters> visitStatementEnd() {
         return Optional.empty();
     }
 }

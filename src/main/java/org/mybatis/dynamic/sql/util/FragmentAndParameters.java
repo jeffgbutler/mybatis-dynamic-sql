@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 import org.jspecify.annotations.Nullable;
@@ -52,6 +53,10 @@ public class FragmentAndParameters {
         return withFragment(mapper.apply(fragment))
                 .withParameters(parameters)
                 .build();
+    }
+
+    public <R> R map(Function<FragmentAndParameters, R> mapper) {
+        return mapper.apply(this);
     }
 
     public static Builder withFragment(String fragment) {

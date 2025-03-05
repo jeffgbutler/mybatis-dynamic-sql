@@ -17,6 +17,7 @@ package org.mybatis.dynamic.sql.delete;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.SqlTable;
@@ -24,6 +25,7 @@ import org.mybatis.dynamic.sql.common.CommonBuilder;
 import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.delete.render.DeleteRenderer;
+import org.mybatis.dynamic.sql.delete.render.DeleteRendererCustomizer;
 import org.mybatis.dynamic.sql.delete.render.DeleteRendererVisitor;
 import org.mybatis.dynamic.sql.delete.render.DeleteStatementProvider;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
@@ -71,6 +73,10 @@ public class DeleteModel {
     }
 
     public DeleteStatementProvider render(RenderingStrategy renderingStrategy) {
+        return render(renderingStrategy, DeleteRendererVisitor.NOOP);
+    }
+
+    public DeleteStatementProvider render(RenderingStrategy renderingStrategy, Consumer<DeleteRendererCustomizer> customizer) {
         return render(renderingStrategy, DeleteRendererVisitor.NOOP);
     }
 

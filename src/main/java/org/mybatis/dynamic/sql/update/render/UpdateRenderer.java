@@ -51,6 +51,7 @@ public class UpdateRenderer {
                 .build();
         visitor = new SetPhraseVisitor(renderingContext);
         updateRendererVisitor = Objects.requireNonNull(builder.visitor);
+        updateRendererVisitor.setRenderingContext(renderingContext);
     }
 
     public UpdateStatementProvider render() {
@@ -62,7 +63,7 @@ public class UpdateRenderer {
         calculateWhereClause().ifPresent(fragmentCollector::add);
         calculateOrderByClause().ifPresent(fragmentCollector::add);
         calculateLimitClause().ifPresent(fragmentCollector::add);
-        updateRendererVisitor.visitStatementEnd(renderingContext).ifPresent(fragmentCollector::add);
+        updateRendererVisitor.visitStatementEnd().ifPresent(fragmentCollector::add);
 
         return toUpdateStatementProvider(fragmentCollector);
     }
@@ -75,13 +76,14 @@ public class UpdateRenderer {
     }
 
     private FragmentAndParameters calculateUpdateStatementStart() {
-        return updateRendererVisitor.visitStatementStart(FragmentAndParameters.fromFragment("update"), //$NON-NLS-1$
-                renderingContext);
+        return FragmentAndParameters.fromFragment("update") //$NON-NLS-1$
+                .map(updateRendererVisitor::visitStatementStart);
     }
 
     private FragmentAndParameters calculateTableName() {
         String aliasedTableName = renderingContext.aliasedTableName(updateModel.table());
-        return updateRendererVisitor.visitTable(FragmentAndParameters.fromFragment(aliasedTableName), renderingContext);
+        return FragmentAndParameters.fromFragment(aliasedTableName)
+                .map(updateRendererVisitor::visitTable);
     }
 
     private FragmentAndParameters calculateSetPhrase() {
@@ -92,14 +94,14 @@ public class UpdateRenderer {
 
         Validator.assertFalse(fragmentCollector.isEmpty(), "ERROR.18"); //$NON-NLS-1$
 
-        FragmentAndParameters fp = fragmentCollector.toFragmentAndParameters(
-                Collectors.joining(", ", "set ", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-        return updateRendererVisitor.visitSetClause(fp, renderingContext);
+        return fragmentCollector.toFragmentAndParameters(
+                Collectors.joining(", ", "set ", "")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                .map(updateRendererVisitor::visitSetClause);
     }
 
     private Optional<FragmentAndParameters> calculateWhereClause() {
         return updateModel.whereModel().flatMap(this::renderWhereClause)
-                .map(fp -> updateRendererVisitor.visitWhereClause(fp, renderingContext));
+                .map(updateRendererVisitor::visitWhereClause);
     }
 
     private Optional<FragmentAndParameters> renderWhereClause(EmbeddedWhereModel whereModel) {
@@ -108,7 +110,7 @@ public class UpdateRenderer {
 
     private Optional<FragmentAndParameters> calculateLimitClause() {
         return updateModel.limit().map(this::renderLimitClause)
-                .map(fp -> updateRendererVisitor.visitLimitClause(fp, renderingContext));
+                .map(updateRendererVisitor::visitLimitClause);
     }
 
     private FragmentAndParameters renderLimitClause(Long limit) {
@@ -121,7 +123,7 @@ public class UpdateRenderer {
 
     private Optional<FragmentAndParameters> calculateOrderByClause() {
         return updateModel.orderByModel().map(this::renderOrderByClause)
-                .map(fp -> updateRendererVisitor.visitOrderByClause(fp, renderingContext));
+                .map(updateRendererVisitor::visitOrderByClause);
     }
 
     private FragmentAndParameters renderOrderByClause(OrderByModel orderByModel) {

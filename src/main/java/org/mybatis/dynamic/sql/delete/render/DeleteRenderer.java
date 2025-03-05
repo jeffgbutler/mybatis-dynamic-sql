@@ -48,6 +48,7 @@ public class DeleteRenderer {
                 .withStatementConfiguration(deleteModel.statementConfiguration())
                 .build();
         visitor = Objects.requireNonNull(builder.visitor);
+        visitor.setRenderingContext(renderingContext);
     }
 
     public DeleteStatementProvider render() {
@@ -58,7 +59,7 @@ public class DeleteRenderer {
         calculateWhereClause().ifPresent(fragmentCollector::add);
         calculateOrderByClause().ifPresent(fragmentCollector::add);
         calculateLimitClause().ifPresent(fragmentCollector::add);
-        visitor.visitStatementEnd(renderingContext).ifPresent(fragmentCollector::add);
+        visitor.visitStatementEnd().ifPresent(fragmentCollector::add);
 
         return toDeleteStatementProvider(fragmentCollector);
     }
@@ -71,19 +72,20 @@ public class DeleteRenderer {
     }
 
     private FragmentAndParameters calculateDeleteStatementStart() {
-        return visitor
-                .visitStatementStart(FragmentAndParameters.fromFragment("delete from"), renderingContext); //$NON-NLS-1$
+        return FragmentAndParameters.fromFragment("delete from") //$NON-NLS-1$
+                .map(visitor::visitStatementStart);
     }
 
     private FragmentAndParameters calculateTableName() {
         String aliasedTableName = renderingContext.aliasedTableName(deleteModel.table());
-        return visitor.visitTable(FragmentAndParameters.fromFragment(aliasedTableName), renderingContext);
+        return FragmentAndParameters.fromFragment(aliasedTableName)
+                .map(visitor::visitTable);
     }
 
     private Optional<FragmentAndParameters> calculateWhereClause() {
         return deleteModel.whereModel()
                 .flatMap(this::renderWhereClause)
-                .map(fp -> visitor.visitWhereClause(fp, renderingContext));
+                .map(visitor::visitWhereClause);
     }
 
     private Optional<FragmentAndParameters> renderWhereClause(EmbeddedWhereModel whereModel) {
@@ -93,7 +95,7 @@ public class DeleteRenderer {
     private Optional<FragmentAndParameters> calculateLimitClause() {
         return deleteModel.limit()
                 .map(this::renderLimitClause)
-                .map(fp -> visitor.visitLimitClause(fp, renderingContext));
+                .map(visitor::visitLimitClause);
     }
 
     private FragmentAndParameters renderLimitClause(Long limit) {
@@ -107,7 +109,7 @@ public class DeleteRenderer {
     private Optional<FragmentAndParameters> calculateOrderByClause() {
         return deleteModel.orderByModel()
                 .map(this::renderOrderByClause)
-                .map(fp -> visitor.visitOrderByClause(fp, renderingContext));
+                .map(visitor::visitOrderByClause);
     }
 
     private FragmentAndParameters renderOrderByClause(OrderByModel orderByModel) {
