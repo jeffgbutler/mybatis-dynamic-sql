@@ -27,6 +27,7 @@ import org.mybatis.dynamic.sql.render.ExplicitTableAliasCalculator;
 import org.mybatis.dynamic.sql.render.RenderedParameterInfo;
 import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
+import org.mybatis.dynamic.sql.render.SqlKeywords;
 import org.mybatis.dynamic.sql.render.TableAliasCalculator;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 import org.mybatis.dynamic.sql.util.FragmentCollector;
@@ -51,7 +52,9 @@ public class DeleteRenderer {
     public DeleteStatementProvider render() {
         FragmentCollector fragmentCollector = new FragmentCollector();
 
-        fragmentCollector.add(calculateDeleteStatementStart());
+        fragmentCollector.add(SqlKeywords.DELETE);
+        fragmentCollector.add(SqlKeywords.FROM);
+        fragmentCollector.add(calculateTable());
         calculateWhereClause().ifPresent(fragmentCollector::add);
         calculateOrderByClause().ifPresent(fragmentCollector::add);
         calculateLimitClause().ifPresent(fragmentCollector::add);
@@ -66,9 +69,8 @@ public class DeleteRenderer {
                 .build();
     }
 
-    private FragmentAndParameters calculateDeleteStatementStart() {
-        String aliasedTableName = renderingContext.aliasedTableName(deleteModel.table());
-        return FragmentAndParameters.fromFragment("delete from " + aliasedTableName); //$NON-NLS-1$
+    private FragmentAndParameters calculateTable() {
+        return FragmentAndParameters.fromFragment(renderingContext.aliasedTableName(deleteModel.table()));
     }
 
     private Optional<FragmentAndParameters> calculateWhereClause() {

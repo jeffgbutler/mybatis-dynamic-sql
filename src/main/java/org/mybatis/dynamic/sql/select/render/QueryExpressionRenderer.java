@@ -25,6 +25,7 @@ import org.mybatis.dynamic.sql.TableExpression;
 import org.mybatis.dynamic.sql.render.ExplicitTableAliasCalculator;
 import org.mybatis.dynamic.sql.render.GuaranteedTableAliasCalculator;
 import org.mybatis.dynamic.sql.render.RenderingContext;
+import org.mybatis.dynamic.sql.render.SqlKeywords;
 import org.mybatis.dynamic.sql.render.TableAliasCalculator;
 import org.mybatis.dynamic.sql.select.GroupByModel;
 import org.mybatis.dynamic.sql.select.HavingModel;
@@ -32,7 +33,6 @@ import org.mybatis.dynamic.sql.select.QueryExpressionModel;
 import org.mybatis.dynamic.sql.select.join.JoinModel;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 import org.mybatis.dynamic.sql.util.FragmentCollector;
-import org.mybatis.dynamic.sql.util.StringUtilities;
 import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
 public class QueryExpressionRenderer {
@@ -104,7 +104,14 @@ public class QueryExpressionRenderer {
     public FragmentAndParameters render() {
         FragmentCollector fragmentCollector = new FragmentCollector();
 
-        fragmentCollector.add(calculateQueryExpressionStart());
+        calculateConnector().ifPresent(fragmentCollector::add);
+        fragmentCollector.add(SqlKeywords.SELECT);
+        if (queryExpression.isDistinct()) {
+            fragmentCollector.add(SqlKeywords.DISTINCT);
+        }
+        fragmentCollector.add(calculateColumnList());
+        fragmentCollector.add(SqlKeywords.FROM);
+        fragmentCollector.add(renderTableExpression(queryExpression.table()));
         calculateJoinClause().ifPresent(fragmentCollector::add);
         calculateWhereClause().ifPresent(fragmentCollector::add);
         calculateGroupByClause().ifPresent(fragmentCollector::add);
@@ -113,22 +120,8 @@ public class QueryExpressionRenderer {
         return fragmentCollector.toFragmentAndParameters(Collectors.joining(" ")); //$NON-NLS-1$
     }
 
-    private FragmentAndParameters calculateQueryExpressionStart() {
-        FragmentAndParameters columnList = calculateColumnList();
-
-        String start = queryExpression.connector().map(StringUtilities::spaceAfter).orElse("") //$NON-NLS-1$
-                + "select " //$NON-NLS-1$
-                + (queryExpression.isDistinct() ? "distinct " : "") //$NON-NLS-1$ //$NON-NLS-2$
-                + columnList.fragment()
-                + " from "; //$NON-NLS-1$
-
-        FragmentAndParameters renderedTable = renderTableExpression(queryExpression.table());
-        start += renderedTable.fragment();
-
-        return FragmentAndParameters.withFragment(start)
-                .withParameters(renderedTable.parameters())
-                .withParameters(columnList.parameters())
-                .build();
+    private Optional<FragmentAndParameters> calculateConnector() {
+        return queryExpression.connector().map(FragmentAndParameters::fromFragment);
     }
 
     private FragmentAndParameters calculateColumnList() {

@@ -26,6 +26,7 @@ import org.mybatis.dynamic.sql.render.ExplicitTableAliasCalculator;
 import org.mybatis.dynamic.sql.render.RenderedParameterInfo;
 import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
+import org.mybatis.dynamic.sql.render.SqlKeywords;
 import org.mybatis.dynamic.sql.render.TableAliasCalculator;
 import org.mybatis.dynamic.sql.update.UpdateModel;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
@@ -54,7 +55,8 @@ public class UpdateRenderer {
     public UpdateStatementProvider render() {
         FragmentCollector fragmentCollector = new FragmentCollector();
 
-        fragmentCollector.add(calculateUpdateStatementStart());
+        fragmentCollector.add(SqlKeywords.UPDATE);
+        fragmentCollector.add(calculateTable());
         fragmentCollector.add(calculateSetPhrase());
         calculateWhereClause().ifPresent(fragmentCollector::add);
         calculateOrderByClause().ifPresent(fragmentCollector::add);
@@ -70,9 +72,8 @@ public class UpdateRenderer {
                 .build();
     }
 
-    private FragmentAndParameters calculateUpdateStatementStart() {
-        String aliasedTableName = renderingContext.aliasedTableName(updateModel.table());
-        return FragmentAndParameters.fromFragment("update " + aliasedTableName); //$NON-NLS-1$
+    private FragmentAndParameters calculateTable() {
+        return FragmentAndParameters.fromFragment(renderingContext.aliasedTableName(updateModel.table()));
     }
 
     private FragmentAndParameters calculateSetPhrase() {
