@@ -15,25 +15,20 @@
  */
 package org.mybatis.dynamic.sql.insert.render;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class FieldAndValue {
+    private final String fieldName;
+    private final String valuePhrase;
 
-import org.junit.jupiter.api.Test;
+    public FieldAndValue(String fieldName, String valuePhrase) {
+        this.fieldName = fieldName;
+        this.valuePhrase = valuePhrase;
+    }
 
-class FieldAndValueCollectorTest {
+    public String fieldName() {
+        return fieldName;
+    }
 
-    @Test
-    void testMerge() {
-        FieldAndValueCollector collector1 = new FieldAndValueCollector();
-        FieldAndValue fvp1 = new FieldAndValue("f1", "3");
-        collector1.add(fvp1);
-
-        FieldAndValueCollector collector2 = new FieldAndValueCollector();
-        FieldAndValue fvp2 = new FieldAndValue("f2", "4");
-        collector2.add(fvp2);
-
-        collector1.merge(collector2);
-
-        assertThat(collector1.columnsPhrase()).isEqualTo("(f1, f2)");
-        assertThat(collector1.valuesPhrase()).isEqualTo("values (3, 4)");
+    public String valuePhrase() {
+        return valuePhrase;
     }
 }

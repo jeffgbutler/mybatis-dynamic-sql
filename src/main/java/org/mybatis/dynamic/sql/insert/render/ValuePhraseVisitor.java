@@ -28,7 +28,7 @@ import org.mybatis.dynamic.sql.util.RowMapping;
 import org.mybatis.dynamic.sql.util.StringConstantMapping;
 import org.mybatis.dynamic.sql.util.StringUtilities;
 
-public class ValuePhraseVisitor extends InsertMappingVisitor<Optional<FieldAndValueAndParameters>> {
+public class ValuePhraseVisitor extends InsertMappingVisitor<Optional<FieldAndValue>> {
 
     protected final RenderingStrategy renderingStrategy;
 
@@ -37,35 +37,29 @@ public class ValuePhraseVisitor extends InsertMappingVisitor<Optional<FieldAndVa
     }
 
     @Override
-    public Optional<FieldAndValueAndParameters> visit(NullMapping mapping) {
-        return FieldAndValueAndParameters.withFieldName(mapping.columnName())
-                .withValuePhrase("null") //$NON-NLS-1$
-                .buildOptional();
+    public Optional<FieldAndValue> visit(NullMapping mapping) {
+        return Optional.of(new FieldAndValue(mapping.columnName(), "null")); //$NON-NLS-1$
     }
 
     @Override
-    public Optional<FieldAndValueAndParameters> visit(ConstantMapping mapping) {
-        return FieldAndValueAndParameters.withFieldName(mapping.columnName())
-                .withValuePhrase(mapping.constant())
-                .buildOptional();
+    public Optional<FieldAndValue> visit(ConstantMapping mapping) {
+        return Optional.of(new FieldAndValue(mapping.columnName(), mapping.constant()));
     }
 
     @Override
-    public Optional<FieldAndValueAndParameters> visit(StringConstantMapping mapping) {
-        return FieldAndValueAndParameters.withFieldName(mapping.columnName())
-                .withValuePhrase(StringUtilities.formatConstantForSQL(mapping.constant()))
-                .buildOptional();
+    public Optional<FieldAndValue> visit(StringConstantMapping mapping) {
+        return Optional.of(new FieldAndValue(mapping.columnName(),
+                StringUtilities.formatConstantForSQL(mapping.constant())));
     }
 
     @Override
-    public Optional<FieldAndValueAndParameters> visit(PropertyMapping mapping) {
-        return FieldAndValueAndParameters.withFieldName(mapping.columnName())
-                .withValuePhrase(calculateJdbcPlaceholder(mapping.column(), mapping.property()))
-                .buildOptional();
+    public Optional<FieldAndValue> visit(PropertyMapping mapping) {
+        return Optional.of(new FieldAndValue(mapping.columnName(),
+                calculateJdbcPlaceholder(mapping.column(), mapping.property())));
     }
 
     @Override
-    public Optional<FieldAndValueAndParameters> visit(PropertyWhenPresentMapping mapping) {
+    public Optional<FieldAndValue> visit(PropertyWhenPresentMapping mapping) {
         if (mapping.shouldRender()) {
             return visit((PropertyMapping) mapping);
         } else {
@@ -74,10 +68,8 @@ public class ValuePhraseVisitor extends InsertMappingVisitor<Optional<FieldAndVa
     }
 
     @Override
-    public Optional<FieldAndValueAndParameters> visit(RowMapping mapping) {
-        return FieldAndValueAndParameters.withFieldName(mapping.columnName())
-                .withValuePhrase(calculateJdbcPlaceholder(mapping.column()))
-                .buildOptional();
+    public Optional<FieldAndValue> visit(RowMapping mapping) {
+        return Optional.of(new FieldAndValue(mapping.columnName(), calculateJdbcPlaceholder(mapping.column())));
     }
 
     private String calculateJdbcPlaceholder(SqlColumn<?> column) {

@@ -46,15 +46,14 @@ public class GeneralInsertValuePhraseVisitor extends GeneralInsertMappingVisitor
 
     @Override
     public Optional<FieldAndValueAndParameters> visit(ConstantMapping mapping) {
-        return FieldAndValueAndParameters.withFieldName(mapping.columnName())
-                .withValuePhrase(mapping.constant())
+        return FieldAndValueAndParameters.withFieldAndValue(mapping.columnName(), mapping.constant())
                 .buildOptional();
     }
 
     @Override
     public Optional<FieldAndValueAndParameters> visit(StringConstantMapping mapping) {
-        return FieldAndValueAndParameters.withFieldName(mapping.columnName())
-                .withValuePhrase(StringUtilities.formatConstantForSQL(mapping.constant()))
+        return FieldAndValueAndParameters.withFieldAndValue(mapping.columnName(),
+                StringUtilities.formatConstantForSQL(mapping.constant()))
                 .buildOptional();
     }
 
@@ -80,16 +79,14 @@ public class GeneralInsertValuePhraseVisitor extends GeneralInsertMappingVisitor
     }
 
     private Optional<FieldAndValueAndParameters> buildNullFragment(AbstractColumnMapping mapping) {
-        return FieldAndValueAndParameters.withFieldName(mapping.columnName())
-                .withValuePhrase("null") //$NON-NLS-1$
+        return FieldAndValueAndParameters.withFieldAndValue(mapping.columnName(), "null") //$NON-NLS-1$
                 .buildOptional();
     }
 
     private Optional<FieldAndValueAndParameters> buildFragment(AbstractColumnMapping mapping, @Nullable Object value) {
         RenderedParameterInfo parameterInfo = renderingContext.calculateParameterInfo(mapping.column());
 
-        return FieldAndValueAndParameters.withFieldName(mapping.columnName())
-                .withValuePhrase(parameterInfo.renderedPlaceHolder())
+        return FieldAndValueAndParameters.withFieldAndValue(mapping.columnName(), parameterInfo.renderedPlaceHolder())
                 .withParameter(parameterInfo.parameterMapKey(), value)
                 .buildOptional();
     }

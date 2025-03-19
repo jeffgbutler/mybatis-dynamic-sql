@@ -22,48 +22,31 @@ import java.util.Optional;
 
 import org.jspecify.annotations.Nullable;
 
-public class FieldAndValueAndParameters {
-    private final String fieldName;
-    private final String valuePhrase;
+public class FieldAndValueAndParameters extends FieldAndValue {
     private final Map<String, Object> parameters;
 
     private FieldAndValueAndParameters(Builder builder) {
-        fieldName = Objects.requireNonNull(builder.fieldName);
-        valuePhrase = Objects.requireNonNull(builder.valuePhrase);
+        super(builder.fieldName, builder.valuePhrase);
         parameters = builder.parameters;
-    }
-
-    public String fieldName() {
-        return fieldName;
-    }
-
-    public String valuePhrase() {
-        return valuePhrase;
     }
 
     public Map<String, Object> parameters() {
         return parameters;
     }
 
-    public static Builder withFieldName(String fieldName) {
-        return new Builder().withFieldName(fieldName);
+    public static Builder withFieldAndValue(String fieldName, String valuePhrase) {
+        return new Builder(fieldName, valuePhrase);
     }
 
     public static class Builder {
-        private @Nullable String fieldName;
-        private @Nullable String valuePhrase;
+        private final String fieldName;
+        private final String valuePhrase;
         private final Map<String, Object> parameters = new HashMap<>();
 
-        public Builder withFieldName(String fieldName) {
+        public Builder(String fieldName, String valuePhrase) {
             this.fieldName = fieldName;
-            return this;
-        }
-
-        public Builder withValuePhrase(String valuePhrase) {
             this.valuePhrase = valuePhrase;
-            return this;
         }
-
         public Builder withParameter(String key, @Nullable Object value) {
             // the value can be null because a parameter type converter may return null
 

@@ -16,42 +16,41 @@
 package org.mybatis.dynamic.sql.insert.render;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class FieldAndValueCollector {
-    final List<FieldAndValueAndParameters> fieldsAndValues = new ArrayList<>();
+    protected final List<String> fields = new ArrayList<>();
+    protected final List<String> values = new ArrayList<>();
 
     public FieldAndValueCollector() {
         super();
     }
 
-    public void add(FieldAndValueAndParameters fieldAndValueAndParameters) {
-        fieldsAndValues.add(fieldAndValueAndParameters);
+    public void add(FieldAndValue fieldAndValue) {
+        fields.add(fieldAndValue.fieldName());
+        values.add(fieldAndValue.valuePhrase());
     }
 
     public FieldAndValueCollector merge(FieldAndValueCollector other) {
-        fieldsAndValues.addAll(other.fieldsAndValues);
+        fields.addAll(other.fields);
+        values.addAll(other.values);
         return this;
     }
 
     public boolean isEmpty() {
-        return fieldsAndValues.isEmpty();
+        return fields.isEmpty();
     }
 
     public String columnsPhrase() {
-        return fieldsAndValues.stream()
-                .map(FieldAndValueAndParameters::fieldName)
+        return fields.stream()
                 .collect(Collectors.joining(", ", "(", ")")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
     public String valuesPhrase() {
-        return fieldsAndValues.stream()
-                .map(FieldAndValueAndParameters::valuePhrase)
+        return values.stream()
                 .collect(Collectors.joining(", ", "values (", ")")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
@@ -62,19 +61,12 @@ public class FieldAndValueCollector {
     }
 
     private String toSingleRowOfValues(int row) {
-        return fieldsAndValues.stream()
-                .map(FieldAndValueAndParameters::valuePhrase)
+        return values.stream()
                 .map(s -> String.format(s, row))
                 .collect(Collectors.joining(", ", "(", ")")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
-    public Map<String, Object> parameters() {
-        return fieldsAndValues.stream()
-                .map(FieldAndValueAndParameters::parameters)
-                .collect(HashMap::new, HashMap::putAll, HashMap::putAll);
-    }
-
-    public static Collector<FieldAndValueAndParameters, FieldAndValueCollector, FieldAndValueCollector> collect() {
+    public static Collector<FieldAndValue, FieldAndValueCollector, FieldAndValueCollector> collect() {
         return Collector.of(FieldAndValueCollector::new,
                 FieldAndValueCollector::add,
                 FieldAndValueCollector::merge);

@@ -39,10 +39,10 @@ public class GeneralInsertRenderer {
     }
 
     public GeneralInsertStatementProvider render() {
-        FieldAndValueCollector collector = model.columnMappings()
+        FieldAndValueAndParametersCollector collector = model.columnMappings()
                 .map(m -> m.accept(visitor))
                 .flatMap(Optional::stream)
-                .collect(FieldAndValueCollector.collect());
+                .collect(FieldAndValueAndParametersCollector.collectWithParameters());
 
         Validator.assertFalse(collector.isEmpty(), "ERROR.9"); //$NON-NLS-1$
 
