@@ -29,9 +29,9 @@ public class FragmentAndParameters {
     private final String fragment;
     private final Map<String, Object> parameters;
 
-    private FragmentAndParameters(Builder builder) {
-        fragment = Objects.requireNonNull(builder.fragment);
-        parameters = Collections.unmodifiableMap(builder.parameters);
+    private FragmentAndParameters(String fragment, Map<String, Object> parameters) {
+        this.fragment = Objects.requireNonNull(fragment);
+        this.parameters = Objects.requireNonNull(parameters);
     }
 
     public String fragment() {
@@ -55,20 +55,19 @@ public class FragmentAndParameters {
     }
 
     public static Builder withFragment(String fragment) {
-        return new Builder().withFragment(fragment);
+        return new Builder(fragment);
     }
 
     public static FragmentAndParameters fromFragment(String fragment) {
-        return new Builder().withFragment(fragment).build();
+        return new FragmentAndParameters(fragment, Collections.emptyMap());
     }
 
     public static class Builder {
-        private @Nullable String fragment;
+        private final String fragment;
         private final Map<String, Object> parameters = new HashMap<>();
 
-        public Builder withFragment(String fragment) {
+        public Builder (String fragment) {
             this.fragment = fragment;
-            return this;
         }
 
         public Builder withParameter(String key, @Nullable Object value) {
@@ -85,7 +84,7 @@ public class FragmentAndParameters {
         }
 
         public FragmentAndParameters build() {
-            return new FragmentAndParameters(this);
+            return new FragmentAndParameters(fragment, Collections.unmodifiableMap(parameters));
         }
 
         public Optional<FragmentAndParameters> buildOptional() {
