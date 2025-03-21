@@ -52,12 +52,15 @@ public class DeleteRenderer {
     public DeleteStatementProvider render() {
         FragmentCollector fragmentCollector = new FragmentCollector();
 
+        calculateBeforeStatementFragment().ifPresent(fragmentCollector::add);
         fragmentCollector.add(SqlKeywords.DELETE);
+        calculateAfterKeywordFragment().ifPresent(fragmentCollector::add);
         fragmentCollector.add(SqlKeywords.FROM);
         fragmentCollector.add(calculateTable());
         calculateWhereClause().ifPresent(fragmentCollector::add);
         calculateOrderByClause().ifPresent(fragmentCollector::add);
         calculateLimitClause().ifPresent(fragmentCollector::add);
+        calculateAfterStatementFragment().ifPresent(fragmentCollector::add);
 
         return toDeleteStatementProvider(fragmentCollector);
     }
@@ -67,6 +70,18 @@ public class DeleteRenderer {
                 .withDeleteStatement(fragmentCollector.collectFragments(Collectors.joining(" "))) //$NON-NLS-1$
                 .withParameters(fragmentCollector.parameters())
                 .build();
+    }
+
+    private Optional<FragmentAndParameters> calculateBeforeStatementFragment() {
+        return deleteModel.beforeStatementFragment().map(f -> f.render(renderingContext));
+    }
+
+    private Optional<FragmentAndParameters> calculateAfterKeywordFragment() {
+        return deleteModel.afterKeywordFragment().map(f -> f.render(renderingContext));
+    }
+
+    private Optional<FragmentAndParameters> calculateAfterStatementFragment() {
+        return deleteModel.afterStatementFragment().map(f -> f.render(renderingContext));
     }
 
     private FragmentAndParameters calculateTable() {

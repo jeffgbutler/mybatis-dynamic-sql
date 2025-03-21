@@ -13,16 +13,27 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.mybatis.dynamic.sql.render;
+package org.mybatis.dynamic.sql.common;
 
+import org.mybatis.dynamic.sql.Renderable;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 
-public class SqlKeywords {
-    private SqlKeywords() {}
+public interface CustomSqlDSL<R> {
+    default R withSqlAfterKeyword(String sql) {
+        return withSqlAfterKeyword(rc -> FragmentAndParameters.fromFragment(sql));
+    }
 
-    public static final FragmentAndParameters DELETE = FragmentAndParameters.fromFragment("delete"); //$NON-NLS-1$
-    public static final FragmentAndParameters DISTINCT = FragmentAndParameters.fromFragment("distinct"); //$NON-NLS-1$
-    public static final FragmentAndParameters FROM = FragmentAndParameters.fromFragment("from"); //$NON-NLS-1$
-    public static final FragmentAndParameters SELECT = FragmentAndParameters.fromFragment("select"); //$NON-NLS-1$
-    public static final FragmentAndParameters UPDATE = FragmentAndParameters.fromFragment("update"); //$NON-NLS-1$
+    R withSqlAfterKeyword(Renderable renderable);
+
+    default R withSqlAfterStatement(String sql) {
+        return withSqlAfterStatement(rc -> FragmentAndParameters.fromFragment(sql));
+    }
+
+    R withSqlAfterStatement(Renderable renderable);
+
+    default R withSqlBeforeStatement(String sql) {
+        return withSqlBeforeStatement(rc -> FragmentAndParameters.fromFragment(sql));
+    }
+
+    R withSqlBeforeStatement(Renderable renderable);
 }

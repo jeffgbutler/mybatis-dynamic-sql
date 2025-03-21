@@ -16,6 +16,7 @@
 package org.mybatis.dynamic.sql.insert.render;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 import org.junit.jupiter.api.Test;
 
@@ -35,5 +36,28 @@ class FieldAndValueCollectorTest {
 
         assertThat(collector1.columnsPhrase()).isEqualTo("(f1, f2)");
         assertThat(collector1.valuesPhrase()).isEqualTo("values (3, 4)");
+    }
+
+    @Test
+    void testMergeWithParameters() {
+        FieldAndValueAndParametersCollector collector1 = new FieldAndValueAndParametersCollector();
+        FieldAndValueAndParameters fvp1 = FieldAndValueAndParameters
+                .withFieldAndValue("f1", "3")
+                .withParameter("p1", 111)
+                .build();
+        collector1.add(fvp1);
+
+        FieldAndValueAndParametersCollector collector2 = new FieldAndValueAndParametersCollector();
+        FieldAndValueAndParameters fvp2 = FieldAndValueAndParameters
+                .withFieldAndValue("f2", "4")
+                .withParameter("p2", 222)
+                .build();
+        collector2.add(fvp2);
+
+        collector1.merge(collector2);
+
+        assertThat(collector1.columnsPhrase()).isEqualTo("(f1, f2)");
+        assertThat(collector1.valuesPhrase()).isEqualTo("values (3, 4)");
+        assertThat(collector1.parameters()).hasSize(2).contains(entry("p1", 111), entry("p2", 222));
     }
 }

@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.jspecify.annotations.Nullable;
+import org.mybatis.dynamic.sql.Renderable;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.common.CommonBuilder;
 import org.mybatis.dynamic.sql.common.OrderByModel;
@@ -35,6 +36,9 @@ public class DeleteModel {
     private final @Nullable Long limit;
     private final @Nullable OrderByModel orderByModel;
     private final StatementConfiguration statementConfiguration;
+    private final @Nullable Renderable afterKeywordFragment;
+    private final @Nullable Renderable afterStatementFragment;
+    private final @Nullable Renderable beforeStatementFragment;
 
     private DeleteModel(Builder builder) {
         table = Objects.requireNonNull(builder.table());
@@ -43,6 +47,9 @@ public class DeleteModel {
         limit = builder.limit();
         orderByModel = builder.orderByModel();
         statementConfiguration = Objects.requireNonNull(builder.statementConfiguration());
+        afterKeywordFragment = builder.afterKeywordFragment();
+        afterStatementFragment = builder.afterStatementFragment();
+        beforeStatementFragment = builder.beforeStatementFragment();
     }
 
     public SqlTable table() {
@@ -67,6 +74,18 @@ public class DeleteModel {
 
     public StatementConfiguration statementConfiguration() {
         return statementConfiguration;
+    }
+
+    public Optional<Renderable> afterKeywordFragment() {
+        return Optional.ofNullable(afterKeywordFragment);
+    }
+
+    public Optional<Renderable> afterStatementFragment() {
+        return Optional.ofNullable(afterStatementFragment);
+    }
+
+    public Optional<Renderable> beforeStatementFragment() {
+        return Optional.ofNullable(beforeStatementFragment);
     }
 
     public DeleteStatementProvider render(RenderingStrategy renderingStrategy) {

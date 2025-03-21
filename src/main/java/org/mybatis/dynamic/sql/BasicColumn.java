@@ -29,7 +29,7 @@ import org.mybatis.dynamic.sql.util.FragmentAndParameters;
  *
  * @author Jeff Butler
  */
-public interface BasicColumn {
+public interface BasicColumn extends Renderable {
 
     /**
      * Returns the columns alias if one has been specified.
@@ -58,6 +58,7 @@ public interface BasicColumn {
      * @return a rendered SQL fragment and, optionally, parameters associated with the fragment
      * @since 1.5.1
      */
+    @Override
     FragmentAndParameters render(RenderingContext renderingContext);
 
     default Optional<JDBCType> jdbcType() {
