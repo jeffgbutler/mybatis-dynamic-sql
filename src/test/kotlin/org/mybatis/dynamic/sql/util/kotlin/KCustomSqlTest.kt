@@ -20,10 +20,11 @@ import examples.complexquery.PersonDynamicSqlSupport.person
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mybatis.dynamic.sql.util.kotlin.spring.deleteFrom
+import org.mybatis.dynamic.sql.util.kotlin.spring.update
 
 class KCustomSqlTest {
     @Test
-    fun testDeleteHintsMainStatement() {
+    fun testDeleteHints() {
         val deleteStatement = deleteFrom(person) {
             withSqlAfterKeyword("/* after keyword */")
             withSqlAfterStatement("/* after statement */")
@@ -35,5 +36,21 @@ class KCustomSqlTest {
 
         assertThat(deleteStatement.deleteStatement)
             .isEqualTo("/* before statement */ delete /* after keyword */ from Person where person_id = :p1 /* after statement */")
+    }
+
+    @Test
+    fun testUpdateHints() {
+        val updateStatement = update(person) {
+            withSqlAfterKeyword("/* after keyword */")
+            withSqlAfterStatement("/* after statement */")
+            withSqlBeforeStatement("/* before statement */")
+            set(id) equalTo 3
+            where {
+                id isEqualTo 2
+            }
+        }
+
+        assertThat(updateStatement.updateStatement)
+            .isEqualTo("/* before statement */ update /* after keyword */ Person set person_id = :p1 where person_id = :p2 /* after statement */")
     }
 }

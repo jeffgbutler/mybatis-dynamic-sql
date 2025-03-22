@@ -15,77 +15,17 @@
  */
 package org.mybatis.dynamic.sql.delete;
 
-import java.util.Objects;
-import java.util.Optional;
-
-import org.jspecify.annotations.Nullable;
-import org.mybatis.dynamic.sql.Renderable;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.common.CommonBuilder;
-import org.mybatis.dynamic.sql.common.OrderByModel;
-import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
+import org.mybatis.dynamic.sql.common.CommonModel;
 import org.mybatis.dynamic.sql.delete.render.DeleteRenderer;
 import org.mybatis.dynamic.sql.delete.render.DeleteStatementProvider;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
-import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
-public class DeleteModel {
-    private final SqlTable table;
-    private final @Nullable String tableAlias;
-    private final @Nullable EmbeddedWhereModel whereModel;
-    private final @Nullable Long limit;
-    private final @Nullable OrderByModel orderByModel;
-    private final StatementConfiguration statementConfiguration;
-    private final @Nullable Renderable afterKeywordFragment;
-    private final @Nullable Renderable afterStatementFragment;
-    private final @Nullable Renderable beforeStatementFragment;
+public class DeleteModel extends CommonModel {
 
     private DeleteModel(Builder builder) {
-        table = Objects.requireNonNull(builder.table());
-        whereModel = builder.whereModel();
-        tableAlias = builder.tableAlias();
-        limit = builder.limit();
-        orderByModel = builder.orderByModel();
-        statementConfiguration = Objects.requireNonNull(builder.statementConfiguration());
-        afterKeywordFragment = builder.afterKeywordFragment();
-        afterStatementFragment = builder.afterStatementFragment();
-        beforeStatementFragment = builder.beforeStatementFragment();
-    }
-
-    public SqlTable table() {
-        return table;
-    }
-
-    public Optional<String> tableAlias() {
-        return Optional.ofNullable(tableAlias);
-    }
-
-    public Optional<EmbeddedWhereModel> whereModel() {
-        return Optional.ofNullable(whereModel);
-    }
-
-    public Optional<Long> limit() {
-        return Optional.ofNullable(limit);
-    }
-
-    public Optional<OrderByModel> orderByModel() {
-        return Optional.ofNullable(orderByModel);
-    }
-
-    public StatementConfiguration statementConfiguration() {
-        return statementConfiguration;
-    }
-
-    public Optional<Renderable> afterKeywordFragment() {
-        return Optional.ofNullable(afterKeywordFragment);
-    }
-
-    public Optional<Renderable> afterStatementFragment() {
-        return Optional.ofNullable(afterStatementFragment);
-    }
-
-    public Optional<Renderable> beforeStatementFragment() {
-        return Optional.ofNullable(beforeStatementFragment);
+        super(builder);
     }
 
     public DeleteStatementProvider render(RenderingStrategy renderingStrategy) {

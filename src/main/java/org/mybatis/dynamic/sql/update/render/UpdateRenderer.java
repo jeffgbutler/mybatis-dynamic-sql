@@ -55,12 +55,15 @@ public class UpdateRenderer {
     public UpdateStatementProvider render() {
         FragmentCollector fragmentCollector = new FragmentCollector();
 
+        calculateBeforeStatementFragment().ifPresent(fragmentCollector::add);
         fragmentCollector.add(SqlKeywords.UPDATE);
+        calculateAfterKeywordFragment().ifPresent(fragmentCollector::add);
         fragmentCollector.add(calculateTable());
         fragmentCollector.add(calculateSetPhrase());
         calculateWhereClause().ifPresent(fragmentCollector::add);
         calculateOrderByClause().ifPresent(fragmentCollector::add);
         calculateLimitClause().ifPresent(fragmentCollector::add);
+        calculateAfterStatementFragment().ifPresent(fragmentCollector::add);
 
         return toUpdateStatementProvider(fragmentCollector);
     }
@@ -71,6 +74,19 @@ public class UpdateRenderer {
                 .withParameters(fragmentCollector.parameters())
                 .build();
     }
+
+    private Optional<FragmentAndParameters> calculateBeforeStatementFragment() {
+        return updateModel.beforeStatementFragment().map(f -> f.render(renderingContext));
+    }
+
+    private Optional<FragmentAndParameters> calculateAfterKeywordFragment() {
+        return updateModel.afterKeywordFragment().map(f -> f.render(renderingContext));
+    }
+
+    private Optional<FragmentAndParameters> calculateAfterStatementFragment() {
+        return updateModel.afterStatementFragment().map(f -> f.render(renderingContext));
+    }
+
 
     private FragmentAndParameters calculateTable() {
         return FragmentAndParameters.fromFragment(renderingContext.aliasedTableName(updateModel.table()));

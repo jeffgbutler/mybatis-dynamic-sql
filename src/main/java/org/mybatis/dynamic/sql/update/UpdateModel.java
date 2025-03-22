@@ -18,67 +18,28 @@ package org.mybatis.dynamic.sql.update;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.common.CommonBuilder;
-import org.mybatis.dynamic.sql.common.OrderByModel;
-import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
+import org.mybatis.dynamic.sql.common.CommonModel;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.update.render.UpdateRenderer;
 import org.mybatis.dynamic.sql.update.render.UpdateStatementProvider;
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping;
 import org.mybatis.dynamic.sql.util.Validator;
-import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
-public class UpdateModel {
-    private final SqlTable table;
-    private final @Nullable String tableAlias;
-    private final @Nullable EmbeddedWhereModel whereModel;
+public class UpdateModel extends CommonModel {
     private final List<AbstractColumnMapping> columnMappings;
-    private final @Nullable Long limit;
-    private final @Nullable OrderByModel orderByModel;
-    private final StatementConfiguration statementConfiguration;
 
     private UpdateModel(Builder builder) {
-        table = Objects.requireNonNull(builder.table());
-        whereModel = builder.whereModel();
+        super(builder);
         columnMappings = Objects.requireNonNull(builder.columnMappings);
-        tableAlias = builder.tableAlias();
-        limit = builder.limit();
-        orderByModel = builder.orderByModel();
         Validator.assertNotEmpty(columnMappings, "ERROR.17"); //$NON-NLS-1$
-        statementConfiguration = Objects.requireNonNull(builder.statementConfiguration());
-    }
-
-    public SqlTable table() {
-        return table;
-    }
-
-    public Optional<String> tableAlias() {
-        return Optional.ofNullable(tableAlias);
-    }
-
-    public Optional<EmbeddedWhereModel> whereModel() {
-        return Optional.ofNullable(whereModel);
     }
 
     public Stream<AbstractColumnMapping> columnMappings() {
         return columnMappings.stream();
-    }
-
-    public Optional<Long> limit() {
-        return Optional.ofNullable(limit);
-    }
-
-    public Optional<OrderByModel> orderByModel() {
-        return Optional.ofNullable(orderByModel);
-    }
-
-    public StatementConfiguration statementConfiguration() {
-        return statementConfiguration;
     }
 
     public UpdateStatementProvider render(RenderingStrategy renderingStrategy) {
