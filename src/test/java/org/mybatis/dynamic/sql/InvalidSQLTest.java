@@ -207,7 +207,8 @@ class InvalidSQLTest {
     @Test
     void testInvalidUpdateStatement() {
         UpdateModel.Builder builder = new UpdateModel.Builder()
-                .withTable(person);
+                .withTable(person)
+                .withStatementConfiguration(new StatementConfiguration());
 
         assertThatExceptionOfType(InvalidSqlException.class).isThrownBy(builder::build)
                 .withMessage(Messages.getString("ERROR.17"));
