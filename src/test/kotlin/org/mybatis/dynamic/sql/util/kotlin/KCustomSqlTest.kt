@@ -20,6 +20,8 @@ import examples.complexquery.PersonDynamicSqlSupport.person
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mybatis.dynamic.sql.util.kotlin.spring.deleteFrom
+import org.mybatis.dynamic.sql.util.kotlin.spring.insert
+import org.mybatis.dynamic.sql.util.kotlin.spring.insertInto
 import org.mybatis.dynamic.sql.util.kotlin.spring.update
 
 class KCustomSqlTest {
@@ -36,6 +38,34 @@ class KCustomSqlTest {
 
         assertThat(deleteStatement.deleteStatement)
             .isEqualTo("/* before statement */ delete /* after keyword */ from Person where person_id = :p1 /* after statement */")
+    }
+
+    @Test
+    fun testInsertHints() {
+        data class Row(val id: Int, val firstName: String)
+
+        val insertStatement = insert(Row(3, "Fred")) {
+            into(person)
+            map(id) toProperty "id"
+//            withSqlAfterKeyword("/* after keyword */")
+//            withSqlAfterStatement("/* after statement */")
+//            withSqlBeforeStatement("/* before statement */")
+        }
+
+        assertThat(insertStatement.insertStatement)
+            .isEqualTo("/* before statement */ insert /* after keyword */ into Person (person_id) values (:id) /* after statement */")
+    }
+    @Test
+    fun testGeneralInsertHints() {
+        val insertStatement= insertInto(person) {
+//            withSqlAfterKeyword("/* after keyword */")
+//            withSqlAfterStatement("/* after statement */")
+//            withSqlBeforeStatement("/* before statement */")
+            set(id) toValue 3
+        }
+
+        assertThat(insertStatement.insertStatement)
+            .isEqualTo("/* before statement */ insert /* after keyword */ into Person (person_id) values (:p1) /* after statement */")
     }
 
     @Test
