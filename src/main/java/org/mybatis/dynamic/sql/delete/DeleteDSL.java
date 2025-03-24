@@ -96,6 +96,7 @@ public class DeleteDSL<R> implements AbstractWhereStarter<DeleteDSL<R>.DeleteWhe
         consumer.accept(statementConfiguration);
         return this;
     }
+
     public static <R> DeleteDSL<R> deleteFrom(Function<DeleteModel, R> adapterFunction, SqlTable table,
             @Nullable String tableAlias) {
         return new DeleteDSL<>(table, tableAlias, adapterFunction);
@@ -109,8 +110,7 @@ public class DeleteDSL<R> implements AbstractWhereStarter<DeleteDSL<R>.DeleteWhe
         return deleteFrom(Function.identity(), table, tableAlias);
     }
 
-    public class DeleteWhereBuilder extends AbstractWhereFinisher<DeleteWhereBuilder>
-            implements Buildable<R> {
+    public class DeleteWhereBuilder extends AbstractWhereFinisher<DeleteWhereBuilder> implements Buildable<R> {
 
         private DeleteWhereBuilder() {
             super(DeleteDSL.this);
