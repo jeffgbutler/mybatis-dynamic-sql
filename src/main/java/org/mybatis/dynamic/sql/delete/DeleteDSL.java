@@ -22,10 +22,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.jspecify.annotations.Nullable;
-import org.mybatis.dynamic.sql.Renderable;
 import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.SqlTable;
-import org.mybatis.dynamic.sql.common.CustomSqlDSL;
 import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.util.Buildable;
@@ -34,7 +32,7 @@ import org.mybatis.dynamic.sql.where.AbstractWhereStarter;
 import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
 public class DeleteDSL<R> implements AbstractWhereStarter<DeleteDSL<R>.DeleteWhereBuilder, DeleteDSL<R>>,
-        Buildable<R>, CustomSqlDSL<DeleteDSL<R>> {
+        Buildable<R> {
 
     private final Function<DeleteModel, R> adapterFunction;
     private final SqlTable table;
@@ -43,9 +41,6 @@ public class DeleteDSL<R> implements AbstractWhereStarter<DeleteDSL<R>.DeleteWhe
     private final StatementConfiguration statementConfiguration = new StatementConfiguration();
     private @Nullable Long limit;
     private @Nullable OrderByModel orderByModel;
-    private @Nullable Renderable afterKeywordFragment;
-    private @Nullable Renderable afterStatementFragment;
-    private @Nullable Renderable beforeStatementFragment;
 
     private DeleteDSL(SqlTable table, @Nullable String tableAlias, Function<DeleteModel, R> adapterFunction) {
         this.table = Objects.requireNonNull(table);
@@ -91,9 +86,6 @@ public class DeleteDSL<R> implements AbstractWhereStarter<DeleteDSL<R>.DeleteWhe
                 .withOrderByModel(orderByModel)
                 .withWhereModel(whereBuilder == null ? null : whereBuilder.buildWhereModel())
                 .withStatementConfiguration(statementConfiguration)
-                .withAfterKeywordFragment(afterKeywordFragment)
-                .withAfterStatementFragment(afterStatementFragment)
-                .withBeforeStatementFragment(beforeStatementFragment)
                 .build();
 
         return adapterFunction.apply(deleteModel);
@@ -104,25 +96,6 @@ public class DeleteDSL<R> implements AbstractWhereStarter<DeleteDSL<R>.DeleteWhe
         consumer.accept(statementConfiguration);
         return this;
     }
-
-    @Override
-    public DeleteDSL<R> withSqlAfterKeyword(Renderable renderable) {
-        this.afterKeywordFragment = renderable;
-        return this;
-    }
-
-    @Override
-    public DeleteDSL<R> withSqlAfterStatement(Renderable renderable) {
-        this.afterStatementFragment = renderable;
-        return this;
-    }
-
-    @Override
-    public DeleteDSL<R> withSqlBeforeStatement(Renderable renderable) {
-        this.beforeStatementFragment = renderable;
-        return this;
-    }
-
     public static <R> DeleteDSL<R> deleteFrom(Function<DeleteModel, R> adapterFunction, SqlTable table,
             @Nullable String tableAlias) {
         return new DeleteDSL<>(table, tableAlias, adapterFunction);
@@ -137,7 +110,7 @@ public class DeleteDSL<R> implements AbstractWhereStarter<DeleteDSL<R>.DeleteWhe
     }
 
     public class DeleteWhereBuilder extends AbstractWhereFinisher<DeleteWhereBuilder>
-            implements Buildable<R>, CustomSqlDSL<DeleteDSL<R>> {
+            implements Buildable<R> {
 
         private DeleteWhereBuilder() {
             super(DeleteDSL.this);
@@ -172,21 +145,6 @@ public class DeleteDSL<R> implements AbstractWhereStarter<DeleteDSL<R>.DeleteWhe
 
         protected EmbeddedWhereModel buildWhereModel() {
             return buildModel();
-        }
-
-        @Override
-        public DeleteDSL<R> withSqlAfterKeyword(Renderable renderable) {
-            return DeleteDSL.this.withSqlAfterKeyword(renderable);
-        }
-
-        @Override
-        public DeleteDSL<R> withSqlAfterStatement(Renderable renderable) {
-            return DeleteDSL.this.withSqlAfterStatement(renderable);
-        }
-
-        @Override
-        public DeleteDSL<R> withSqlBeforeStatement(Renderable renderable) {
-            return DeleteDSL.this.withSqlBeforeStatement(renderable);
         }
     }
 }

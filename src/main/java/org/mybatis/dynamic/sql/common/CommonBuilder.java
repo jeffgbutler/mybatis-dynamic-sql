@@ -16,7 +16,6 @@
 package org.mybatis.dynamic.sql.common;
 
 import org.jspecify.annotations.Nullable;
-import org.mybatis.dynamic.sql.Renderable;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
@@ -33,9 +32,6 @@ public abstract class CommonBuilder<T extends CommonBuilder<T>> {
     private @Nullable Long limit;
     private @Nullable OrderByModel orderByModel;
     private @Nullable StatementConfiguration statementConfiguration;
-    private @Nullable Renderable afterKeywordFragment;
-    private @Nullable Renderable afterStatementFragment;
-    private @Nullable Renderable beforeStatementFragment;
 
     public @Nullable SqlTable table() {
         return table;
@@ -59,18 +55,6 @@ public abstract class CommonBuilder<T extends CommonBuilder<T>> {
 
     public @Nullable StatementConfiguration statementConfiguration() {
         return statementConfiguration;
-    }
-
-    public @Nullable Renderable afterKeywordFragment() {
-        return afterKeywordFragment;
-    }
-
-    public @Nullable Renderable afterStatementFragment() {
-        return afterStatementFragment;
-    }
-
-    public @Nullable Renderable beforeStatementFragment() {
-        return beforeStatementFragment;
     }
 
     public T withTable(SqlTable table) {
@@ -100,21 +84,6 @@ public abstract class CommonBuilder<T extends CommonBuilder<T>> {
 
     public T withStatementConfiguration(StatementConfiguration statementConfiguration) {
         this.statementConfiguration = statementConfiguration;
-        return getThis();
-    }
-
-    public T withAfterKeywordFragment(@Nullable Renderable afterKeywordFragment) {
-        this.afterKeywordFragment = afterKeywordFragment;
-        return getThis();
-    }
-
-    public T withAfterStatementFragment(@Nullable Renderable afterStatementFragment) {
-        this.afterStatementFragment = afterStatementFragment;
-        return getThis();
-    }
-
-    public T withBeforeStatementFragment(@Nullable Renderable beforeStatementFragment) {
-        this.beforeStatementFragment = beforeStatementFragment;
         return getThis();
     }
 

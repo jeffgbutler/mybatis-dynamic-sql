@@ -15,7 +15,12 @@
  */
 package org.mybatis.dynamic.sql.configuration;
 
+import java.util.Optional;
+
+import org.jspecify.annotations.Nullable;
+import org.mybatis.dynamic.sql.Renderable;
 import org.mybatis.dynamic.sql.exception.NonRenderingWhereClauseException;
+import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 
 /**
  * This class can be used to change some behaviors of the framework. Every configurable statement
@@ -43,13 +48,56 @@ import org.mybatis.dynamic.sql.exception.NonRenderingWhereClauseException;
 public class StatementConfiguration {
     private boolean isNonRenderingWhereClauseAllowed =
             GlobalContext.getConfiguration().isIsNonRenderingWhereClauseAllowed();
+    private @Nullable Renderable afterKeywordFragment;
+    private @Nullable Renderable afterStatementFragment;
+    private @Nullable Renderable beforeStatementFragment;
 
     public boolean isNonRenderingWhereClauseAllowed() {
         return isNonRenderingWhereClauseAllowed;
     }
 
+    public Optional<Renderable> afterKeywordFragment() {
+        return Optional.ofNullable(afterKeywordFragment);
+    }
+
+    public Optional<Renderable> afterStatementFragment() {
+        return Optional.ofNullable(afterStatementFragment);
+    }
+
+    public Optional<Renderable> beforeStatementFragment() {
+        return Optional.ofNullable(beforeStatementFragment);
+    }
+
     public StatementConfiguration setNonRenderingWhereClauseAllowed(boolean nonRenderingWhereClauseAllowed) {
         isNonRenderingWhereClauseAllowed = nonRenderingWhereClauseAllowed;
+        return this;
+    }
+
+    public StatementConfiguration withSqlAfterKeyword(String sql) {
+        return withSqlAfterKeyword(rc -> FragmentAndParameters.fromFragment(sql));
+    }
+
+    public StatementConfiguration withSqlAfterKeyword(Renderable renderable) {
+        afterKeywordFragment = renderable;
+        return this;
+    }
+
+
+    public StatementConfiguration withSqlAfterStatement(String sql) {
+        return withSqlAfterStatement(rc -> FragmentAndParameters.fromFragment(sql));
+    }
+
+    public StatementConfiguration withSqlAfterStatement(Renderable renderable) {
+        afterStatementFragment = renderable;
+        return this;
+    }
+
+    public StatementConfiguration withSqlBeforeStatement(String sql) {
+        return withSqlBeforeStatement(rc -> FragmentAndParameters.fromFragment(sql));
+    }
+
+    public StatementConfiguration withSqlBeforeStatement(Renderable renderable) {
+        beforeStatementFragment = renderable;
         return this;
     }
 }

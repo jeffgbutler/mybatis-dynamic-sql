@@ -73,15 +73,15 @@ public class DeleteRenderer {
     }
 
     private Optional<FragmentAndParameters> calculateBeforeStatementFragment() {
-        return deleteModel.beforeStatementFragment().map(f -> f.render(renderingContext));
+        return deleteModel.statementConfiguration().beforeStatementFragment().map(f -> f.render(renderingContext));
     }
 
     private Optional<FragmentAndParameters> calculateAfterKeywordFragment() {
-        return deleteModel.afterKeywordFragment().map(f -> f.render(renderingContext));
+        return deleteModel.statementConfiguration().afterKeywordFragment().map(f -> f.render(renderingContext));
     }
 
     private Optional<FragmentAndParameters> calculateAfterStatementFragment() {
-        return deleteModel.afterStatementFragment().map(f -> f.render(renderingContext));
+        return deleteModel.statementConfiguration().afterStatementFragment().map(f -> f.render(renderingContext));
     }
 
     private FragmentAndParameters calculateTable() {

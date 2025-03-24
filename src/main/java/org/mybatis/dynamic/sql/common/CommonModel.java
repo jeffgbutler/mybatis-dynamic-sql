@@ -19,7 +19,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.jspecify.annotations.Nullable;
-import org.mybatis.dynamic.sql.Renderable;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
@@ -35,9 +34,6 @@ public abstract class CommonModel {
     private final @Nullable Long limit;
     private final @Nullable OrderByModel orderByModel;
     private final StatementConfiguration statementConfiguration;
-    private final @Nullable Renderable afterKeywordFragment;
-    private final @Nullable Renderable afterStatementFragment;
-    private final @Nullable Renderable beforeStatementFragment;
 
     protected CommonModel (CommonBuilder<?> builder) {
         table = Objects.requireNonNull(builder.table());
@@ -46,9 +42,6 @@ public abstract class CommonModel {
         limit = builder.limit();
         orderByModel = builder.orderByModel();
         statementConfiguration = Objects.requireNonNull(builder.statementConfiguration());
-        afterKeywordFragment = builder.afterKeywordFragment();
-        afterStatementFragment = builder.afterStatementFragment();
-        beforeStatementFragment = builder.beforeStatementFragment();
     }
 
     public SqlTable table() {
@@ -73,17 +66,5 @@ public abstract class CommonModel {
 
     public StatementConfiguration statementConfiguration() {
         return statementConfiguration;
-    }
-
-    public Optional<Renderable> afterKeywordFragment() {
-        return Optional.ofNullable(afterKeywordFragment);
-    }
-
-    public Optional<Renderable> afterStatementFragment() {
-        return Optional.ofNullable(afterStatementFragment);
-    }
-
-    public Optional<Renderable> beforeStatementFragment() {
-        return Optional.ofNullable(beforeStatementFragment);
     }
 }

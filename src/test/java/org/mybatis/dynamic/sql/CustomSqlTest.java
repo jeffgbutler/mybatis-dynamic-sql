@@ -31,10 +31,12 @@ class CustomSqlTest {
     @Test
     void testDeleteHintsMainStatement() {
         DeleteStatementProvider deleteStatement = deleteFrom(person)
-                .withSqlAfterKeyword("/* after keyword */")
-                .withSqlAfterStatement("/* after statement */")
-                .withSqlBeforeStatement("/* before statement */")
                 .where(id, isEqualTo(2))
+                .configureStatement(c ->
+                        c.withSqlAfterKeyword("/* after keyword */")
+                                .withSqlAfterStatement("/* after statement */")
+                                .withSqlBeforeStatement("/* before statement */")
+                )
                 .build()
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
@@ -45,7 +47,7 @@ class CustomSqlTest {
     void testDeleteHintsWhereClause1() {
         DeleteStatementProvider deleteStatement = deleteFrom(person)
                 .where(id, isEqualTo(2))
-                .withSqlAfterKeyword("/* after keyword */")
+                .configureStatement(c -> c.withSqlAfterKeyword("/* after keyword */"))
                 .build()
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
@@ -56,7 +58,7 @@ class CustomSqlTest {
     void testDeleteHintsWhereClause2() {
         DeleteStatementProvider deleteStatement = deleteFrom(person)
                 .where(id, isEqualTo(2))
-                .withSqlAfterStatement("/* after statement */")
+                .configureStatement(c -> c.withSqlAfterStatement("/* after statement */"))
                 .build()
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
@@ -67,7 +69,7 @@ class CustomSqlTest {
     void testDeleteHintsWhereClause3() {
         DeleteStatementProvider deleteStatement = deleteFrom(person)
                 .where(id, isEqualTo(2))
-                .withSqlBeforeStatement("/* before statement */")
+                .configureStatement(c -> c.withSqlBeforeStatement("/* before statement */"))
                 .build()
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
@@ -77,11 +79,12 @@ class CustomSqlTest {
     @Test
     void testUpdateHintsMainStatement() {
         UpdateStatementProvider updateStatement = update(person)
-                .withSqlAfterKeyword("/* after keyword */")
-                .withSqlAfterStatement("/* after statement */")
-                .withSqlBeforeStatement("/* before statement */")
                 .set(id).equalTo(3)
                 .where(id, isEqualTo(2))
+                .configureStatement(c ->
+                        c.withSqlAfterKeyword("/* after keyword */")
+                                .withSqlAfterStatement("/* after statement */")
+                                .withSqlBeforeStatement("/* before statement */"))
                 .build()
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
@@ -93,7 +96,7 @@ class CustomSqlTest {
         UpdateStatementProvider updateStatement = update(person)
                 .set(id).equalTo(3)
                 .where(id, isEqualTo(2))
-                .withSqlAfterKeyword("/* after keyword */")
+                .configureStatement(c -> c.withSqlAfterKeyword("/* after keyword */"))
                 .build()
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
@@ -105,7 +108,7 @@ class CustomSqlTest {
         UpdateStatementProvider updateStatement = update(person)
                 .set(id).equalTo(3)
                 .where(id, isEqualTo(2))
-                .withSqlAfterStatement("/* after statement */")
+                .configureStatement(c -> c.withSqlAfterStatement("/* after statement */"))
                 .build()
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
@@ -117,7 +120,7 @@ class CustomSqlTest {
         UpdateStatementProvider updateStatement = update(person)
                 .set(id).equalTo(3)
                 .where(id, isEqualTo(2))
-                .withSqlBeforeStatement("/* before statement */")
+                .configureStatement(c -> c.withSqlBeforeStatement("/* before statement */"))
                 .build()
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 

@@ -26,11 +26,9 @@ import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
-import org.mybatis.dynamic.sql.Renderable;
 import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.SqlTable;
-import org.mybatis.dynamic.sql.common.CustomSqlDSL;
 import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.select.SelectModel;
@@ -49,7 +47,7 @@ import org.mybatis.dynamic.sql.where.AbstractWhereStarter;
 import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
 public class UpdateDSL<R> implements AbstractWhereStarter<UpdateDSL<R>.UpdateWhereBuilder, UpdateDSL<R>>,
-        Buildable<R>, CustomSqlDSL<UpdateDSL<R>> {
+        Buildable<R> {
 
     private final Function<UpdateModel, R> adapterFunction;
     private final List<AbstractColumnMapping> columnMappings = new ArrayList<>();
@@ -59,9 +57,6 @@ public class UpdateDSL<R> implements AbstractWhereStarter<UpdateDSL<R>.UpdateWhe
     private final StatementConfiguration statementConfiguration = new StatementConfiguration();
     private @Nullable Long limit;
     private @Nullable OrderByModel orderByModel;
-    private @Nullable Renderable afterKeywordFragment;
-    private @Nullable Renderable afterStatementFragment;
-    private @Nullable Renderable beforeStatementFragment;
 
     private UpdateDSL(SqlTable table, @Nullable String tableAlias, Function<UpdateModel, R> adapterFunction) {
         this.table = Objects.requireNonNull(table);
@@ -112,9 +107,6 @@ public class UpdateDSL<R> implements AbstractWhereStarter<UpdateDSL<R>.UpdateWhe
                 .withOrderByModel(orderByModel)
                 .withWhereModel(whereBuilder == null ? null : whereBuilder.buildWhereModel())
                 .withStatementConfiguration(statementConfiguration)
-                .withAfterKeywordFragment(afterKeywordFragment)
-                .withAfterStatementFragment(afterStatementFragment)
-                .withBeforeStatementFragment(beforeStatementFragment)
                 .build();
 
         return adapterFunction.apply(updateModel);
@@ -123,24 +115,6 @@ public class UpdateDSL<R> implements AbstractWhereStarter<UpdateDSL<R>.UpdateWhe
     @Override
     public UpdateDSL<R> configureStatement(Consumer<StatementConfiguration> consumer) {
         consumer.accept(statementConfiguration);
-        return this;
-    }
-
-    @Override
-    public UpdateDSL<R> withSqlAfterKeyword(Renderable renderable) {
-        this.afterKeywordFragment = renderable;
-        return this;
-    }
-
-    @Override
-    public UpdateDSL<R> withSqlAfterStatement(Renderable renderable) {
-        this.afterStatementFragment = renderable;
-        return this;
-    }
-
-    @Override
-    public UpdateDSL<R> withSqlBeforeStatement(Renderable renderable) {
-        this.beforeStatementFragment = renderable;
         return this;
     }
 
@@ -218,8 +192,7 @@ public class UpdateDSL<R> implements AbstractWhereStarter<UpdateDSL<R>.UpdateWhe
         }
     }
 
-    public class UpdateWhereBuilder extends AbstractWhereFinisher<UpdateWhereBuilder>
-            implements Buildable<R>, CustomSqlDSL<UpdateDSL<R>> {
+    public class UpdateWhereBuilder extends AbstractWhereFinisher<UpdateWhereBuilder> implements Buildable<R> {
 
         private UpdateWhereBuilder() {
             super(UpdateDSL.this);
@@ -240,21 +213,6 @@ public class UpdateDSL<R> implements AbstractWhereStarter<UpdateDSL<R>.UpdateWhe
         public UpdateDSL<R> orderBy(Collection<? extends SortSpecification> columns) {
             orderByModel = OrderByModel.of(columns);
             return UpdateDSL.this;
-        }
-
-        @Override
-        public UpdateDSL<R> withSqlAfterKeyword(Renderable renderable) {
-            return UpdateDSL.this.withSqlAfterKeyword(renderable);
-        }
-
-        @Override
-        public UpdateDSL<R> withSqlAfterStatement(Renderable renderable) {
-            return UpdateDSL.this.withSqlAfterStatement(renderable);
-        }
-
-        @Override
-        public UpdateDSL<R> withSqlBeforeStatement(Renderable renderable) {
-            return UpdateDSL.this.withSqlBeforeStatement(renderable);
         }
 
         @Override

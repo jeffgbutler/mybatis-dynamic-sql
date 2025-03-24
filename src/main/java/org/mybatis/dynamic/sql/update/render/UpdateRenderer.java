@@ -76,15 +76,15 @@ public class UpdateRenderer {
     }
 
     private Optional<FragmentAndParameters> calculateBeforeStatementFragment() {
-        return updateModel.beforeStatementFragment().map(f -> f.render(renderingContext));
+        return updateModel.statementConfiguration().beforeStatementFragment().map(f -> f.render(renderingContext));
     }
 
     private Optional<FragmentAndParameters> calculateAfterKeywordFragment() {
-        return updateModel.afterKeywordFragment().map(f -> f.render(renderingContext));
+        return updateModel.statementConfiguration().afterKeywordFragment().map(f -> f.render(renderingContext));
     }
 
     private Optional<FragmentAndParameters> calculateAfterStatementFragment() {
-        return updateModel.afterStatementFragment().map(f -> f.render(renderingContext));
+        return updateModel.statementConfiguration().afterStatementFragment().map(f -> f.render(renderingContext));
     }
 
 

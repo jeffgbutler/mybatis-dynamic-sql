@@ -28,11 +28,13 @@ class KCustomSqlTest {
     @Test
     fun testDeleteHints() {
         val deleteStatement = deleteFrom(person) {
-            withSqlAfterKeyword("/* after keyword */")
-            withSqlAfterStatement("/* after statement */")
-            withSqlBeforeStatement("/* before statement */")
             where {
                 id isEqualTo 2
+            }
+            configureStatement {
+                withSqlAfterKeyword("/* after keyword */")
+                withSqlAfterStatement("/* after statement */")
+                withSqlBeforeStatement("/* before statement */")
             }
         }
 
@@ -71,12 +73,14 @@ class KCustomSqlTest {
     @Test
     fun testUpdateHints() {
         val updateStatement = update(person) {
-            withSqlAfterKeyword("/* after keyword */")
-            withSqlAfterStatement("/* after statement */")
-            withSqlBeforeStatement("/* before statement */")
             set(id) equalTo 3
             where {
                 id isEqualTo 2
+            }
+            configureStatement {
+                withSqlAfterKeyword("/* after keyword */")
+                withSqlAfterStatement("/* after statement */")
+                withSqlBeforeStatement("/* before statement */")
             }
         }
 

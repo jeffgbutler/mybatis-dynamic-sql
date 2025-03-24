@@ -16,7 +16,6 @@
 package org.mybatis.dynamic.sql.util.kotlin
 
 import org.mybatis.dynamic.sql.BasicColumn
-import org.mybatis.dynamic.sql.Renderable
 import org.mybatis.dynamic.sql.SortSpecification
 import org.mybatis.dynamic.sql.SqlColumn
 import org.mybatis.dynamic.sql.update.UpdateDSL
@@ -26,7 +25,7 @@ import org.mybatis.dynamic.sql.util.Buildable
 typealias UpdateCompleter = KotlinUpdateBuilder.() -> Unit
 
 class KotlinUpdateBuilder(private val dsl: UpdateDSL<UpdateModel>) :
-    KotlinBaseBuilder<UpdateDSL<UpdateModel>>(), Buildable<UpdateModel>, KotlinCustomSqlDSL {
+    KotlinBaseBuilder<UpdateDSL<UpdateModel>>(), Buildable<UpdateModel> {
 
     fun <T : Any> set(column: SqlColumn<T>): KotlinSetClauseFinisher<T> = KotlinSetClauseFinisher(column)
 
@@ -40,18 +39,6 @@ class KotlinUpdateBuilder(private val dsl: UpdateDSL<UpdateModel>) :
 
     fun limitWhenPresent(limit: Long?) {
         dsl.limitWhenPresent(limit)
-    }
-
-    override fun withSqlAfterKeyword(renderable: Renderable) {
-        dsl.withSqlAfterKeyword(renderable)
-    }
-
-    override fun withSqlAfterStatement(renderable: Renderable) {
-        dsl.withSqlAfterStatement(renderable)
-    }
-
-    override fun withSqlBeforeStatement(renderable: Renderable) {
-        dsl.withSqlBeforeStatement(renderable)
     }
 
     override fun build(): UpdateModel = dsl.build()
