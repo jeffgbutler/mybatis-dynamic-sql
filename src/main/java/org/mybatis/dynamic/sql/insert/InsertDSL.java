@@ -16,7 +16,6 @@
 package org.mybatis.dynamic.sql.insert;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -38,13 +37,12 @@ public class InsertDSL<T> implements Buildable<InsertModel<T>> {
 
     private final T row;
     private final SqlTable table;
-    private final List<AbstractColumnMapping> columnMappings;
+    private final List<AbstractColumnMapping> columnMappings = new ArrayList<>();
     private final InsertStatementConfiguration statementConfiguration = new InsertStatementConfiguration();
 
     private InsertDSL(Builder<T> builder) {
         this.row = Objects.requireNonNull(builder.row);
         this.table = Objects.requireNonNull(builder.table);
-        columnMappings = builder.columnMappings;
     }
 
     public <F> ColumnMappingFinisher<F> map(SqlColumn<F> column) {
@@ -122,7 +120,6 @@ public class InsertDSL<T> implements Buildable<InsertModel<T>> {
     public static class Builder<T> {
         private @Nullable T row;
         private @Nullable SqlTable table;
-        private final List<AbstractColumnMapping> columnMappings = new ArrayList<>();
 
         public Builder<T> withRow(T row) {
             this.row = row;
@@ -131,11 +128,6 @@ public class InsertDSL<T> implements Buildable<InsertModel<T>> {
 
         public Builder<T> withTable(SqlTable table) {
             this.table = table;
-            return this;
-        }
-
-        public Builder<T> withColumnMappings(Collection<? extends AbstractColumnMapping> columnMappings) {
-            this.columnMappings.addAll(columnMappings);
             return this;
         }
 

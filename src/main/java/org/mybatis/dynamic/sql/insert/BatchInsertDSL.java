@@ -37,13 +37,12 @@ public class BatchInsertDSL<T> implements Buildable<BatchInsertModel<T>> {
 
     private final Collection<T> records;
     private final SqlTable table;
-    private final List<AbstractColumnMapping> columnMappings;
+    private final List<AbstractColumnMapping> columnMappings = new ArrayList<>();
     private final InsertStatementConfiguration statementConfiguration = new InsertStatementConfiguration();
 
     private BatchInsertDSL(AbstractBuilder<T, ?> builder) {
         this.records = builder.records;
         this.table = Objects.requireNonNull(builder.table);
-        this.columnMappings = builder.columnMappings;
     }
 
     public <F> ColumnMappingFinisher<F> map(SqlColumn<F> column) {
@@ -121,7 +120,6 @@ public class BatchInsertDSL<T> implements Buildable<BatchInsertModel<T>> {
     public abstract static class AbstractBuilder<T, B extends AbstractBuilder<T, B>> {
         final Collection<T> records = new ArrayList<>();
         @Nullable SqlTable table;
-        final List<AbstractColumnMapping> columnMappings = new ArrayList<>();
 
         public B withRecords(Collection<T> records) {
             this.records.addAll(records);
@@ -130,11 +128,6 @@ public class BatchInsertDSL<T> implements Buildable<BatchInsertModel<T>> {
 
         public B withTable(SqlTable table) {
             this.table = table;
-            return getThis();
-        }
-
-        public B withColumnMappings(Collection<? extends AbstractColumnMapping> columnMappings) {
-            this.columnMappings.addAll(columnMappings);
             return getThis();
         }
 

@@ -15,6 +15,7 @@
  */
 package org.mybatis.dynamic.sql.insert;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -35,13 +36,12 @@ public class MultiRowInsertDSL<T> implements Buildable<MultiRowInsertModel<T>> {
 
     private final Collection<T> records;
     private final SqlTable table;
-    private final List<AbstractColumnMapping> columnMappings;
+    private final List<AbstractColumnMapping> columnMappings = new ArrayList<>();
     private final InsertStatementConfiguration statementConfiguration = new InsertStatementConfiguration();
 
     private MultiRowInsertDSL(BatchInsertDSL.AbstractBuilder<T, ?> builder) {
         this.records = builder.records;
         this.table = Objects.requireNonNull(builder.table);
-        this.columnMappings = builder.columnMappings;
     }
 
     public <F> ColumnMappingFinisher<F> map(SqlColumn<F> column) {
