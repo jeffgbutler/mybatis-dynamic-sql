@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
@@ -38,6 +39,7 @@ public class InsertDSL<T> implements Buildable<InsertModel<T>> {
     private final T row;
     private final SqlTable table;
     private final List<AbstractColumnMapping> columnMappings;
+    private final InsertStatementConfiguration statementConfiguration = new InsertStatementConfiguration();
 
     private InsertDSL(Builder<T> builder) {
         this.row = Objects.requireNonNull(builder.row);
@@ -49,11 +51,17 @@ public class InsertDSL<T> implements Buildable<InsertModel<T>> {
         return new ColumnMappingFinisher<>(column);
     }
 
+    public InsertDSL<T> configureStatement(Consumer<InsertStatementConfiguration> consumer) {
+        consumer.accept(statementConfiguration);
+        return this;
+    }
+
     @Override
     public InsertModel<T> build() {
         return InsertModel.withRow(row)
                 .withTable(table)
                 .withColumnMappings(columnMappings)
+                .withStatementConfiguration(statementConfiguration)
                 .build();
     }
 

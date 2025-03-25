@@ -17,8 +17,8 @@ package org.mybatis.dynamic.sql.util.kotlin
 
 import org.mybatis.dynamic.sql.SqlColumn
 import org.mybatis.dynamic.sql.SqlTable
-import org.mybatis.dynamic.sql.insert.InsertDSL
 import org.mybatis.dynamic.sql.insert.InsertModel
+import org.mybatis.dynamic.sql.insert.InsertStatementConfiguration
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping
 import org.mybatis.dynamic.sql.util.Buildable
 
@@ -28,6 +28,7 @@ typealias KotlinInsertCompleter<T> = KotlinInsertBuilder<T>.() -> Unit
 class KotlinInsertBuilder<T : Any> (private val row: T): Buildable<InsertModel<T>> {
     private var table: SqlTable? = null
     private val columnMappings = mutableListOf<AbstractColumnMapping>()
+    private val statementConfiguration = InsertStatementConfiguration()
 
     fun into(table: SqlTable) {
         this.table = table
@@ -37,13 +38,18 @@ class KotlinInsertBuilder<T : Any> (private val row: T): Buildable<InsertModel<T
         columnMappings.add(it)
     }
 
+    fun configureStatement(c: InsertStatementConfiguration.() -> Unit) {
+        statementConfiguration.apply(c)
+    }
+
     override fun build(): InsertModel<T> {
         assertNotNull(table, "ERROR.25") //$NON-NLS-1$
-        return with(InsertDSL.Builder<T>()) {
+        return with (InsertModel.Builder<T>()) {
             withRow(row)
             withTable(table!!)
             withColumnMappings(columnMappings)
+            withStatementConfiguration(statementConfiguration)
             build()
-        }.build()
+        }
     }
 }

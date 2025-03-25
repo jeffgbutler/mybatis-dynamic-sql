@@ -32,12 +32,14 @@ public class InsertModel<T> {
     private final SqlTable table;
     private final T row;
     private final List<AbstractColumnMapping> columnMappings;
+    private final InsertStatementConfiguration statementConfiguration;
 
     private InsertModel(Builder<T> builder) {
         table = Objects.requireNonNull(builder.table);
         row = Objects.requireNonNull(builder.row);
         columnMappings = Objects.requireNonNull(builder.columnMappings);
         Validator.assertNotEmpty(columnMappings, "ERROR.7"); //$NON-NLS-1$
+        statementConfiguration = Objects.requireNonNull(builder.statementConfiguration);
     }
 
     public Stream<AbstractColumnMapping> columnMappings() {
@@ -50,6 +52,10 @@ public class InsertModel<T> {
 
     public SqlTable table() {
         return table;
+    }
+
+    public InsertStatementConfiguration statementConfiguration() {
+        return statementConfiguration;
     }
 
     public InsertStatementProvider<T> render(RenderingStrategy renderingStrategy) {
@@ -67,6 +73,7 @@ public class InsertModel<T> {
         private @Nullable SqlTable table;
         private @Nullable T row;
         private final List<AbstractColumnMapping> columnMappings = new ArrayList<>();
+        private @Nullable InsertStatementConfiguration statementConfiguration;
 
         public Builder<T> withTable(SqlTable table) {
             this.table = table;
@@ -80,6 +87,11 @@ public class InsertModel<T> {
 
         public Builder<T> withColumnMappings(List<? extends AbstractColumnMapping> columnMappings) {
             this.columnMappings.addAll(columnMappings);
+            return this;
+        }
+
+        public Builder<T> withStatementConfiguration(InsertStatementConfiguration statementConfiguration) {
+            this.statementConfiguration = statementConfiguration;
             return this;
         }
 

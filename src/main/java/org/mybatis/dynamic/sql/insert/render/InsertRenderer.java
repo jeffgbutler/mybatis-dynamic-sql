@@ -17,10 +17,12 @@ package org.mybatis.dynamic.sql.insert.render;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.insert.InsertModel;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
+import org.mybatis.dynamic.sql.render.SqlKeywords;
 import org.mybatis.dynamic.sql.util.Validator;
 
 public class InsertRenderer<T> {
@@ -41,10 +43,18 @@ public class InsertRenderer<T> {
 
         Validator.assertFalse(collector.isEmpty(), "ERROR.10"); //$NON-NLS-1$
 
-        String insertStatement = InsertRenderingUtilities.calculateInsertStatement(model.table(), collector);
+        StringJoiner sj = new StringJoiner(" "); //$NON-NLS-1$
+        model.statementConfiguration().beforeStatementFragment().ifPresent(sj::add);
+        sj.add(SqlKeywords.INSERT);
+        model.statementConfiguration().afterKeywordFragment().ifPresent(sj::add);
+        sj.add(SqlKeywords.INTO);
+        sj.add(model.table().tableName());
+        sj.add(collector.columnsPhrase());
+        sj.add(collector.valuesPhrase());
+        model.statementConfiguration().afterStatementFragment().ifPresent(sj::add);
 
         return DefaultInsertStatementProvider.withRow(model.row())
-                .withInsertStatement(insertStatement)
+                .withInsertStatement(sj.toString())
                 .build();
     }
 

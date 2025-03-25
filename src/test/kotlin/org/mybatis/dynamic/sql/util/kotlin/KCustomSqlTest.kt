@@ -15,8 +15,8 @@
  */
 package org.mybatis.dynamic.sql.util.kotlin
 
-import examples.complexquery.PersonDynamicSqlSupport.id
-import examples.complexquery.PersonDynamicSqlSupport.person
+import examples.simple.PersonDynamicSqlSupport.id
+import examples.simple.PersonDynamicSqlSupport.person
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mybatis.dynamic.sql.util.kotlin.spring.deleteFrom
@@ -39,7 +39,7 @@ class KCustomSqlTest {
         }
 
         assertThat(deleteStatement.deleteStatement)
-            .isEqualTo("/* before statement */ delete /* after keyword */ from Person where person_id = :p1 /* after statement */")
+            .isEqualTo("/* before statement */ delete /* after keyword */ from Person where id = :p1 /* after statement */")
     }
 
     @Test
@@ -49,13 +49,15 @@ class KCustomSqlTest {
         val insertStatement = insert(Row(3, "Fred")) {
             into(person)
             map(id) toProperty "id"
-//            withSqlAfterKeyword("/* after keyword */")
-//            withSqlAfterStatement("/* after statement */")
-//            withSqlBeforeStatement("/* before statement */")
+            configureStatement {
+                withSqlAfterKeyword("/* after keyword */")
+                withSqlAfterStatement("/* after statement */")
+                withSqlBeforeStatement("/* before statement */")
+            }
         }
 
         assertThat(insertStatement.insertStatement)
-            .isEqualTo("/* before statement */ insert /* after keyword */ into Person (person_id) values (:id) /* after statement */")
+            .isEqualTo("/* before statement */ insert /* after keyword */ into Person (id) values (:row.id) /* after statement */")
     }
     @Test
     fun testGeneralInsertHints() {
@@ -67,7 +69,7 @@ class KCustomSqlTest {
         }
 
         assertThat(insertStatement.insertStatement)
-            .isEqualTo("/* before statement */ insert /* after keyword */ into Person (person_id) values (:p1) /* after statement */")
+            .isEqualTo("/* before statement */ insert /* after keyword */ into Person (id) values (:p1) /* after statement */")
     }
 
     @Test
@@ -85,6 +87,6 @@ class KCustomSqlTest {
         }
 
         assertThat(updateStatement.updateStatement)
-            .isEqualTo("/* before statement */ update /* after keyword */ Person set person_id = :p1 where person_id = :p2 /* after statement */")
+            .isEqualTo("/* before statement */ update /* after keyword */ Person set id = :p1 where id = :p2 /* after statement */")
     }
 }

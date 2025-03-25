@@ -15,15 +15,18 @@
  */
 package org.mybatis.dynamic.sql;
 
-import static examples.complexquery.PersonDynamicSqlSupport.id;
-import static examples.complexquery.PersonDynamicSqlSupport.person;
+import static examples.simple.PersonDynamicSqlSupport.id;
+import static examples.simple.PersonDynamicSqlSupport.person;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mybatis.dynamic.sql.SqlBuilder.deleteFrom;
+import static org.mybatis.dynamic.sql.SqlBuilder.insert;
 import static org.mybatis.dynamic.sql.SqlBuilder.isEqualTo;
 import static org.mybatis.dynamic.sql.SqlBuilder.update;
 
+import examples.simple.PersonRecord;
 import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.delete.render.DeleteStatementProvider;
+import org.mybatis.dynamic.sql.insert.render.InsertStatementProvider;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.update.render.UpdateStatementProvider;
 
@@ -40,7 +43,7 @@ class CustomSqlTest {
                 .build()
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
-        assertThat(deleteStatement.getDeleteStatement()).isEqualTo("/* before statement */ delete /* after keyword */ from Person where person_id = :p1 /* after statement */");
+        assertThat(deleteStatement.getDeleteStatement()).isEqualTo("/* before statement */ delete /* after keyword */ from Person where id = :p1 /* after statement */");
     }
 
     @Test
@@ -51,7 +54,7 @@ class CustomSqlTest {
                 .build()
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
-        assertThat(deleteStatement.getDeleteStatement()).isEqualTo("delete /* after keyword */ from Person where person_id = :p1");
+        assertThat(deleteStatement.getDeleteStatement()).isEqualTo("delete /* after keyword */ from Person where id = :p1");
     }
 
     @Test
@@ -62,7 +65,7 @@ class CustomSqlTest {
                 .build()
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
-        assertThat(deleteStatement.getDeleteStatement()).isEqualTo("delete from Person where person_id = :p1 /* after statement */");
+        assertThat(deleteStatement.getDeleteStatement()).isEqualTo("delete from Person where id = :p1 /* after statement */");
     }
 
     @Test
@@ -73,7 +76,21 @@ class CustomSqlTest {
                 .build()
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
-        assertThat(deleteStatement.getDeleteStatement()).isEqualTo("/* before statement */ delete from Person where person_id = :p1");
+        assertThat(deleteStatement.getDeleteStatement()).isEqualTo("/* before statement */ delete from Person where id = :p1");
+    }
+
+    @Test
+    void testInsertHints() {
+        PersonRecord row = new PersonRecord();
+
+        InsertStatementProvider<PersonRecord> insertStatement = insert(row)
+                .into(person)
+                .map(id).toProperty("id")
+                .configureStatement(c -> c.withSqlBeforeStatement("/* before statement */"))
+                .build()
+                .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
+
+        assertThat(insertStatement.getInsertStatement()).isEqualTo("/* before statement */ insert into Person (id) values (:row.id)");
     }
 
     @Test
@@ -88,7 +105,7 @@ class CustomSqlTest {
                 .build()
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
-        assertThat(updateStatement.getUpdateStatement()).isEqualTo("/* before statement */ update /* after keyword */ Person set person_id = :p1 where person_id = :p2 /* after statement */");
+        assertThat(updateStatement.getUpdateStatement()).isEqualTo("/* before statement */ update /* after keyword */ Person set id = :p1 where id = :p2 /* after statement */");
     }
 
     @Test
@@ -100,7 +117,7 @@ class CustomSqlTest {
                 .build()
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
-        assertThat(updateStatement.getUpdateStatement()).isEqualTo("update /* after keyword */ Person set person_id = :p1 where person_id = :p2");
+        assertThat(updateStatement.getUpdateStatement()).isEqualTo("update /* after keyword */ Person set id = :p1 where id = :p2");
     }
 
     @Test
@@ -112,7 +129,7 @@ class CustomSqlTest {
                 .build()
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
-        assertThat(updateStatement.getUpdateStatement()).isEqualTo("update Person set person_id = :p1 where person_id = :p2 /* after statement */");
+        assertThat(updateStatement.getUpdateStatement()).isEqualTo("update Person set id = :p1 where id = :p2 /* after statement */");
     }
 
     @Test
@@ -124,6 +141,6 @@ class CustomSqlTest {
                 .build()
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
-        assertThat(updateStatement.getUpdateStatement()).isEqualTo("/* before statement */ update Person set person_id = :p1 where person_id = :p2");
+        assertThat(updateStatement.getUpdateStatement()).isEqualTo("/* before statement */ update Person set id = :p1 where id = :p2");
     }
 }

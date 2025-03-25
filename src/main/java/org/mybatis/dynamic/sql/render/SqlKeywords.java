@@ -23,6 +23,8 @@ public class SqlKeywords {
     public static final FragmentAndParameters DELETE = FragmentAndParameters.fromFragment("delete"); //$NON-NLS-1$
     public static final FragmentAndParameters DISTINCT = FragmentAndParameters.fromFragment("distinct"); //$NON-NLS-1$
     public static final FragmentAndParameters FROM = FragmentAndParameters.fromFragment("from"); //$NON-NLS-1$
+    public static final String INSERT = "insert"; //$NON-NLS-1$
+    public static final String INTO = "into"; //$NON-NLS-1$
     public static final FragmentAndParameters SELECT = FragmentAndParameters.fromFragment("select"); //$NON-NLS-1$
     public static final FragmentAndParameters UPDATE = FragmentAndParameters.fromFragment("update"); //$NON-NLS-1$
 }
