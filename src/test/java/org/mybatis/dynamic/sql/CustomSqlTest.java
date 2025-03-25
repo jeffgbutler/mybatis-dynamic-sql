@@ -20,13 +20,18 @@ import static examples.simple.PersonDynamicSqlSupport.person;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mybatis.dynamic.sql.SqlBuilder.deleteFrom;
 import static org.mybatis.dynamic.sql.SqlBuilder.insert;
+import static org.mybatis.dynamic.sql.SqlBuilder.insertBatch;
+import static org.mybatis.dynamic.sql.SqlBuilder.insertMultiple;
 import static org.mybatis.dynamic.sql.SqlBuilder.isEqualTo;
 import static org.mybatis.dynamic.sql.SqlBuilder.update;
 
 import examples.simple.PersonRecord;
 import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.delete.render.DeleteStatementProvider;
+import org.mybatis.dynamic.sql.insert.BatchInsertModel;
+import org.mybatis.dynamic.sql.insert.render.BatchInsert;
 import org.mybatis.dynamic.sql.insert.render.InsertStatementProvider;
+import org.mybatis.dynamic.sql.insert.render.MultiRowInsertStatementProvider;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.update.render.UpdateStatementProvider;
 
@@ -91,6 +96,34 @@ class CustomSqlTest {
                 .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
 
         assertThat(insertStatement.getInsertStatement()).isEqualTo("/* before statement */ insert into Person (id) values (:row.id)");
+    }
+
+    @Test
+    void testInsertMultipleHints() {
+        PersonRecord row = new PersonRecord();
+
+        MultiRowInsertStatementProvider<PersonRecord> insertStatement = insertMultiple(row)
+                .into(person)
+                .map(id).toProperty("id")
+                .configureStatement(c -> c.withSqlBeforeStatement("/* before statement */"))
+                .build()
+                .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
+
+        assertThat(insertStatement.getInsertStatement()).isEqualTo("/* before statement */ insert into Person (id) values (:records[0].id)");
+    }
+
+    @Test
+    void testInsertBatchHints() {
+        PersonRecord row = new PersonRecord();
+
+        BatchInsert<PersonRecord> insertStatement = insertBatch(row)
+                .into(person)
+                .map(id).toProperty("id")
+                .configureStatement(c -> c.withSqlBeforeStatement("/* before statement */"))
+                .build()
+                .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
+
+        assertThat(insertStatement.getInsertStatementSQL()).isEqualTo("/* before statement */ insert into Person (id) values (:row.id)");
     }
 
     @Test

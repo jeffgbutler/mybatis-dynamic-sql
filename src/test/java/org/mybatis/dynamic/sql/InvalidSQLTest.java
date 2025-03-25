@@ -33,6 +33,7 @@ import org.mybatis.dynamic.sql.insert.BatchInsertModel;
 import org.mybatis.dynamic.sql.insert.GeneralInsertModel;
 import org.mybatis.dynamic.sql.insert.InsertColumnListModel;
 import org.mybatis.dynamic.sql.insert.InsertModel;
+import org.mybatis.dynamic.sql.insert.InsertStatementConfiguration;
 import org.mybatis.dynamic.sql.insert.MultiRowInsertModel;
 import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
@@ -100,7 +101,8 @@ class InvalidSQLTest {
     @Test
     void testInvalidMultipleInsertStatementNoRecords() {
         MultiRowInsertModel.Builder<TestRow> builder = new MultiRowInsertModel.Builder<TestRow>()
-                .withTable(person);
+                .withTable(person)
+                .withStatementConfiguration(new InsertStatementConfiguration());
 
         assertThatExceptionOfType(InvalidSqlException.class).isThrownBy(builder::build)
                 .withMessage(Messages.getString("ERROR.20"));
@@ -112,7 +114,8 @@ class InvalidSQLTest {
 
         MultiRowInsertModel.Builder<TestRow> builder = new MultiRowInsertModel.Builder<TestRow>()
                 .withRecords(records)
-                .withTable(person);
+                .withTable(person)
+                .withStatementConfiguration(new InsertStatementConfiguration());
 
         assertThatExceptionOfType(InvalidSqlException.class).isThrownBy(builder::build)
                 .withMessage(Messages.getString("ERROR.8"));
@@ -121,7 +124,8 @@ class InvalidSQLTest {
     @Test
     void testInvalidBatchInsertStatementNoRecords() {
         BatchInsertModel.Builder<TestRow> builder = new BatchInsertModel.Builder<TestRow>()
-                .withTable(person);
+                .withTable(person)
+                .withStatementConfiguration(new InsertStatementConfiguration());
 
         assertThatExceptionOfType(InvalidSqlException.class).isThrownBy(builder::build)
                 .withMessage(Messages.getString("ERROR.19"));
@@ -133,7 +137,8 @@ class InvalidSQLTest {
 
         BatchInsertModel.Builder<TestRow> builder = new BatchInsertModel.Builder<TestRow>()
                 .withRecords(records)
-                .withTable(person);
+                .withTable(person)
+                .withStatementConfiguration(new InsertStatementConfiguration());
 
         assertThatExceptionOfType(InvalidSqlException.class).isThrownBy(builder::build)
                 .withMessage(Messages.getString("ERROR.5"));

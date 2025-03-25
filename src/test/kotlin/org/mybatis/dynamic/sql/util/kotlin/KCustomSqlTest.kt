@@ -19,10 +19,7 @@ import examples.simple.PersonDynamicSqlSupport.id
 import examples.simple.PersonDynamicSqlSupport.person
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.mybatis.dynamic.sql.util.kotlin.spring.deleteFrom
-import org.mybatis.dynamic.sql.util.kotlin.spring.insert
-import org.mybatis.dynamic.sql.util.kotlin.spring.insertInto
-import org.mybatis.dynamic.sql.util.kotlin.spring.update
+import org.mybatis.dynamic.sql.util.kotlin.spring.*
 
 class KCustomSqlTest {
     @Test
@@ -59,6 +56,43 @@ class KCustomSqlTest {
         assertThat(insertStatement.insertStatement)
             .isEqualTo("/* before statement */ insert /* after keyword */ into Person (id) values (:row.id) /* after statement */")
     }
+
+    @Test
+    fun testInsertBatchHints() {
+        data class Row(val id: Int, val firstName: String)
+
+        val insertStatement = insertBatch(listOf( Row(3, "Fred"))) {
+            into(person)
+            map(id) toProperty "id"
+            configureStatement {
+                withSqlAfterKeyword("/* after keyword */")
+                withSqlAfterStatement("/* after statement */")
+                withSqlBeforeStatement("/* before statement */")
+            }
+        }
+
+        assertThat(insertStatement.insertStatementSQL)
+            .isEqualTo("/* before statement */ insert /* after keyword */ into Person (id) values (:row.id) /* after statement */")
+    }
+
+    @Test
+    fun testInsertMultipleHints() {
+        data class Row(val id: Int, val firstName: String)
+
+        val insertStatement = insertMultiple(listOf( Row(3, "Fred"))) {
+            into(person)
+            map(id) toProperty "id"
+            configureStatement {
+                withSqlAfterKeyword("/* after keyword */")
+                withSqlAfterStatement("/* after statement */")
+                withSqlBeforeStatement("/* before statement */")
+            }
+        }
+
+        assertThat(insertStatement.insertStatement)
+            .isEqualTo("/* before statement */ insert /* after keyword */ into Person (id) values (:records[0].id) /* after statement */")
+    }
+
     @Test
     fun testGeneralInsertHints() {
         val insertStatement= insertInto(person) {

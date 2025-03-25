@@ -17,7 +17,7 @@ package org.mybatis.dynamic.sql.util.kotlin
 
 import org.mybatis.dynamic.sql.SqlColumn
 import org.mybatis.dynamic.sql.SqlTable
-import org.mybatis.dynamic.sql.insert.MultiRowInsertDSL
+import org.mybatis.dynamic.sql.insert.InsertStatementConfiguration
 import org.mybatis.dynamic.sql.insert.MultiRowInsertModel
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping
 import org.mybatis.dynamic.sql.util.Buildable
@@ -28,6 +28,7 @@ typealias KotlinMultiRowInsertCompleter<T> = KotlinMultiRowInsertBuilder<T>.() -
 class KotlinMultiRowInsertBuilder<T : Any> (private val rows: Collection<T>): Buildable<MultiRowInsertModel<T>> {
     private var table: SqlTable? = null
     private val columnMappings = mutableListOf<AbstractColumnMapping>()
+    private val statementConfiguration = InsertStatementConfiguration()
 
     fun into(table: SqlTable) {
         this.table = table
@@ -37,13 +38,18 @@ class KotlinMultiRowInsertBuilder<T : Any> (private val rows: Collection<T>): Bu
         columnMappings.add(it)
     }
 
+    fun configureStatement(c: InsertStatementConfiguration.() -> Unit) {
+        statementConfiguration.apply(c)
+    }
+
     override fun build(): MultiRowInsertModel<T> {
         assertNotNull(table, "ERROR.26") //$NON-NLS-1$
-        return with(MultiRowInsertDSL.Builder<T>()) {
+        return with(MultiRowInsertModel.Builder<T>()) {
             withRecords(rows)
             withTable(table!!)
             withColumnMappings(columnMappings)
+            withStatementConfiguration(statementConfiguration)
             build()
-        }.build()
+        }
     }
 }

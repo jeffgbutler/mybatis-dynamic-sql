@@ -37,7 +37,7 @@ public class BatchInsertRenderer<T> {
                 .map(m -> m.accept(visitor))
                 .collect(FieldAndValueCollector.collect());
 
-        String insertStatement = InsertRenderingUtilities.calculateInsertStatement(model.table(), collector);
+        String insertStatement = collector.toInsertStatement(model.table(), model.statementConfiguration());
 
         return BatchInsert.withRecords(model.records())
                 .withInsertStatement(insertStatement)

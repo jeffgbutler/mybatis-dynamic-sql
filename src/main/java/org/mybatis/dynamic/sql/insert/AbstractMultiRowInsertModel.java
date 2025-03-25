@@ -30,11 +30,13 @@ public abstract class AbstractMultiRowInsertModel<T> {
     private final SqlTable table;
     private final List<T> records;
     protected final List<AbstractColumnMapping> columnMappings;
+    protected final InsertStatementConfiguration statementConfiguration;
 
     protected AbstractMultiRowInsertModel(AbstractBuilder<T, ?> builder) {
         table = Objects.requireNonNull(builder.table);
         records = Collections.unmodifiableList(Objects.requireNonNull(builder.records));
         columnMappings = Objects.requireNonNull(builder.columnMappings);
+        statementConfiguration = Objects.requireNonNull(builder.statementConfiguration);
     }
 
     public Stream<AbstractColumnMapping> columnMappings() {
@@ -49,6 +51,10 @@ public abstract class AbstractMultiRowInsertModel<T> {
         return table;
     }
 
+    public InsertStatementConfiguration statementConfiguration() {
+        return statementConfiguration;
+    }
+
     public int recordCount() {
         return records.size();
     }
@@ -57,6 +63,7 @@ public abstract class AbstractMultiRowInsertModel<T> {
         private @Nullable SqlTable table;
         private final List<T> records = new ArrayList<>();
         private final List<AbstractColumnMapping> columnMappings = new ArrayList<>();
+        private @Nullable InsertStatementConfiguration statementConfiguration;
 
         public S withTable(SqlTable table) {
             this.table = table;
@@ -70,6 +77,11 @@ public abstract class AbstractMultiRowInsertModel<T> {
 
         public S withColumnMappings(List<AbstractColumnMapping> columnMappings) {
             this.columnMappings.addAll(columnMappings);
+            return getThis();
+        }
+
+        public S withStatementConfiguration(InsertStatementConfiguration statementConfiguration) {
+            this.statementConfiguration = statementConfiguration;
             return getThis();
         }
 

@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.SqlColumn;
@@ -37,6 +38,7 @@ public class BatchInsertDSL<T> implements Buildable<BatchInsertModel<T>> {
     private final Collection<T> records;
     private final SqlTable table;
     private final List<AbstractColumnMapping> columnMappings;
+    private final InsertStatementConfiguration statementConfiguration = new InsertStatementConfiguration();
 
     private BatchInsertDSL(AbstractBuilder<T, ?> builder) {
         this.records = builder.records;
@@ -48,11 +50,17 @@ public class BatchInsertDSL<T> implements Buildable<BatchInsertModel<T>> {
         return new ColumnMappingFinisher<>(column);
     }
 
+    public BatchInsertDSL<T> configureStatement(Consumer<InsertStatementConfiguration> consumer) {
+        consumer.accept(statementConfiguration);
+        return this;
+    }
+
     @Override
     public BatchInsertModel<T> build() {
         return BatchInsertModel.withRecords(records)
                 .withTable(table)
                 .withColumnMappings(columnMappings)
+                .withStatementConfiguration(statementConfiguration)
                 .build();
     }
 

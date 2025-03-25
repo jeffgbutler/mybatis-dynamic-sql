@@ -15,8 +15,13 @@
  */
 package org.mybatis.dynamic.sql.insert.render;
 
+import org.mybatis.dynamic.sql.SqlTable;
+import org.mybatis.dynamic.sql.insert.InsertStatementConfiguration;
+import org.mybatis.dynamic.sql.render.SqlKeywords;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -54,7 +59,7 @@ public class FieldAndValueCollector {
                 .collect(Collectors.joining(", ", "values (", ")")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
-    public String multiRowInsertValuesPhrase(int rowCount) {
+    private String multiRowInsertValuesPhrase(int rowCount) {
         return IntStream.range(0, rowCount)
                 .mapToObj(this::toSingleRowOfValues)
                 .collect(Collectors.joining(", ", "values ", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -64,6 +69,29 @@ public class FieldAndValueCollector {
         return values.stream()
                 .map(s -> String.format(s, row))
                 .collect(Collectors.joining(", ", "(", ")")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    }
+
+    public String toInsertStatement(SqlTable table, InsertStatementConfiguration statementConfiguration) {
+        return calculatesInsertStatement(table, statementConfiguration, valuesPhrase());
+    }
+
+    public String toMultipleInsertStatement(SqlTable table, InsertStatementConfiguration statementConfiguration,
+                                            int recordCount) {
+        return calculatesInsertStatement(table, statementConfiguration, multiRowInsertValuesPhrase(recordCount));
+    }
+
+    private String calculatesInsertStatement(SqlTable table, InsertStatementConfiguration statementConfiguration, String valuesPhrase) {
+        StringJoiner sj = new StringJoiner(" "); //$NON-NLS-1$
+        statementConfiguration.beforeStatementFragment().ifPresent(sj::add);
+        sj.add(SqlKeywords.INSERT);
+        statementConfiguration.afterKeywordFragment().ifPresent(sj::add);
+        sj.add(SqlKeywords.INTO);
+        sj.add(table.tableName());
+        sj.add(columnsPhrase());
+        sj.add(valuesPhrase);
+        statementConfiguration.afterStatementFragment().ifPresent(sj::add);
+
+        return sj.toString();
     }
 
     public static Collector<FieldAndValue, FieldAndValueCollector, FieldAndValueCollector> collect() {

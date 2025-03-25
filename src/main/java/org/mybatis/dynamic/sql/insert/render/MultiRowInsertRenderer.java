@@ -15,8 +15,6 @@
  */
 package org.mybatis.dynamic.sql.insert.render;
 
-import static org.mybatis.dynamic.sql.util.StringUtilities.spaceBefore;
-
 import java.util.Objects;
 
 import org.jspecify.annotations.Nullable;
@@ -40,19 +38,11 @@ public class MultiRowInsertRenderer<T> {
                 .map(m -> m.accept(visitor))
                 .collect(FieldAndValueCollector.collect());
 
-        String insertStatement = calculateInsertStatement(collector);
+        String insertStatement = collector.toMultipleInsertStatement(model.table(), model.statementConfiguration(), model.recordCount());
 
         return new DefaultMultiRowInsertStatementProvider.Builder<T>().withRecords(model.records())
                 .withInsertStatement(insertStatement)
                 .build();
-    }
-
-    private String calculateInsertStatement(FieldAndValueCollector collector) {
-        String statementStart = InsertRenderingUtilities.calculateInsertStatementStart(model.table());
-        String columnsPhrase = collector.columnsPhrase();
-        String valuesPhrase = collector.multiRowInsertValuesPhrase(model.recordCount());
-
-        return statementStart + spaceBefore(columnsPhrase) + spaceBefore(valuesPhrase);
     }
 
     public static <T> Builder<T> withMultiRowInsertModel(MultiRowInsertModel<T> model) {

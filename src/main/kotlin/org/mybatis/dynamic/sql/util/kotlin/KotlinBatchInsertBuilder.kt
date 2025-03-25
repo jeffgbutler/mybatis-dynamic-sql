@@ -17,8 +17,8 @@ package org.mybatis.dynamic.sql.util.kotlin
 
 import org.mybatis.dynamic.sql.SqlColumn
 import org.mybatis.dynamic.sql.SqlTable
-import org.mybatis.dynamic.sql.insert.BatchInsertDSL
 import org.mybatis.dynamic.sql.insert.BatchInsertModel
+import org.mybatis.dynamic.sql.insert.InsertStatementConfiguration
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping
 import org.mybatis.dynamic.sql.util.Buildable
 
@@ -28,6 +28,7 @@ typealias KotlinBatchInsertCompleter<T> = KotlinBatchInsertBuilder<T>.() -> Unit
 class KotlinBatchInsertBuilder<T : Any> (private val rows: Collection<T>): Buildable<BatchInsertModel<T>> {
     private var table: SqlTable? = null
     private val columnMappings = mutableListOf<AbstractColumnMapping>()
+    private val statementConfiguration = InsertStatementConfiguration()
 
     fun into(table: SqlTable) {
         this.table = table
@@ -37,13 +38,18 @@ class KotlinBatchInsertBuilder<T : Any> (private val rows: Collection<T>): Build
         columnMappings.add(it)
     }
 
+    fun configureStatement(c: InsertStatementConfiguration.() -> Unit) {
+        statementConfiguration.apply(c)
+    }
+
     override fun build(): BatchInsertModel<T> {
         assertNotNull(table, "ERROR.23") //$NON-NLS-1$
-        return with(BatchInsertDSL.Builder<T>()) {
+        return with(BatchInsertModel.Builder<T>()) {
             withRecords(rows)
             withTable(table!!)
             withColumnMappings(columnMappings)
+            withStatementConfiguration(statementConfiguration)
             build()
-        }.build()
+        }
     }
 }
