@@ -38,7 +38,8 @@ public class MultiRowInsertRenderer<T> {
                 .map(m -> m.accept(visitor))
                 .collect(FieldAndValueCollector.collect());
 
-        String insertStatement = collector.toMultipleInsertStatement(model.table(), model.statementConfiguration(), model.recordCount());
+        String insertStatement = collector.toMultipleInsertStatement(model.table(), model.statementConfiguration(),
+                model.recordCount());
 
         return new DefaultMultiRowInsertStatementProvider.Builder<T>().withRecords(model.records())
                 .withInsertStatement(insertStatement)

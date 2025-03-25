@@ -24,7 +24,7 @@ import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
 /**
- * Common model attributes shared by DeleteModel and UpdateModel
+ * Common model attributes shared by DeleteModel and UpdateModel.
  *
  */
 public abstract class CommonModel {
@@ -35,7 +35,7 @@ public abstract class CommonModel {
     private final @Nullable OrderByModel orderByModel;
     private final StatementConfiguration statementConfiguration;
 
-    protected CommonModel (CommonBuilder<?> builder) {
+    protected CommonModel(CommonBuilder<?> builder) {
         table = Objects.requireNonNull(builder.table());
         whereModel = builder.whereModel();
         tableAlias = builder.tableAlias();

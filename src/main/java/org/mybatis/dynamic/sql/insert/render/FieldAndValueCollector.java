@@ -15,16 +15,16 @@
  */
 package org.mybatis.dynamic.sql.insert.render;
 
-import org.mybatis.dynamic.sql.SqlTable;
-import org.mybatis.dynamic.sql.insert.InsertStatementConfiguration;
-import org.mybatis.dynamic.sql.render.SqlKeywords;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import org.mybatis.dynamic.sql.SqlTable;
+import org.mybatis.dynamic.sql.insert.InsertStatementConfiguration;
+import org.mybatis.dynamic.sql.render.SqlKeywords;
 
 public class FieldAndValueCollector {
     protected final List<String> fields = new ArrayList<>();
@@ -80,7 +80,8 @@ public class FieldAndValueCollector {
         return calculatesInsertStatement(table, statementConfiguration, multiRowInsertValuesPhrase(recordCount));
     }
 
-    private String calculatesInsertStatement(SqlTable table, InsertStatementConfiguration statementConfiguration, String valuesPhrase) {
+    private String calculatesInsertStatement(SqlTable table, InsertStatementConfiguration statementConfiguration,
+                                             String valuesPhrase) {
         StringJoiner sj = new StringJoiner(" "); //$NON-NLS-1$
         statementConfiguration.beforeStatementFragment().ifPresent(sj::add);
         sj.add(SqlKeywords.INSERT);

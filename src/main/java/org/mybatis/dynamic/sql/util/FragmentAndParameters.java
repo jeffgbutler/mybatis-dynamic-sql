@@ -66,7 +66,7 @@ public class FragmentAndParameters {
         private final String fragment;
         private final Map<String, Object> parameters = new HashMap<>();
 
-        public Builder (String fragment) {
+        public Builder(String fragment) {
             this.fragment = fragment;
         }
 

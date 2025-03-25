@@ -46,6 +46,7 @@ public class FieldAndValueAndParameters extends FieldAndValue {
             this.fieldName = fieldName;
             this.valuePhrase = valuePhrase;
         }
+
         public Builder withParameter(String key, @Nullable Object value) {
             // the value can be null because a parameter type converter may return null
 

@@ -25,7 +25,7 @@ import java.util.function.Predicate;
 import org.mybatis.dynamic.sql.AbstractListValueCondition;
 
 public class IsNotInWhenPresent<T> extends AbstractListValueCondition<T>
-        implements AbstractListValueCondition.Filterable<T>, AbstractListValueCondition.Mappable<T>{
+        implements AbstractListValueCondition.Filterable<T>, AbstractListValueCondition.Mappable<T> {
     private static final IsNotInWhenPresent<?> EMPTY = new IsNotInWhenPresent<>(Collections.emptyList());
 
     public static <T> IsNotInWhenPresent<T> empty() {

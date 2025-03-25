@@ -15,9 +15,9 @@
  */
 package org.mybatis.dynamic.sql.insert;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.Optional;
+
+import org.jspecify.annotations.Nullable;
 
 public class InsertStatementConfiguration {
     private @Nullable String afterKeywordFragment;
