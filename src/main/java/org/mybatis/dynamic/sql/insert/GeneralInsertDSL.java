@@ -16,9 +16,9 @@
 package org.mybatis.dynamic.sql.insert;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
@@ -35,16 +35,21 @@ import org.mybatis.dynamic.sql.util.ValueOrNullMapping;
 import org.mybatis.dynamic.sql.util.ValueWhenPresentMapping;
 
 public class GeneralInsertDSL implements Buildable<GeneralInsertModel> {
-    private final List<AbstractColumnMapping> columnMappings;
+    private final List<AbstractColumnMapping> columnMappings = new ArrayList<>();
     private final SqlTable table;
+    private final StatementConfiguration statementConfiguration = new StatementConfiguration();
 
     private GeneralInsertDSL(Builder builder) {
         table = Objects.requireNonNull(builder.table);
-        columnMappings = builder.columnMappings;
     }
 
     public <T> SetClauseFinisher<T> set(SqlColumn<T> column) {
         return new SetClauseFinisher<>(column);
+    }
+
+    public GeneralInsertDSL configureStatement(Consumer<StatementConfiguration> consumer) {
+        consumer.accept(statementConfiguration);
+        return this;
     }
 
     @Override
@@ -52,7 +57,7 @@ public class GeneralInsertDSL implements Buildable<GeneralInsertModel> {
         return new GeneralInsertModel.Builder()
                 .withTable(table)
                 .withInsertMappings(columnMappings)
-                .withStatementConfiguration(new StatementConfiguration()) // nothing configurable in this statement yet
+                .withStatementConfiguration(statementConfiguration)
                 .build();
     }
 
@@ -112,16 +117,10 @@ public class GeneralInsertDSL implements Buildable<GeneralInsertModel> {
     }
 
     public static class Builder {
-        private final List<AbstractColumnMapping> columnMappings = new ArrayList<>();
         private @Nullable SqlTable table;
 
         public Builder withTable(SqlTable table) {
             this.table = table;
-            return this;
-        }
-
-        public Builder withColumnMappings(Collection<? extends AbstractColumnMapping> columnMappings) {
-            this.columnMappings.addAll(columnMappings);
             return this;
         }
 

@@ -75,6 +75,7 @@ public class UpdateRenderer {
                 .build();
     }
 
+    // TODO: Duplicate
     private Optional<FragmentAndParameters> calculateBeforeStatementFragment() {
         return updateModel.statementConfiguration().beforeStatementFragment().map(f -> f.render(renderingContext));
     }

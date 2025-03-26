@@ -15,9 +15,10 @@
  */
 package org.mybatis.dynamic.sql.insert.render;
 
-import static org.mybatis.dynamic.sql.util.StringUtilities.spaceAfter;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
@@ -26,6 +27,7 @@ import org.mybatis.dynamic.sql.insert.InsertColumnListModel;
 import org.mybatis.dynamic.sql.insert.InsertSelectModel;
 import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
+import org.mybatis.dynamic.sql.render.SqlKeywords;
 import org.mybatis.dynamic.sql.select.render.SubQueryRenderer;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 
@@ -42,29 +44,63 @@ public class InsertSelectRenderer {
     }
 
     public InsertSelectStatementProvider render() {
-        String statementStart = InsertRenderingUtilities.calculateInsertStatementStart(model.table());
-        String columnsPhrase = calculateColumnsPhrase();
-        String prefix = statementStart + spaceAfter(columnsPhrase);
+        Optional<FragmentAndParameters> beforeStatementFragment = calculateBeforeStatementFragment();
+        Optional<FragmentAndParameters> afterKeywordFragment = calculateAfterKeywordFragment();
 
         FragmentAndParameters fragmentAndParameters = SubQueryRenderer.withSelectModel(model.selectModel())
                 .withRenderingContext(renderingContext)
-                .withPrefix(prefix)
                 .build()
                 .render();
 
-        return DefaultGeneralInsertStatementProvider.withInsertStatement(fragmentAndParameters.fragment())
+        Optional<FragmentAndParameters> afterStatementFragment = calculateAfterStatementFragment();
+
+        DefaultGeneralInsertStatementProvider.Builder builder = new DefaultGeneralInsertStatementProvider.Builder();
+
+        StringJoiner joiner = new StringJoiner(" "); //$NON-NLS-1$
+        beforeStatementFragment.ifPresent(fp -> {
+            joiner.add(fp.fragment());
+            builder.withParameters(fp.parameters());
+        });
+        joiner.add(SqlKeywords.INSERT);
+        afterKeywordFragment.ifPresent(fp -> {
+            joiner.add(fp.fragment());
+            builder.withParameters(fp.parameters());
+        });
+        joiner.add(SqlKeywords.INTO);
+        joiner.add(model.table().tableName());
+        calculateColumnsPhrase().ifPresent(joiner::add);
+        joiner.add(fragmentAndParameters.fragment());
+        afterStatementFragment.ifPresent(fp -> {
+            joiner.add(fp.fragment());
+            builder.withParameters(fp.parameters());
+        });
+
+        return builder.withInsertStatement(joiner.toString())
                 .withParameters(fragmentAndParameters.parameters())
                 .build();
     }
 
-    private String calculateColumnsPhrase() {
-        return model.columnList().map(this::calculateColumnsPhrase).orElse(""); //$NON-NLS-1$
+    private Optional<String> calculateColumnsPhrase() {
+        return model.columnList().map(this::calculateColumnsPhrase);
     }
 
     private String calculateColumnsPhrase(InsertColumnListModel columnList) {
         return columnList.columns()
                 .map(SqlColumn::name)
-                .collect(Collectors.joining(", ", " (", ")")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                .collect(Collectors.joining(", ", "(", ")")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    }
+
+    // TODO: Duplicate
+    private Optional<FragmentAndParameters> calculateBeforeStatementFragment() {
+        return model.statementConfiguration().beforeStatementFragment().map(f -> f.render(renderingContext));
+    }
+
+    private Optional<FragmentAndParameters> calculateAfterKeywordFragment() {
+        return model.statementConfiguration().afterKeywordFragment().map(f -> f.render(renderingContext));
+    }
+
+    private Optional<FragmentAndParameters> calculateAfterStatementFragment() {
+        return model.statementConfiguration().afterStatementFragment().map(f -> f.render(renderingContext));
     }
 
     public static Builder withInsertSelectModel(InsertSelectModel model) {

@@ -72,6 +72,7 @@ public class DeleteRenderer {
                 .build();
     }
 
+    // TODO: Duplicate
     private Optional<FragmentAndParameters> calculateBeforeStatementFragment() {
         return deleteModel.statementConfiguration().beforeStatementFragment().map(f -> f.render(renderingContext));
     }

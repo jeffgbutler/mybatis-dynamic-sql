@@ -17,21 +17,25 @@ package org.mybatis.dynamic.sql.insert.render;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.insert.GeneralInsertModel;
 import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
+import org.mybatis.dynamic.sql.render.SqlKeywords;
+import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 import org.mybatis.dynamic.sql.util.Validator;
 
 public class GeneralInsertRenderer {
 
     private final GeneralInsertModel model;
     private final GeneralInsertValuePhraseVisitor visitor;
+    private final RenderingContext renderingContext;
 
     private GeneralInsertRenderer(Builder builder) {
         model = Objects.requireNonNull(builder.model);
-        RenderingContext renderingContext = RenderingContext
+        renderingContext = RenderingContext
                 .withRenderingStrategy(Objects.requireNonNull(builder.renderingStrategy))
                 .withStatementConfiguration(model.statementConfiguration())
                 .build();
@@ -39,6 +43,9 @@ public class GeneralInsertRenderer {
     }
 
     public GeneralInsertStatementProvider render() {
+        Optional<FragmentAndParameters> beforeStatementFragment = calculateBeforeStatementFragment();
+        Optional<FragmentAndParameters> afterKeywordFragment = calculateAfterKeywordFragment();
+
         FieldAndValueAndParametersCollector collector = model.columnMappings()
                 .map(m -> m.accept(visitor))
                 .flatMap(Optional::stream)
@@ -46,11 +53,46 @@ public class GeneralInsertRenderer {
 
         Validator.assertFalse(collector.isEmpty(), "ERROR.9"); //$NON-NLS-1$
 
-        String insertStatement = InsertRenderingUtilities.calculateInsertStatement(model.table(), collector);
+        Optional<FragmentAndParameters> afterStatementFragment = calculateAfterStatementFragment();
 
-        return DefaultGeneralInsertStatementProvider.withInsertStatement(insertStatement)
+        DefaultGeneralInsertStatementProvider.Builder builder = new DefaultGeneralInsertStatementProvider.Builder();
+
+        StringJoiner joiner = new StringJoiner(" "); //$NON-NLS-1$
+
+        beforeStatementFragment.ifPresent(fp -> {
+            joiner.add(fp.fragment());
+            builder.withParameters(fp.parameters());
+        });
+        joiner.add(SqlKeywords.INSERT);
+        afterKeywordFragment.ifPresent(fp -> {
+            joiner.add(fp.fragment());
+            builder.withParameters(fp.parameters());
+        });
+        joiner.add(SqlKeywords.INTO);
+        joiner.add(model.table().tableName());
+        joiner.add(collector.columnsPhrase());
+        joiner.add(collector.valuesPhrase());
+        afterStatementFragment.ifPresent(fp -> {
+            joiner.add(fp.fragment());
+            builder.withParameters(fp.parameters());
+        });
+
+        return builder.withInsertStatement(joiner.toString())
                 .withParameters(collector.parameters())
                 .build();
+    }
+
+    // TODO: Duplicate
+    private Optional<FragmentAndParameters> calculateBeforeStatementFragment() {
+        return model.statementConfiguration().beforeStatementFragment().map(f -> f.render(renderingContext));
+    }
+
+    private Optional<FragmentAndParameters> calculateAfterKeywordFragment() {
+        return model.statementConfiguration().afterKeywordFragment().map(f -> f.render(renderingContext));
+    }
+
+    private Optional<FragmentAndParameters> calculateAfterStatementFragment() {
+        return model.statementConfiguration().afterStatementFragment().map(f -> f.render(renderingContext));
     }
 
     public static Builder withInsertModel(GeneralInsertModel model) {

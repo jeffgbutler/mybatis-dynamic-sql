@@ -17,7 +17,7 @@ package org.mybatis.dynamic.sql.util.kotlin
 
 import org.mybatis.dynamic.sql.SqlColumn
 import org.mybatis.dynamic.sql.SqlTable
-import org.mybatis.dynamic.sql.insert.GeneralInsertDSL
+import org.mybatis.dynamic.sql.configuration.StatementConfiguration
 import org.mybatis.dynamic.sql.insert.GeneralInsertModel
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping
 import org.mybatis.dynamic.sql.util.Buildable
@@ -28,15 +28,21 @@ typealias GeneralInsertCompleter = @MyBatisDslMarker KotlinGeneralInsertBuilder.
 class KotlinGeneralInsertBuilder(private val table: SqlTable) : Buildable<GeneralInsertModel> {
 
     private val columnMappings = mutableListOf<AbstractColumnMapping>()
+    private val statementConfiguration = StatementConfiguration()
 
     fun <T : Any> set(column: SqlColumn<T>) = GeneralInsertColumnSetCompleter(column) {
         columnMappings.add(it)
     }
 
+    fun configureStatement(c: StatementConfiguration.() -> Unit) {
+        statementConfiguration.apply(c)
+    }
+
     override fun build(): GeneralInsertModel =
-        with(GeneralInsertDSL.Builder()) {
+        with(GeneralInsertModel.Builder()) {
             withTable(table)
-            withColumnMappings(columnMappings)
+            withInsertMappings(columnMappings)
+            withStatementConfiguration(statementConfiguration)
             build()
-        }.build()
+        }
 }

@@ -96,14 +96,35 @@ class KCustomSqlTest {
     @Test
     fun testGeneralInsertHints() {
         val insertStatement= insertInto(person) {
-//            withSqlAfterKeyword("/* after keyword */")
-//            withSqlAfterStatement("/* after statement */")
-//            withSqlBeforeStatement("/* before statement */")
             set(id) toValue 3
+            configureStatement {
+                withSqlAfterKeyword("/* after keyword */")
+                withSqlAfterStatement("/* after statement */")
+                withSqlBeforeStatement("/* before statement */")
+            }
         }
 
         assertThat(insertStatement.insertStatement)
             .isEqualTo("/* before statement */ insert /* after keyword */ into Person (id) values (:p1) /* after statement */")
+    }
+
+    @Test
+    fun testInsertSelectHints() {
+        val insertStatement= insertSelect {
+            into(person)
+            select(person.allColumns()) {
+                from(person)
+                where { id isGreaterThan 0 }
+            }
+            configureStatement {
+                withSqlAfterKeyword("/* after keyword */")
+                withSqlAfterStatement("/* after statement */")
+                withSqlBeforeStatement("/* before statement */")
+            }
+        }
+
+        assertThat(insertStatement.insertStatement)
+            .isEqualTo("/* before statement */ insert /* after keyword */ into Person select * from Person where id > :p1 /* after statement */")
     }
 
     @Test
