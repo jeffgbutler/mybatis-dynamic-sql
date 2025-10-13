@@ -15,30 +15,27 @@
  */
 package org.mybatis.dynamic.sql.select.aggregate;
 
-import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
+import org.mybatis.dynamic.sql.util.FragmentCollector;
 
-public class Count extends AbstractCount<Count> {
-
-    private final BasicColumn column;
+public class Count extends AbstractAggregate<Long, Count> {
 
     private Count(BasicColumn column, @Nullable String alias, @Nullable WindowModel windowModel) {
-        super(alias, windowModel);
-        this.column = Objects.requireNonNull(column);
+        super(column, alias, windowModel);
     }
 
     @Override
     public FragmentAndParameters render(RenderingContext renderingContext) {
-        return column.render(renderingContext).mapFragment(s -> "count(" + s + ")"); //$NON-NLS-1$ //$NON-NLS-2$
-    }
-
-    @Override
-    public Count as(String alias) {
-        return new Count(column, alias, windowModel);
+        FragmentCollector fragmentCollector = new FragmentCollector();
+        fragmentCollector.add(column.render(renderingContext)
+                .mapFragment(s -> "count(" + s + ")")); //$NON-NLS-1$ //$NON-NLS-2$
+        renderWindowModel(renderingContext).ifPresent(fragmentCollector::add);
+        return fragmentCollector.toFragmentAndParameters(Collectors.joining(" ")); //$NON-NLS-1$
     }
 
     @Override
