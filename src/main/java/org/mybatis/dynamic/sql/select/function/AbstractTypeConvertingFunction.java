@@ -43,7 +43,12 @@ public abstract class AbstractTypeConvertingFunction<T, R, U extends AbstractTyp
     protected @Nullable String alias;
 
     protected AbstractTypeConvertingFunction(BasicColumn column) {
+        this(column, null);
+    }
+
+    protected AbstractTypeConvertingFunction(BasicColumn column, @Nullable String alias) {
         this.column = Objects.requireNonNull(column);
+        this.alias = alias;
     }
 
     @Override

@@ -15,29 +15,36 @@
  */
 package org.mybatis.dynamic.sql.select.aggregate;
 
+import java.util.stream.Collectors;
+
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.BindableColumn;
 import org.mybatis.dynamic.sql.render.RenderingContext;
-import org.mybatis.dynamic.sql.select.function.AbstractUniTypeFunction;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
+import org.mybatis.dynamic.sql.util.FragmentCollector;
 
-public class Max<T> extends AbstractUniTypeFunction<T, Max<T>> {
+public class Max<T> extends AbstractAggregate<T, Max<T>> {
 
-    private Max(BasicColumn column) {
-        super(column);
+    private Max(BasicColumn column, @Nullable String alias, @Nullable WindowModel windowModel) {
+        super(column, alias, windowModel);
     }
 
     @Override
     public FragmentAndParameters render(RenderingContext renderingContext) {
-        return column.render(renderingContext).mapFragment(s -> "max(" + s + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+        FragmentCollector fragmentCollector = new FragmentCollector();
+        fragmentCollector.add(column.render(renderingContext)
+                .mapFragment(s -> "max(" + s + ")")); //$NON-NLS-1$ //$NON-NLS-2$
+        renderWindowModel(renderingContext).ifPresent(fragmentCollector::add);
+        return fragmentCollector.toFragmentAndParameters(Collectors.joining(" ")); //$NON-NLS-1$
     }
 
     @Override
     protected Max<T> copy() {
-        return new Max<>(column);
+        return new Max<>(column, alias, windowModel);
     }
 
     public static <T> Max<T> of(BindableColumn<T> column) {
-        return new Max<>(column);
+        return new Max<>(column, null, null);
     }
 }

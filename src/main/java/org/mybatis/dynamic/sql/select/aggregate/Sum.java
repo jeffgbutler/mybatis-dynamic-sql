@@ -16,26 +16,28 @@
 package org.mybatis.dynamic.sql.select.aggregate;
 
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.BindableColumn;
 import org.mybatis.dynamic.sql.RenderableCondition;
 import org.mybatis.dynamic.sql.render.RenderingContext;
-import org.mybatis.dynamic.sql.select.function.AbstractUniTypeFunction;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
+import org.mybatis.dynamic.sql.util.FragmentCollector;
 import org.mybatis.dynamic.sql.util.Validator;
 import org.mybatis.dynamic.sql.where.render.ColumnAndConditionRenderer;
 
-public class Sum<T> extends AbstractUniTypeFunction<T, Sum<T>> {
+public class Sum<T> extends AbstractAggregate<T, Sum<T>> {
     private final Function<RenderingContext, FragmentAndParameters> renderer;
 
     private Sum(BasicColumn column) {
-        super(column);
+        super(column, null, null);
         renderer = rc -> column.render(rc).mapFragment(this::applyAggregate);
     }
 
     private Sum(BindableColumn<T> column, RenderableCondition<T> condition) {
-        super(column);
+        super(column, null, null);
         renderer = rc -> {
             Validator.assertTrue(condition.shouldRender(rc), "ERROR.37", "sum"); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -49,14 +51,18 @@ public class Sum<T> extends AbstractUniTypeFunction<T, Sum<T>> {
         };
     }
 
-    private Sum(BasicColumn column, Function<RenderingContext, FragmentAndParameters> renderer) {
-        super(column);
+    private Sum(BasicColumn column, Function<RenderingContext, FragmentAndParameters> renderer,
+                @Nullable String alias, @Nullable WindowModel windowModel) {
+        super(column, alias, windowModel);
         this.renderer = renderer;
     }
 
     @Override
     public FragmentAndParameters render(RenderingContext renderingContext) {
-        return renderer.apply(renderingContext);
+        FragmentCollector fragmentCollector = new FragmentCollector();
+        fragmentCollector.add(renderer.apply(renderingContext));
+        renderWindowModel(renderingContext).ifPresent(fragmentCollector::add);
+        return fragmentCollector.toFragmentAndParameters(Collectors.joining(" ")); //$NON-NLS-1$
     }
 
     private String applyAggregate(String s) {
@@ -65,7 +71,7 @@ public class Sum<T> extends AbstractUniTypeFunction<T, Sum<T>> {
 
     @Override
     protected Sum<T> copy() {
-        return new Sum<>(column, renderer);
+        return new Sum<>(column, renderer, alias, windowModel);
     }
 
     public static <T> Sum<T> of(BindableColumn<T> column) {

@@ -15,29 +15,36 @@
  */
 package org.mybatis.dynamic.sql.select.aggregate;
 
+import java.util.stream.Collectors;
+
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.BindableColumn;
 import org.mybatis.dynamic.sql.render.RenderingContext;
-import org.mybatis.dynamic.sql.select.function.AbstractUniTypeFunction;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
+import org.mybatis.dynamic.sql.util.FragmentCollector;
 
-public class Min<T> extends AbstractUniTypeFunction<T, Min<T>> {
+public class Min<T> extends AbstractAggregate<T, Min<T>> {
 
-    private Min(BasicColumn column) {
-        super(column);
+    private Min(BasicColumn column, @Nullable String alias, @Nullable WindowModel windowModel) {
+        super(column, alias, windowModel);
     }
 
     @Override
     public FragmentAndParameters render(RenderingContext renderingContext) {
-        return column.render(renderingContext).mapFragment(s -> "min(" + s + ")"); //$NON-NLS-1$ //$NON-NLS-2$)
+        FragmentCollector fragmentCollector = new FragmentCollector();
+        fragmentCollector.add(column.render(renderingContext)
+                .mapFragment(s -> "min(" + s + ")")); //$NON-NLS-1$ //$NON-NLS-2$
+        renderWindowModel(renderingContext).ifPresent(fragmentCollector::add);
+        return fragmentCollector.toFragmentAndParameters(Collectors.joining(" ")); //$NON-NLS-1$
     }
 
     @Override
     protected Min<T> copy() {
-        return new Min<>(column);
+        return new Min<>(column, alias, windowModel);
     }
 
     public static <T> Min<T> of(BindableColumn<T> column) {
-        return new Min<>(column);
+        return new Min<>(column, null, null);
     }
 }

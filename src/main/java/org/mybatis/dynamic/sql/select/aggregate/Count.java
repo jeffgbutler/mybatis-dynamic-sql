@@ -17,20 +17,17 @@ package org.mybatis.dynamic.sql.select.aggregate;
 
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 
-public class Count extends AbstractCount {
+public class Count extends AbstractCount<Count> {
 
     private final BasicColumn column;
 
-    private Count(BasicColumn column) {
-        this.column = Objects.requireNonNull(column);
-    }
-
-    private Count(BasicColumn column, String alias) {
-        super(alias);
+    private Count(BasicColumn column, @Nullable String alias, @Nullable WindowModel windowModel) {
+        super(alias, windowModel);
         this.column = Objects.requireNonNull(column);
     }
 
@@ -41,10 +38,15 @@ public class Count extends AbstractCount {
 
     @Override
     public Count as(String alias) {
-        return new Count(column, alias);
+        return new Count(column, alias, windowModel);
+    }
+
+    @Override
+    protected Count copy() {
+        return new Count(column, alias, windowModel);
     }
 
     public static Count of(BasicColumn column) {
-        return new Count(column);
+        return new Count(column, null, null);
     }
 }

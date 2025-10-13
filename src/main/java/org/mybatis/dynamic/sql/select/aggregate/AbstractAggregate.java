@@ -15,39 +15,31 @@
  */
 package org.mybatis.dynamic.sql.select.aggregate;
 
-import java.util.Objects;
+import java.util.Optional;
 
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.render.RenderingContext;
+import org.mybatis.dynamic.sql.select.function.AbstractUniTypeFunction;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 
-public class CountDistinct extends AbstractCount<CountDistinct> {
+public abstract class AbstractAggregate<T, U extends AbstractAggregate<T, U>> extends AbstractUniTypeFunction<T, U>
+        implements WindowDSL<U> {
+    protected @Nullable WindowModel windowModel;
 
-    private final BasicColumn column;
-
-    private CountDistinct(BasicColumn column, @Nullable String alias, @Nullable WindowModel windowModel) {
-        super(alias, windowModel);
-        this.column = Objects.requireNonNull(column);
+    protected AbstractAggregate(BasicColumn column, @Nullable String alias, @Nullable WindowModel windowModel) {
+        super(column, alias);
+        this.windowModel = windowModel;
     }
 
-    @Override
-    public FragmentAndParameters render(RenderingContext renderingContext) {
-        return column.render(renderingContext)
-                .mapFragment(s -> "count(distinct " + s + ")"); //$NON-NLS-1$ //$NON-NLS-2$)
+    public U over(WindowModel windowModel) {
+        U copy = copy();
+        copy.windowModel = windowModel;
+        return copy;
     }
 
-    @Override
-    public CountDistinct as(String alias) {
-        return new CountDistinct(column, alias, windowModel);
-    }
-
-    @Override
-    protected CountDistinct copy() {
-        return new CountDistinct(column, alias, windowModel);
-    }
-
-    public static CountDistinct of(BasicColumn column) {
-        return new CountDistinct(column, null, null);
+    protected Optional<FragmentAndParameters> renderWindowModel(RenderingContext renderingContext) {
+        return Optional.ofNullable(windowModel)
+                .map(wm -> wm.render(renderingContext));
     }
 }

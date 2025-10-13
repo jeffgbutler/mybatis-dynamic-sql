@@ -15,29 +15,36 @@
  */
 package org.mybatis.dynamic.sql.select.aggregate;
 
+import java.util.stream.Collectors;
+
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.BindableColumn;
 import org.mybatis.dynamic.sql.render.RenderingContext;
-import org.mybatis.dynamic.sql.select.function.AbstractUniTypeFunction;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
+import org.mybatis.dynamic.sql.util.FragmentCollector;
 
-public class Avg<T> extends AbstractUniTypeFunction<T, Avg<T>> {
+public class Avg<T> extends AbstractAggregate<T, Avg<T>> {
 
-    private Avg(BasicColumn column) {
-        super(column);
+    private Avg(BasicColumn column, @Nullable String alias, @Nullable WindowModel windowModel) {
+        super(column, alias, windowModel);
     }
 
     @Override
     public FragmentAndParameters render(RenderingContext renderingContext) {
-        return column.render(renderingContext).mapFragment(s -> "avg(" + s + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+        FragmentCollector fragmentCollector = new FragmentCollector();
+        fragmentCollector.add(column.render(renderingContext)
+                .mapFragment(s -> "avg(" + s + ")")); //$NON-NLS-1$ //$NON-NLS-2$
+        renderWindowModel(renderingContext).ifPresent(fragmentCollector::add);
+        return fragmentCollector.toFragmentAndParameters(Collectors.joining(" ")); //$NON-NLS-1$
     }
 
     @Override
     protected Avg<T> copy() {
-        return new Avg<>(column);
+        return new Avg<>(column, alias, windowModel);
     }
 
     public static <T> Avg<T> of(BindableColumn<T> column) {
-        return new Avg<>(column);
+        return new Avg<>(column, null, null);
     }
 }

@@ -25,19 +25,26 @@ import org.mybatis.dynamic.sql.BindableColumn;
  * backwards compatibility. Count functions are configured as BindableColumns of type Long
  * as it is assumed that the count functions always return a number.
  */
-public abstract class AbstractCount implements BindableColumn<Long> {
-    private final @Nullable String alias;
+public abstract class AbstractCount<T extends AbstractCount<T>> implements BindableColumn<Long>, WindowDSL<T> {
+    protected final @Nullable String alias;
+    protected @Nullable WindowModel windowModel;
 
-    protected AbstractCount() {
-        this(null);
-    }
-
-    protected AbstractCount(@Nullable String alias) {
+    protected AbstractCount(@Nullable String alias, @Nullable WindowModel windowModel) {
         this.alias = alias;
+        this.windowModel = windowModel;
     }
 
     @Override
     public Optional<String> alias() {
         return Optional.ofNullable(alias);
     }
+
+    @Override
+    public T over(WindowModel windowModel) {
+        T copy = copy();
+        copy.windowModel = windowModel;
+        return copy;
+    }
+
+    protected abstract T copy();
 }

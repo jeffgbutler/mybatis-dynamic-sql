@@ -18,6 +18,7 @@ package org.mybatis.dynamic.sql.select.function;
 import java.sql.JDBCType;
 import java.util.Optional;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
 
 /**
@@ -34,7 +35,11 @@ public abstract class AbstractUniTypeFunction<T, U extends AbstractUniTypeFuncti
         extends AbstractTypeConvertingFunction<T, T, U> {
 
     protected AbstractUniTypeFunction(BasicColumn column) {
-        super(column);
+        this(column, null);
+    }
+
+    protected AbstractUniTypeFunction(BasicColumn column, @Nullable String alias) {
+        super(column,  alias);
     }
 
     @Override

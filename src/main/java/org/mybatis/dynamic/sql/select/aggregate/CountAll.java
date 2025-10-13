@@ -15,17 +15,18 @@
  */
 package org.mybatis.dynamic.sql.select.aggregate;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 
-public class CountAll extends AbstractCount {
+public class CountAll extends AbstractCount<CountAll> {
 
     public CountAll() {
-        super();
+        this(null, null);
     }
 
-    private CountAll(String alias) {
-        super(alias);
+    private CountAll(@Nullable String alias, @Nullable WindowModel windowModel) {
+        super(alias, windowModel);
     }
 
     @Override
@@ -35,6 +36,11 @@ public class CountAll extends AbstractCount {
 
     @Override
     public CountAll as(String alias) {
-        return new CountAll(alias);
+        return new CountAll(alias, windowModel);
+    }
+
+    @Override
+    protected CountAll copy() {
+        return new CountAll(alias, windowModel);
     }
 }
