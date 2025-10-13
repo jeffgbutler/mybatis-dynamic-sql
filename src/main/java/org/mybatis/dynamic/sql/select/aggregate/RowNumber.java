@@ -21,6 +21,10 @@ import org.mybatis.dynamic.sql.DerivedColumn;
 
 public class RowNumber extends AbstractAggregate<Long, RowNumber> {
 
+    public RowNumber() {
+        this(DerivedColumn.of("UNUSED"), null, null); //$NON-NLS-1$
+    }
+
     private RowNumber(BasicColumn column, @Nullable String alias, @Nullable WindowModel windowModel) {
         super(column, alias, windowModel);
     }
@@ -33,10 +37,5 @@ public class RowNumber extends AbstractAggregate<Long, RowNumber> {
     @Override
     protected String applyAggregate(String columnName) {
         return "row_number()"; //$NON-NLS-1$
-    }
-
-    public static RowNumber of() {
-        DerivedColumn<Long> dummyColumn = DerivedColumn.of("UNUSED"); //$NON-NLS-1$
-        return new RowNumber(dummyColumn, null, null);
     }
 }

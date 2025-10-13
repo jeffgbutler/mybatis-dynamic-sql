@@ -528,7 +528,7 @@ public interface SqlBuilder {
     }
 
     static RowNumber row_number() {
-        return RowNumber.of();
+        return new RowNumber();
     }
 
     // constants
