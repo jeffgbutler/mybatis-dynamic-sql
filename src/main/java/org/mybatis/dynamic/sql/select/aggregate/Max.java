@@ -15,14 +15,9 @@
  */
 package org.mybatis.dynamic.sql.select.aggregate;
 
-import java.util.stream.Collectors;
-
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.BindableColumn;
-import org.mybatis.dynamic.sql.render.RenderingContext;
-import org.mybatis.dynamic.sql.util.FragmentAndParameters;
-import org.mybatis.dynamic.sql.util.FragmentCollector;
 
 public class Max<T> extends AbstractAggregate<T, Max<T>> {
 
@@ -31,19 +26,14 @@ public class Max<T> extends AbstractAggregate<T, Max<T>> {
     }
 
     @Override
-    public FragmentAndParameters render(RenderingContext renderingContext) {
-        FragmentCollector fragmentCollector = new FragmentCollector();
-        fragmentCollector.add(column.render(renderingContext)
-                .mapFragment(s -> "max(" + s + ")")); //$NON-NLS-1$ //$NON-NLS-2$
-        renderWindowModel(renderingContext).ifPresent(fragmentCollector::add);
-        return fragmentCollector.toFragmentAndParameters(Collectors.joining(" ")); //$NON-NLS-1$
-    }
-
-    @Override
     protected Max<T> copy() {
         return new Max<>(column, alias, windowModel);
     }
 
+    @Override
+    protected String applyAggregate(String columnName) {
+        return "max(" + columnName + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+    }
     public static <T> Max<T> of(BindableColumn<T> column) {
         return new Max<>(column, null, null);
     }

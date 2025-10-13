@@ -16,31 +16,26 @@
 package org.mybatis.dynamic.sql.select.aggregate;
 
 import org.jspecify.annotations.Nullable;
-import org.mybatis.dynamic.sql.render.RenderingContext;
-import org.mybatis.dynamic.sql.util.FragmentAndParameters;
+import org.mybatis.dynamic.sql.BasicColumn;
+import org.mybatis.dynamic.sql.DerivedColumn;
 
-public class CountAll extends AbstractCount<CountAll> {
+public class CountAll extends AbstractAggregate<Long, CountAll> {
 
     public CountAll() {
-        this(null, null);
+        this(DerivedColumn.of("*"), null, null); //$NON-NLS-1$
     }
 
-    private CountAll(@Nullable String alias, @Nullable WindowModel windowModel) {
-        super(alias, windowModel);
-    }
-
-    @Override
-    public FragmentAndParameters render(RenderingContext renderingContext) {
-        return FragmentAndParameters.fromFragment("count(*)"); //$NON-NLS-1$
+    private CountAll(BasicColumn column, @Nullable String alias, @Nullable WindowModel windowModel) {
+        super(column, alias, windowModel);
     }
 
     @Override
-    public CountAll as(String alias) {
-        return new CountAll(alias, windowModel);
+    protected String applyAggregate(String columnName) {
+        return "count(" + columnName + ")"; //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     @Override
     protected CountAll copy() {
-        return new CountAll(alias, windowModel);
+        return new CountAll(column, alias, windowModel);
     }
 }

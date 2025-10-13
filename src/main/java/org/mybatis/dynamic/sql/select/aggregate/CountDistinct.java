@@ -15,13 +15,8 @@
  */
 package org.mybatis.dynamic.sql.select.aggregate;
 
-import java.util.stream.Collectors;
-
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
-import org.mybatis.dynamic.sql.render.RenderingContext;
-import org.mybatis.dynamic.sql.util.FragmentAndParameters;
-import org.mybatis.dynamic.sql.util.FragmentCollector;
 
 public class CountDistinct extends AbstractAggregate<Long, CountDistinct> {
 
@@ -30,17 +25,13 @@ public class CountDistinct extends AbstractAggregate<Long, CountDistinct> {
     }
 
     @Override
-    public FragmentAndParameters render(RenderingContext renderingContext) {
-        FragmentCollector fragmentCollector = new FragmentCollector();
-        fragmentCollector.add(column.render(renderingContext)
-                .mapFragment(s -> "count(distinct " + s + ")")); //$NON-NLS-1$ //$NON-NLS-2$
-        renderWindowModel(renderingContext).ifPresent(fragmentCollector::add);
-        return fragmentCollector.toFragmentAndParameters(Collectors.joining(" ")); //$NON-NLS-1$
+    protected CountDistinct copy() {
+        return new CountDistinct(column, alias, windowModel);
     }
 
     @Override
-    protected CountDistinct copy() {
-        return new CountDistinct(column, alias, windowModel);
+    protected String applyAggregate(String columnName) {
+        return "count(distinct " + columnName + ")"; //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public static CountDistinct of(BasicColumn column) {

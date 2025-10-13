@@ -16,12 +16,14 @@
 package org.mybatis.dynamic.sql.select.aggregate;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.select.function.AbstractUniTypeFunction;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
+import org.mybatis.dynamic.sql.util.FragmentCollector;
 
 public abstract class AbstractAggregate<T, U extends AbstractAggregate<T, U>> extends AbstractUniTypeFunction<T, U>
         implements WindowDSL<U> {
@@ -38,8 +40,19 @@ public abstract class AbstractAggregate<T, U extends AbstractAggregate<T, U>> ex
         return copy;
     }
 
+    @Override
+    public FragmentAndParameters render(RenderingContext renderingContext) {
+        FragmentCollector fragmentCollector = new FragmentCollector();
+        fragmentCollector.add(column.render(renderingContext)
+                .mapFragment(this::applyAggregate));
+        renderWindowModel(renderingContext).ifPresent(fragmentCollector::add);
+        return fragmentCollector.toFragmentAndParameters(Collectors.joining(" ")); //$NON-NLS-1$
+    }
+
     protected Optional<FragmentAndParameters> renderWindowModel(RenderingContext renderingContext) {
         return Optional.ofNullable(windowModel)
                 .map(wm -> wm.render(renderingContext));
     }
+
+    protected abstract String applyAggregate(String columnName);
 }

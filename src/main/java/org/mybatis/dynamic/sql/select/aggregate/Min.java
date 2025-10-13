@@ -15,14 +15,9 @@
  */
 package org.mybatis.dynamic.sql.select.aggregate;
 
-import java.util.stream.Collectors;
-
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.BindableColumn;
-import org.mybatis.dynamic.sql.render.RenderingContext;
-import org.mybatis.dynamic.sql.util.FragmentAndParameters;
-import org.mybatis.dynamic.sql.util.FragmentCollector;
 
 public class Min<T> extends AbstractAggregate<T, Min<T>> {
 
@@ -31,17 +26,13 @@ public class Min<T> extends AbstractAggregate<T, Min<T>> {
     }
 
     @Override
-    public FragmentAndParameters render(RenderingContext renderingContext) {
-        FragmentCollector fragmentCollector = new FragmentCollector();
-        fragmentCollector.add(column.render(renderingContext)
-                .mapFragment(s -> "min(" + s + ")")); //$NON-NLS-1$ //$NON-NLS-2$
-        renderWindowModel(renderingContext).ifPresent(fragmentCollector::add);
-        return fragmentCollector.toFragmentAndParameters(Collectors.joining(" ")); //$NON-NLS-1$
+    protected Min<T> copy() {
+        return new Min<>(column, alias, windowModel);
     }
 
     @Override
-    protected Min<T> copy() {
-        return new Min<>(column, alias, windowModel);
+    protected String applyAggregate(String columnName) {
+        return "min(" + columnName + ")"; //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     public static <T> Min<T> of(BindableColumn<T> column) {

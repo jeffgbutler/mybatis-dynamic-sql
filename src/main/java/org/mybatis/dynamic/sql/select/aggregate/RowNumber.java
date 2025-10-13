@@ -15,14 +15,9 @@
  */
 package org.mybatis.dynamic.sql.select.aggregate;
 
-import java.util.stream.Collectors;
-
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.DerivedColumn;
-import org.mybatis.dynamic.sql.render.RenderingContext;
-import org.mybatis.dynamic.sql.util.FragmentAndParameters;
-import org.mybatis.dynamic.sql.util.FragmentCollector;
 
 public class RowNumber extends AbstractAggregate<Long, RowNumber> {
 
@@ -31,16 +26,13 @@ public class RowNumber extends AbstractAggregate<Long, RowNumber> {
     }
 
     @Override
-    public FragmentAndParameters render(RenderingContext renderingContext) {
-        FragmentCollector fragmentCollector = new FragmentCollector();
-        fragmentCollector.add(FragmentAndParameters.fromFragment("row_number()")); //$NON-NLS-1$
-        renderWindowModel(renderingContext).ifPresent(fragmentCollector::add);
-        return fragmentCollector.toFragmentAndParameters(Collectors.joining(" ")); //$NON-NLS-1$
+    protected RowNumber copy() {
+        return new RowNumber(column, alias, windowModel);
     }
 
     @Override
-    protected RowNumber copy() {
-        return new RowNumber(column, alias, windowModel);
+    protected String applyAggregate(String columnName) {
+        return "row_number()"; //$NON-NLS-1$
     }
 
     public static RowNumber of() {

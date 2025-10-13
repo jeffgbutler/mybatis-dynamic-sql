@@ -65,7 +65,7 @@ public class Sum<T> extends AbstractAggregate<T, Sum<T>> {
         return fragmentCollector.toFragmentAndParameters(Collectors.joining(" ")); //$NON-NLS-1$
     }
 
-    private String applyAggregate(String s) {
+    protected String applyAggregate(String s) {
         return "sum(" + s + ")"; //$NON-NLS-1$ //$NON-NLS-2$
     }
 
