@@ -43,6 +43,7 @@ import org.mybatis.dynamic.sql.select.aggregate.CountAll;
 import org.mybatis.dynamic.sql.select.aggregate.CountDistinct;
 import org.mybatis.dynamic.sql.select.aggregate.Max;
 import org.mybatis.dynamic.sql.select.aggregate.Min;
+import org.mybatis.dynamic.sql.select.aggregate.RowNumber;
 import org.mybatis.dynamic.sql.select.aggregate.Sum;
 import org.mybatis.dynamic.sql.select.caseexpression.SearchedCaseDSL;
 import org.mybatis.dynamic.sql.select.caseexpression.SimpleCaseDSL;
@@ -524,6 +525,10 @@ public interface SqlBuilder {
 
     static <T> Sum<T> sum(BindableColumn<T> column, RenderableCondition<T> condition) {
         return Sum.of(column, condition);
+    }
+
+    static RowNumber row_number() {
+        return RowNumber.of();
     }
 
     // constants

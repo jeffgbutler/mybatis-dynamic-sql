@@ -91,7 +91,7 @@ public class SqlColumn<T> implements BindableColumn<T>, SortSpecification {
     }
 
     @Override
-    public SortSpecification descending() {
+    public SqlColumn<T> descending() {
         Builder<T> b = copy();
         return b.withDescendingPhrase(" DESC").build(); //$NON-NLS-1$
     }

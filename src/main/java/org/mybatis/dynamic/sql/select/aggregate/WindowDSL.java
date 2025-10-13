@@ -16,6 +16,7 @@
 package org.mybatis.dynamic.sql.select.aggregate;
 
 import org.mybatis.dynamic.sql.BasicColumn;
+import org.mybatis.dynamic.sql.SortSpecification;
 
 public interface WindowDSL<T> {
     default T over() {
@@ -28,7 +29,7 @@ public interface WindowDSL<T> {
         return new WindowModel().partitionBy(column, columns);
     }
 
-    static WindowModel orderBy(BasicColumn column, BasicColumn... columns) {
+    static WindowModel orderBy(SortSpecification column, SortSpecification... columns) {
         return new WindowModel().orderBy(column, columns);
     }
 }

@@ -22,8 +22,14 @@ import static examples.window_functions.SalesDynamicSQLSupport.sales;
 import static examples.window_functions.SalesDynamicSQLSupport.year;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mybatis.dynamic.sql.SqlBuilder.row_number;
 import static org.mybatis.dynamic.sql.SqlBuilder.select;
 import static org.mybatis.dynamic.sql.SqlBuilder.sum;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Map;
 
 import config.TestContainersConfiguration;
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSource;
@@ -43,10 +49,11 @@ import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-
+/**
+ * Note: the data and tests in this class are taken from the MySQL
+ * documentation here: <a href="https://dev.mysql.com/doc/refman/9.4/en/window-functions-usage.html">
+ *     https://dev.mysql.com/doc/refman/9.4/en/window-functions-usage.html</a>
+ */
 @Testcontainers
 class WindowFunctionsTest {
 
@@ -146,6 +153,39 @@ class WindowFunctionsTest {
                     entry("profit", 150),
                     entry("total_profit", new BigDecimal(7535)),
                     entry("country_profit", new BigDecimal(4575))
+            );
+        }
+    }
+
+    @Test
+    void testRowNumberWindows() {
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            CommonSelectMapper mapper = session.getMapper(CommonSelectMapper.class);
+
+            SelectStatementProvider selectStatement = select(year, country, product, profit,
+                    row_number().over(WindowDSL.partitionBy(country).orderBy(year, product.descending())).as("row_num1"),
+                    row_number().over(WindowDSL.partitionBy(country).orderBy(year, product)).as("row_num2"))
+                    .from(sales)
+                    .orderBy(country, year, product)
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+            List<Map<String, Object>> rows = mapper.selectManyMappedRows(selectStatement);
+            assertThat(rows).hasSize(13);
+            assertThat(rows.get(0)).containsOnly(
+                    entry("year", 2000),
+                    entry("country", "Finland"),
+                    entry("product", "Computer"),
+                    entry("profit", 1500),
+                    entry("row_num1", new BigInteger("2")),
+                    entry("row_num2", new BigInteger("1"))
+            );
+            assertThat(rows.get(12)).containsOnly(
+                    entry("year", 2001),
+                    entry("country", "USA"),
+                    entry("product", "TV"),
+                    entry("profit", 100),
+                    entry("row_num1", new BigInteger("4")),
+                    entry("row_num2", new BigInteger("7"))
             );
         }
     }
