@@ -61,7 +61,7 @@
     <java.test.version>17</java.test.version>
     <java.test.release.version>17</java.test.release.version>
     <junit.jupiter.version>6.0.0</junit.jupiter.version>
-    <spring.batch.version>5.2.3</spring.batch.version>
+    <spring.batch.version>5.2.4</spring.batch.version>
 
     <checkstyle.config>checkstyle-override.xml</checkstyle.config>
 
@@ -103,7 +103,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>6.2.11</version>
+      <version>6.2.12</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
@@ -172,7 +172,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.5.19</version>
+      <version>1.5.20</version>
       <scope>test</scope>
     </dependency>
     <dependency>
