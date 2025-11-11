@@ -13,7 +13,6 @@ import org.mybatis.dynamic.sql.util.FragmentCollector;
 
 public class WindowModel {
     private final List<BasicColumn> partitionByColumns = new ArrayList<>();
-    // TODO - convert to using OrderByModel and OrderByRenderer
     private final List<SortSpecification> orderByColumns = new ArrayList<>();
 
     public WindowModel() {}
@@ -56,7 +55,7 @@ public class WindowModel {
             return Optional.empty();
         } else {
             return Optional.of(orderByColumns.stream()
-                    .map(ss -> ss.renderForOrderBy(renderingContext))
+                    .map(ss -> ss.renderForOrderByWithTableQualifier(renderingContext))
                     .collect(FragmentCollector.collect())
                     .toFragmentAndParameters(Collectors.joining(", ", "order by ", ""))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         }

@@ -76,21 +76,6 @@ class WindowFunctionsTest {
     }
 
     @Test
-    void smokeTest() {
-        try (SqlSession session = sqlSessionFactory.openSession()) {
-            CommonSelectMapper mapper = session.getMapper(CommonSelectMapper.class);
-
-            SelectStatementProvider selectStatement = select(year, country, product, profit)
-                    .from(sales)
-                    .orderBy(country, year, product)
-                    .build()
-                    .render(RenderingStrategies.MYBATIS3);
-             List<Map<String, Object>> rows = mapper.selectManyMappedRows(selectStatement);
-             assertThat(rows).hasSize(13);
-        }
-    }
-
-    @Test
     void testTotalSum() {
         try (SqlSession session = sqlSessionFactory.openSession()) {
             CommonSelectMapper mapper = session.getMapper(CommonSelectMapper.class);
@@ -99,6 +84,10 @@ class WindowFunctionsTest {
                     .from(sales)
                     .build()
                     .render(RenderingStrategies.MYBATIS3);
+
+            assertThat(selectStatement.getSelectStatement())
+                    .isEqualTo("select sum(profit) as total_profit from sales");
+
             List<Map<String, Object>> rows = mapper.selectManyMappedRows(selectStatement);
             assertThat(rows).hasSize(1);
             assertThat(rows.get(0).get("total_profit")).isEqualTo(new BigDecimal(7535));
@@ -116,6 +105,9 @@ class WindowFunctionsTest {
                     .orderBy(country)
                     .build()
                     .render(RenderingStrategies.MYBATIS3);
+            assertThat(selectStatement.getSelectStatement())
+                    .isEqualTo("select country, sum(profit) as country_profit from sales group by country order by country");
+
             List<Map<String, Object>> rows = mapper.selectManyMappedRows(selectStatement);
             assertThat(rows).hasSize(3);
             assertThat(rows.get(0).get("country_profit")).isEqualTo(new BigDecimal(1610));
@@ -136,6 +128,9 @@ class WindowFunctionsTest {
                     .orderBy(country, year, product, profit)
                     .build()
                     .render(RenderingStrategies.MYBATIS3);
+            assertThat(selectStatement.getSelectStatement())
+                    .isEqualTo("select year, country, product, profit, sum(profit) over() as total_profit, sum(profit) over(partition by country) as country_profit from sales order by country, year, product, profit");
+
             List<Map<String, Object>> rows = mapper.selectManyMappedRows(selectStatement);
             assertThat(rows).hasSize(13);
             assertThat(rows.get(0)).containsOnly(
@@ -165,10 +160,16 @@ class WindowFunctionsTest {
             SelectStatementProvider selectStatement = select(year, country, product, profit,
                     row_number().over(WindowDSL.partitionBy(country).orderBy(year, product.descending())).as("row_num1"),
                     row_number().over(WindowDSL.partitionBy(country).orderBy(year, product)).as("row_num2"))
-                    .from(sales)
+                    .from(sales, "s")
                     .orderBy(country, year, product)
                     .build()
                     .render(RenderingStrategies.MYBATIS3);
+            assertThat(selectStatement.getSelectStatement())
+                    .isEqualTo("select s.year, s.country, s.product, " +
+                            "s.profit, row_number() over(partition by s.country order by s.year, s.product DESC) as row_num1, " +
+                            "row_number() over(partition by s.country order by s.year, s.product) as row_num2 " +
+                            "from sales s order by country, year, product");
+
             List<Map<String, Object>> rows = mapper.selectManyMappedRows(selectStatement);
             assertThat(rows).hasSize(13);
             assertThat(rows.get(0)).containsOnly(

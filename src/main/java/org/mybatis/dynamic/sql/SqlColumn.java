@@ -218,6 +218,18 @@ public class SqlColumn<T> implements BindableColumn<T>, SortSpecification {
     }
 
     @Override
+    public FragmentAndParameters renderForOrderByWithTableQualifier(RenderingContext renderingContext) {
+        FragmentAndParameters fp;
+        if (tableQualifier == null) {
+            fp = FragmentAndParameters.fromFragment(renderingContext.aliasedColumnName(this));
+        } else {
+            fp = FragmentAndParameters.fromFragment(renderingContext.aliasedColumnName(this, tableQualifier));
+        }
+
+        return fp.mapFragment(f -> f + descendingPhrase);
+    }
+
+    @Override
     public FragmentAndParameters render(RenderingContext renderingContext) {
         if (tableQualifier == null) {
             return FragmentAndParameters.fromFragment(renderingContext.aliasedColumnName(this));

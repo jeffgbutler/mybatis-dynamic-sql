@@ -23,7 +23,7 @@ import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 
 /**
  * This class is used for an order by phrase where there is no suitable column name
- * to use (for example a calculated column or an aggregate column).
+ * to use (for example, a calculated column or an aggregate column).
  *
  * @author Jeff Butler
  */

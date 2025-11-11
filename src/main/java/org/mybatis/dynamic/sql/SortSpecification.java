@@ -37,8 +37,20 @@ public interface SortSpecification {
      * descending order is desired.
      *
      * @param renderingContext the current rendering context
-     * @return a rendered fragment and  parameters if applicable
+     * @return a rendered fragment and parameters if applicable
      * @since 2.0.0
      */
     FragmentAndParameters renderForOrderBy(RenderingContext renderingContext);
+
+    /**
+     * Return a fragment rendered for use in an ORDER BY clause in a window function. The fragment should include
+     * "DESC" if a descending order is desired. The fragment should also include the table qualifier if there is one.
+     *
+     * @param renderingContext the current rendering context
+     * @return a rendered fragment and parameters if applicable
+     * @since 2.0.0
+     */
+    default FragmentAndParameters renderForOrderByWithTableQualifier(RenderingContext renderingContext) {
+        return renderForOrderBy(renderingContext);
+    }
 }
