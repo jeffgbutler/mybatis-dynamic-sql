@@ -67,7 +67,7 @@ public class ConnectionFactoryExtensions {
     }
 
     /**
-     * This is from https://github.com/eugenp/tutorials/tree/master/persistence-modules/r2dbc.
+     * This is from <a href="https://github.com/eugenp/tutorials/tree/master/persistence-modules/r2dbc">...</a>.
      *
      * Not sure why we need it.
      */

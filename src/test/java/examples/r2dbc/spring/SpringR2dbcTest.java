@@ -53,7 +53,7 @@ class SpringR2dbcTest {
                 .block();
 
         assertThat(animals).hasSize(65);
-        assertThat(animals.get(0).getId()).isEqualTo(1);
+        assertThat(animals.get(0).id()).isEqualTo(1);
     }
 
     @Test
@@ -146,11 +146,6 @@ class SpringR2dbcTest {
         Double bodyWeight = row.get("body_weight", Double.class);
         Double brainWeight = row.get("brain_weight", Double.class);
 
-        AnimalData animal = new AnimalData();
-        animal.setId(id);
-        animal.setAnimalName(animalName);
-        animal.setBodyWeight(bodyWeight);
-        animal.setBrainWeight(brainWeight);
-        return animal;
+        return new AnimalData(id, animalName, bodyWeight, brainWeight);
     }
 }

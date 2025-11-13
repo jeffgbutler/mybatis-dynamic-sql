@@ -15,11 +15,11 @@ import org.mybatis.dynamic.sql.util.Messages;
 public abstract class AbstractR2DBCRenderingStrategy  extends RenderingStrategy{
     @Override
     public final String getRecordBasedInsertBinding(BindableColumn<?> column, String parameterName) {
-        throw new UnsupportedOperationException(Messages.getString("ERROR.44")); //$NON-NLS-1$
+        throw new UnsupportedOperationException(Messages.getString("ERROR.51")); //$NON-NLS-1$
     }
 
     @Override
     public final String getRecordBasedInsertBinding(BindableColumn<?> column, String prefix, String parameterName) {
-        throw new UnsupportedOperationException(Messages.getString("ERROR.44")); //$NON-NLS-1$
+        throw new UnsupportedOperationException(Messages.getString("ERROR.51")); //$NON-NLS-1$
     }
 }

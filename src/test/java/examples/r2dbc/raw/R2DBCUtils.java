@@ -33,14 +33,7 @@ public class R2DBCUtils {
         // change this to use the bindings rather than the parameter map
         Statement statement = connection.createStatement(sql);
 
-        parameters.forEach((k, v) -> {
-            if (v == null) {
-                // TODO - change to class from parameter binding
-                statement.bindNull(k, Double.class);
-            } else {
-                statement.bind(k, v);
-            }
-        });
+        parameters.forEach(statement::bind);
 
         return statement;
     }
