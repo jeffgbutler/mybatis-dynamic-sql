@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,37 +18,22 @@ package examples.springbatch.mapper;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Result;
-import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.SelectProvider;
-import org.apache.ibatis.annotations.UpdateProvider;
-import org.mybatis.dynamic.sql.insert.render.InsertStatementProvider;
-import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
-import org.mybatis.dynamic.sql.update.render.UpdateStatementProvider;
-import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
+import org.mybatis.dynamic.sql.util.mybatis3.CommonCountMapper;
+import org.mybatis.dynamic.sql.util.mybatis3.CommonInsertMapper;
+import org.mybatis.dynamic.sql.util.mybatis3.CommonUpdateMapper;
 import org.mybatis.dynamic.sql.util.springbatch.SpringBatchProviderAdapter;
 
 import examples.springbatch.common.PersonRecord;
 
 @Mapper
-public interface PersonMapper {
+public interface PersonMapper extends CommonCountMapper, CommonInsertMapper<PersonRecord>, CommonUpdateMapper {
 
     @SelectProvider(type=SpringBatchProviderAdapter.class, method="select")
-    @Results({
-        @Result(column="id", property="id", id=true),
-        @Result(column="first_name", property="firstName"),
-        @Result(column="last_name", property="lastName")
-    })
+    @Result(column="id", property="id", id=true)
+    @Result(column="first_name", property="firstName")
+    @Result(column="last_name", property="lastName")
     List<PersonRecord> selectMany(Map<String, Object> parameterValues);
-
-    @UpdateProvider(type=SqlProviderAdapter.class, method="update")
-    int update(UpdateStatementProvider updateStatement);
-
-    @SelectProvider(type=SqlProviderAdapter.class, method="select")
-    long count(SelectStatementProvider selectStatement);
-
-    @InsertProvider(type=SqlProviderAdapter.class, method="insert")
-    int insert(InsertStatementProvider<PersonRecord> insertStatement);
 }

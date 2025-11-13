@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@ class CommonSelectMapperTest {
     void setup() throws Exception {
         Class.forName(JDBC_DRIVER);
         InputStream is = getClass().getResourceAsStream("/examples/animal/data/CreateAnimalData.sql");
+        assert is != null;
         try (Connection connection = DriverManager.getConnection(JDBC_URL, "sa", "")) {
             ScriptRunner sr = new ScriptRunner(connection);
             sr.setLogWriter(null);
@@ -68,14 +69,11 @@ class CommonSelectMapperTest {
         sqlSessionFactory = new SqlSessionFactoryBuilder().build(config);
     }
 
-    private final Function<Map<String, Object>, AnimalData> rowMapper = map -> {
-        AnimalData ad = new AnimalData();
-        ad.setId((Integer) map.get("ID"));
-        ad.setAnimalName((String) map.get("ANIMAL_NAME"));
-        ad.setBodyWeight((Double) map.get("BODY_WEIGHT"));
-        ad.setBrainWeight((Double) map.get("BRAIN_WEIGHT"));
-        return ad;
-    };
+    private final Function<Map<String, Object>, AnimalData> rowMapper = map -> new AnimalData(
+            (Integer) map.get("ID"),
+            (String) map.get("ANIMAL_NAME"),
+            (Double) map.get("BRAIN_WEIGHT"),
+            (Double) map.get("BODY_WEIGHT"));
 
     @Test
     void testGeneralSelectOne() {
@@ -105,10 +103,26 @@ class CommonSelectMapperTest {
 
             AnimalData animal = mapper.selectOne(selectStatement, rowMapper);
 
-            assertThat(animal.getId()).isEqualTo(1);
-            assertThat(animal.getAnimalName()).isEqualTo("Lesser short-tailed shrew");
-            assertThat(animal.getBodyWeight()).isEqualTo(0.14);
-            assertThat(animal.getBrainWeight()).isEqualTo(0.005);
+            assertThat(animal).isNotNull();
+            assertThat(animal.id()).isEqualTo(1);
+            assertThat(animal.animalName()).isEqualTo("Lesser short-tailed shrew");
+            assertThat(animal.bodyWeight()).isEqualTo(0.14);
+            assertThat(animal.brainWeight()).isEqualTo(0.005);
+        }
+    }
+
+    @Test
+    void testGeneralSelectOneWithRowMapperAndNullRow() {
+        try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+            CommonSelectMapper mapper = sqlSession.getMapper(CommonSelectMapper.class);
+            SelectStatementProvider selectStatement = select(id, animalName, bodyWeight, brainWeight)
+                    .from(animalData)
+                    .where(id, isEqualTo(-237))
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+
+            AnimalData animal = mapper.selectOne(selectStatement, rowMapper);
+            assertThat(animal).isNull();
         }
     }
 
@@ -147,14 +161,14 @@ class CommonSelectMapperTest {
 
             assertThat(rows).hasSize(2);
 
-            assertThat(rows.get(0).getId()).isEqualTo(1);
-            assertThat(rows.get(0).getAnimalName()).isEqualTo("Lesser short-tailed shrew");
-            assertThat(rows.get(0).getBodyWeight()).isEqualTo(0.14);
-            assertThat(rows.get(0).getBrainWeight()).isEqualTo(0.005);
-            assertThat(rows.get(1).getId()).isEqualTo(2);
-            assertThat(rows.get(1).getAnimalName()).isEqualTo("Little brown bat");
-            assertThat(rows.get(1).getBodyWeight()).isEqualTo(0.25);
-            assertThat(rows.get(1).getBrainWeight()).isEqualTo(0.01);
+            assertThat(rows.get(0).id()).isEqualTo(1);
+            assertThat(rows.get(0).animalName()).isEqualTo("Lesser short-tailed shrew");
+            assertThat(rows.get(0).bodyWeight()).isEqualTo(0.14);
+            assertThat(rows.get(0).brainWeight()).isEqualTo(0.005);
+            assertThat(rows.get(1).id()).isEqualTo(2);
+            assertThat(rows.get(1).animalName()).isEqualTo("Little brown bat");
+            assertThat(rows.get(1).bodyWeight()).isEqualTo(0.25);
+            assertThat(rows.get(1).brainWeight()).isEqualTo(0.01);
         }
     }
 

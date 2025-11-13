@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import static examples.spring.PersonDynamicSqlSupport.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mybatis.dynamic.sql.SqlBuilder.*;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -31,12 +30,14 @@ import org.mybatis.dynamic.sql.insert.BatchInsertModel;
 import org.mybatis.dynamic.sql.insert.GeneralInsertModel;
 import org.mybatis.dynamic.sql.insert.InsertModel;
 import org.mybatis.dynamic.sql.insert.MultiRowInsertModel;
+import org.mybatis.dynamic.sql.insert.render.GeneralInsertStatementProvider;
+import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.update.UpdateModel;
 import org.mybatis.dynamic.sql.util.Buildable;
 import org.mybatis.dynamic.sql.util.spring.NamedParameterJdbcTemplateExtensions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,8 +69,8 @@ class PersonTemplateTest {
         List<PersonRecord> rows = template.selectList(selectStatement, personRowMapper);
 
         assertThat(rows).hasSize(6);
-        assertThat(rows.get(0).getId()).isEqualTo(1);
-        assertThat(rows.get(5).getId()).isEqualTo(6);
+        assertThat(rows.get(0).id()).isEqualTo(1);
+        assertThat(rows.get(5).id()).isEqualTo(6);
 
     }
 
@@ -82,8 +83,8 @@ class PersonTemplateTest {
         List<PersonRecord> rows = template.selectList(selectStatement, personRowMapper);
 
         assertThat(rows).hasSize(6);
-        assertThat(rows.get(0).getId()).isEqualTo(5);
-        assertThat(rows.get(5).getId()).isEqualTo(1);
+        assertThat(rows.get(0).id()).isEqualTo(5);
+        assertThat(rows.get(5).id()).isEqualTo(1);
 
     }
 
@@ -149,36 +150,36 @@ class PersonTemplateTest {
         List<PersonRecord> rows = template.selectList(selectStatement, personRowMapper);
 
         assertThat(rows).hasSize(2);
-        assertThat(rows.get(0).getId()).isEqualTo(3);
-        assertThat(rows.get(1).getId()).isEqualTo(6);
+        assertThat(rows.get(0).id()).isEqualTo(3);
+        assertThat(rows.get(1).id()).isEqualTo(6);
     }
 
     @Test
     void testSelectBetweenWithTypeHandler() {
         Buildable<SelectModel> selectStatement = select(id, firstName, lastName, birthDate, employed, occupation, addressId)
                 .from(person)
-                .where(lastName, isBetween(LastName.of("Adams")).and(LastName.of("Jones")))
+                .where(lastName, isBetween(new LastName("Adams")).and(new LastName("Jones")))
                 .orderBy(id);
 
         List<PersonRecord> rows = template.selectList(selectStatement, personRowMapper);
 
         assertThat(rows).hasSize(3);
-        assertThat(rows.get(0).getId()).isEqualTo(1);
-        assertThat(rows.get(1).getId()).isEqualTo(2);
+        assertThat(rows.get(0).id()).isEqualTo(1);
+        assertThat(rows.get(1).id()).isEqualTo(2);
     }
 
     @Test
     void testSelectListWithTypeHandler() {
         Buildable<SelectModel> selectStatement = select(id, firstName, lastName, birthDate, employed, occupation, addressId)
                 .from(person)
-                .where(lastName, isIn(LastName.of("Flintstone"), LastName.of("Rubble")))
+                .where(lastName, isIn(new LastName("Flintstone"), new LastName("Rubble")))
                 .orderBy(id);
 
         List<PersonRecord> rows = template.selectList(selectStatement, personRowMapper);
 
         assertThat(rows).hasSize(6);
-        assertThat(rows.get(0).getId()).isEqualTo(1);
-        assertThat(rows.get(1).getId()).isEqualTo(2);
+        assertThat(rows.get(0).id()).isEqualTo(1);
+        assertThat(rows.get(1).id()).isEqualTo(2);
     }
 
     @Test
@@ -187,9 +188,9 @@ class PersonTemplateTest {
                 .from(person)
                 .where(id, isEqualTo(300));
 
-        Optional<PersonRecord> record = template.selectOne(selectStatement, personRowMapper);
+        Optional<PersonRecord> row = template.selectOne(selectStatement, personRowMapper);
 
-        assertThat(record).isNotPresent();
+        assertThat(row).isNotPresent();
     }
 
     @Test
@@ -200,9 +201,15 @@ class PersonTemplateTest {
 
         List<PersonRecord> rows = template.selectList(selectStatement, personRowMapper);
 
-        assertThat(rows).hasSize(2);
-        assertThat(rows.get(0).getLastName().getName()).isEqualTo("Flintstone");
-        assertThat(rows.get(1).getLastName().getName()).isEqualTo("Rubble");
+        assertThat(rows).hasSize(2)
+                .satisfiesExactly(
+                person1 -> assertThat(person1).isNotNull()
+                        .extracting("lastName").isNotNull()
+                        .extracting("name").isEqualTo("Flintstone"),
+                person2 -> assertThat(person2).isNotNull()
+                        .extracting("lastName").isNotNull()
+                        .extracting("name").isEqualTo("Rubble")
+        );
     }
 
     @Test
@@ -236,16 +243,9 @@ class PersonTemplateTest {
 
     @Test
     void testInsert() {
-        PersonRecord record = new PersonRecord();
-        record.setId(100);
-        record.setFirstName("Joe");
-        record.setLastName(LastName.of("Jones"));
-        record.setBirthDate(new Date());
-        record.setEmployed(true);
-        record.setOccupation("Developer");
-        record.setAddressId(1);
+        PersonRecord row = new PersonRecord(100, "Joe", new LastName("Jones"), new Date(), true, "Developer", 1);
 
-        Buildable<InsertModel<PersonRecord>> insertStatement = insert(record).into(person)
+        Buildable<InsertModel<PersonRecord>> insertStatement = insert(row).into(person)
                 .map(id).toProperty("id")
                 .map(firstName).toProperty("firstName")
                 .map(lastName).toProperty("lastNameAsString")
@@ -264,7 +264,7 @@ class PersonTemplateTest {
         Buildable<GeneralInsertModel> insertStatement = insertInto(person)
                 .set(id).toValue(100)
                 .set(firstName).toValue("Joe")
-                .set(lastName).toValue(LastName.of("Jones"))
+                .set(lastName).toValue(new LastName("Jones"))
                 .set(birthDate).toValue(new Date())
                 .set(employed).toValue(true)
                 .set(occupation).toValue("Developer")
@@ -278,27 +278,9 @@ class PersonTemplateTest {
     @Test
     void testInsertMultiple() {
 
-        List<PersonRecord> records = new ArrayList<>();
-
-        PersonRecord record = new PersonRecord();
-        record.setId(100);
-        record.setFirstName("Joe");
-        record.setLastName(LastName.of("Jones"));
-        record.setBirthDate(new Date());
-        record.setEmployed(true);
-        record.setOccupation("Developer");
-        record.setAddressId(1);
-        records.add(record);
-
-        record = new PersonRecord();
-        record.setId(101);
-        record.setFirstName("Sarah");
-        record.setLastName(LastName.of("Smith"));
-        record.setBirthDate(new Date());
-        record.setEmployed(true);
-        record.setOccupation("Architect");
-        record.setAddressId(2);
-        records.add(record);
+        List<PersonRecord> records = List.of(
+                new PersonRecord(100, "Joe", new LastName("Jones"), new Date(), true, "Developer", 1),
+                new PersonRecord(101, "Sarah", new LastName("Smith"), new Date(), true, "Architect", 2));
 
         Buildable<MultiRowInsertModel<PersonRecord>> insertStatement = insertMultiple(records).into(person)
                 .map(id).toProperty("id")
@@ -317,27 +299,9 @@ class PersonTemplateTest {
     @Test
     void testInsertBatch() {
 
-        List<PersonRecord> records = new ArrayList<>();
-
-        PersonRecord record = new PersonRecord();
-        record.setId(100);
-        record.setFirstName("Joe");
-        record.setLastName(LastName.of("Jones"));
-        record.setBirthDate(new Date());
-        record.setEmployed(true);
-        record.setOccupation("Developer");
-        record.setAddressId(1);
-        records.add(record);
-
-        record = new PersonRecord();
-        record.setId(101);
-        record.setFirstName("Sarah");
-        record.setLastName(LastName.of("Smith"));
-        record.setBirthDate(new Date());
-        record.setEmployed(true);
-        record.setOccupation("Architect");
-        record.setAddressId(2);
-        records.add(record);
+        List<PersonRecord> records = List.of(
+                new PersonRecord(100, "Joe", new LastName("Jones"), new Date(), true, "Developer", 1),
+                new PersonRecord(101, "Sarah", new LastName("Smith"), new Date(), true, "Architect", 2));
 
         Buildable<BatchInsertModel<PersonRecord>> insertStatement = insertBatch(records).into(person)
                 .map(id).toProperty("id")
@@ -357,26 +321,48 @@ class PersonTemplateTest {
 
     @Test
     void testInsertSelective() {
-        PersonRecord record = new PersonRecord();
-        record.setId(100);
-        record.setFirstName("Joe");
-        record.setLastName(LastName.of("Jones"));
-        record.setBirthDate(new Date());
-        record.setEmployed(false);
-        record.setAddressId(1);
+        PersonRecord row = new PersonRecord(100, "Joe", new LastName("Jones"), new Date(), false, null, 1);
 
-        Buildable<InsertModel<PersonRecord>> insertStatement = insert(record).into(person)
-                .map(id).toPropertyWhenPresent("id", record::getId)
-                .map(firstName).toPropertyWhenPresent("firstName", record::getFirstName)
-                .map(lastName).toPropertyWhenPresent("lastNameAsString", record::getLastNameAsString)
-                .map(birthDate).toPropertyWhenPresent("birthDate", record::getBirthDate)
-                .map(employed).toPropertyWhenPresent("employedAsString", record::getEmployedAsString)
-                .map(occupation).toPropertyWhenPresent("occupation", record::getOccupation)
-                .map(addressId).toPropertyWhenPresent("addressId", record::getAddressId);
+        Buildable<InsertModel<PersonRecord>> insertStatement = insert(row).into(person)
+                .map(id).toPropertyWhenPresent("id", row::id)
+                .map(firstName).toPropertyWhenPresent("firstName", row::firstName)
+                .map(lastName).toPropertyWhenPresent("lastNameAsString", row::getLastNameAsString)
+                .map(birthDate).toPropertyWhenPresent("birthDate", row::birthDate)
+                .map(employed).toPropertyWhenPresent("employedAsString", row::getEmployedAsString)
+                .map(occupation).toPropertyWhenPresent("occupation", row::occupation)
+                .map(addressId).toPropertyWhenPresent("addressId", row::addressId);
 
         int rows = template.insert(insertStatement);
 
         assertThat(rows).isEqualTo(1);
+    }
+
+    @Test
+    void testGeneralInsertWhenTypeConverterReturnsNull() {
+
+        GeneralInsertStatementProvider insertStatement = insertInto(person)
+                .set(id).toValue(100)
+                .set(firstName).toValue("Joe")
+                .set(lastName).toValueWhenPresent(new LastName("Slate"))
+                .set(birthDate).toValue(new Date())
+                .set(employed).toValue(true)
+                .set(occupation).toValue("Quarry Owner")
+                .set(addressId).toValue(1)
+                .build()
+                .render(RenderingStrategies.SPRING_NAMED_PARAMETER);
+
+        assertThat(insertStatement.getInsertStatement())
+                .isEqualTo("insert into Person (id, first_name, birth_date, employed, occupation, address_id) values (:p1, :p2, :p3, :p4, :p5, :p6)");
+        int rows = template.generalInsert(insertStatement);
+        assertThat(rows).isEqualTo(1);
+
+        Buildable<SelectModel> selectStatement = select(id, firstName, lastName, birthDate, employed, occupation, addressId)
+                .from(person)
+                .where(id, isEqualTo(100));
+        Optional<PersonRecord> newRecord = template.selectOne(selectStatement, personRowMapper);
+        assertThat(newRecord).hasValueSatisfying(
+                r -> assertThat(r).isNotNull().extracting("lastName").isNotNull().extracting("name").isNull()
+        );
     }
 
     @Test
@@ -385,7 +371,7 @@ class PersonTemplateTest {
         Buildable<GeneralInsertModel> insertStatement = insertInto(person)
                 .set(id).toValue(100)
                 .set(firstName).toValue("Joe")
-                .set(lastName).toValue(LastName.of("Jones"))
+                .set(lastName).toValue(new LastName("Jones"))
                 .set(birthDate).toValue(new Date())
                 .set(employed).toValue(true)
                 .set(occupation).toValue("Developer")
@@ -405,8 +391,7 @@ class PersonTemplateTest {
                 .from(person)
                 .where(id, isEqualTo(100));
         Optional<PersonRecord> newRecord = template.selectOne(selectStatement, personRowMapper);
-        assertThat(newRecord).isPresent();
-        assertThat(newRecord.get().getOccupation()).isEqualTo("Programmer");
+        assertThat(newRecord).hasValueSatisfying(r -> assertThat(r.occupation()).isEqualTo("Programmer"));
     }
 
     @Test
@@ -415,7 +400,7 @@ class PersonTemplateTest {
         Buildable<GeneralInsertModel> insertStatement = insertInto(person)
                 .set(id).toValue(100)
                 .set(firstName).toValue("Joe")
-                .set(lastName).toValue(LastName.of("Jones"))
+                .set(lastName).toValue(new LastName("Jones"))
                 .set(birthDate).toValue(new Date())
                 .set(employed).toValue(true)
                 .set(occupation).toValue("Developer")
@@ -425,7 +410,7 @@ class PersonTemplateTest {
         assertThat(rows).isEqualTo(1);
 
         Buildable<UpdateModel> updateStatement = update(person)
-                .set(lastName).equalTo(LastName.of("Smith"))
+                .set(lastName).equalTo(new LastName("Smith"))
                 .where(id, isEqualTo(100));
 
         rows = template.update(updateStatement);
@@ -435,8 +420,10 @@ class PersonTemplateTest {
                 .from(person)
                 .where(id, isEqualTo(100));
         Optional<PersonRecord> newRecord = template.selectOne(selectStatement, personRowMapper);
-        assertThat(newRecord).isPresent();
-        assertThat(newRecord.get().getLastName().getName()).isEqualTo("Smith");
+        assertThat(newRecord).hasValueSatisfying(r -> assertThat(r).isNotNull()
+                .extracting("lastName").isNotNull()
+                .extracting("name").isEqualTo("Smith")
+        );
     }
 
     @Test
@@ -444,7 +431,7 @@ class PersonTemplateTest {
         Buildable<GeneralInsertModel> insertStatement = insertInto(person)
                 .set(id).toValue(100)
                 .set(firstName).toValue("Joe")
-                .set(lastName).toValue(LastName.of("Jones"))
+                .set(lastName).toValue(new LastName("Jones"))
                 .set(birthDate).toValue(new Date())
                 .set(employed).toValue(true)
                 .set(occupation).toValue("Developer")
@@ -453,18 +440,16 @@ class PersonTemplateTest {
         int rows = template.generalInsert(insertStatement);
         assertThat(rows).isEqualTo(1);
 
-        PersonRecord updateRecord = new PersonRecord();
-        updateRecord.setId(100);
-        updateRecord.setOccupation("Programmer");
+        PersonRecord updateRecord = new PersonRecord(100, null, null, null, null, "Programmer", null);
 
         Buildable<UpdateModel> updateStatement = update(person)
-                .set(firstName).equalToWhenPresent(updateRecord::getFirstName)
-                .set(lastName).equalToWhenPresent(updateRecord::getLastName)
-                .set(birthDate).equalToWhenPresent(updateRecord::getBirthDate)
-                .set(employed).equalToWhenPresent(updateRecord::getEmployed)
-                .set(occupation).equalToWhenPresent(updateRecord::getOccupation)
-                .set(addressId).equalToWhenPresent(updateRecord::getAddressId)
-                .where(id, isEqualTo(updateRecord::getId));
+                .set(firstName).equalToWhenPresent(updateRecord::firstName)
+                .set(lastName).equalToWhenPresent(updateRecord::lastName)
+                .set(birthDate).equalToWhenPresent(updateRecord::birthDate)
+                .set(employed).equalToWhenPresent(updateRecord::employed)
+                .set(occupation).equalToWhenPresent(updateRecord::occupation)
+                .set(addressId).equalToWhenPresent(updateRecord::addressId)
+                .where(id, isEqualTo(updateRecord::id));
 
         rows = template.update(updateStatement);
         assertThat(rows).isEqualTo(1);
@@ -473,23 +458,17 @@ class PersonTemplateTest {
                 .from(person)
                 .where(id, isEqualTo(100));
         Optional<PersonRecord> newRecord = template.selectOne(selectStatement, personRowMapper);
-        assertThat(newRecord).isPresent();
-        assertThat(newRecord.get().getOccupation()).isEqualTo("Programmer");
-        assertThat(newRecord.get().getFirstName()).isEqualTo("Joe");
+        assertThat(newRecord).hasValueSatisfying(r -> {
+            assertThat(r.occupation()).isEqualTo("Programmer");
+            assertThat(r.firstName()).isEqualTo("Joe");
+        });
     }
 
     @Test
     void testUpdate() {
-        PersonRecord record = new PersonRecord();
-        record.setId(100);
-        record.setFirstName("Joe");
-        record.setLastName(LastName.of("Jones"));
-        record.setBirthDate(new Date());
-        record.setEmployed(true);
-        record.setOccupation("Developer");
-        record.setAddressId(1);
+        PersonRecord row = new PersonRecord(100, "Joe", new LastName("Jones"), new Date(), true, "Developer", 1);
 
-        Buildable<InsertModel<PersonRecord>> insertStatement = insert(record).into(person)
+        Buildable<InsertModel<PersonRecord>> insertStatement = insert(row).into(person)
                 .map(id).toProperty("id")
                 .map(firstName).toProperty("firstName")
                 .map(lastName).toProperty("lastNameAsString")
@@ -501,16 +480,16 @@ class PersonTemplateTest {
         int rows = template.insert(insertStatement);
         assertThat(rows).isEqualTo(1);
 
-        record.setOccupation("Programmer");
+        row = row.withOccupation("Programmer");
 
         Buildable<UpdateModel> updateStatement = update(person)
-                .set(firstName).equalTo(record::getFirstName)
-                .set(lastName).equalTo(record::getLastName)
-                .set(birthDate).equalTo(record::getBirthDate)
-                .set(employed).equalTo(record::getEmployed)
-                .set(occupation).equalTo(record::getOccupation)
-                .set(addressId).equalTo(record::getAddressId)
-                .where(id, isEqualTo(record::getId));
+                .set(firstName).equalToWhenPresent(row::firstName)
+                .set(lastName).equalToWhenPresent(row::lastName)
+                .set(birthDate).equalToWhenPresent(row::birthDate)
+                .set(employed).equalToWhenPresent(row::employed)
+                .set(occupation).equalToWhenPresent(row::occupation)
+                .set(addressId).equalToWhenPresent(row::addressId)
+                .where(id, isEqualTo(row::id));
 
         rows = template.update(updateStatement);
         assertThat(rows).isEqualTo(1);
@@ -519,37 +498,10 @@ class PersonTemplateTest {
                 .from(person)
                 .where(id, isEqualTo(100));
         Optional<PersonRecord> newRecord = template.selectOne(selectStatement, personRowMapper);
-        assertThat(newRecord).isPresent();
-        assertThat(newRecord.get().getOccupation()).isEqualTo("Programmer");
-        assertThat(newRecord.get().getFirstName()).isEqualTo("Joe");
-    }
-
-    @Test
-    void testUpdateOneField() {
-        Buildable<GeneralInsertModel> insertStatement = insertInto(person)
-                .set(id).toValue(100)
-                .set(firstName).toValue("Joe")
-                .set(lastName).toValue(LastName.of("Jones"))
-                .set(birthDate).toValue(new Date())
-                .set(employed).toValue(true)
-                .set(occupation).toValue("Developer")
-                .set(addressId).toValue(1);
-
-        int rows = template.generalInsert(insertStatement);
-        assertThat(rows).isEqualTo(1);
-
-        Buildable<UpdateModel> updateStatement = update(person)
-                .set(occupation).equalTo("Programmer")
-                .where(id, isEqualTo(100));
-        rows = template.update(updateStatement);
-        assertThat(rows).isEqualTo(1);
-
-        Buildable<SelectModel> selectStatement = select(id, firstName, lastName, birthDate, employed, occupation, addressId)
-                .from(person)
-                .where(id, isEqualTo(100));
-        Optional<PersonRecord> newRecord = template.selectOne(selectStatement, personRowMapper);
-        assertThat(newRecord).isPresent();
-        assertThat(newRecord.get().getOccupation()).isEqualTo("Programmer");
+        assertThat(newRecord).hasValueSatisfying(r -> {
+            assertThat(r.occupation()).isEqualTo("Programmer");
+            assertThat(r.firstName()).isEqualTo("Joe");
+        });
     }
 
     @Test
@@ -557,7 +509,7 @@ class PersonTemplateTest {
         Buildable<GeneralInsertModel> insertStatement = insertInto(person)
                 .set(id).toValue(100)
                 .set(firstName).toValue("Joe")
-                .set(lastName).toValue(LastName.of("Jones"))
+                .set(lastName).toValue(new LastName("Jones"))
                 .set(birthDate).toValue(new Date())
                 .set(employed).toValue(true)
                 .set(occupation).toValue("Developer")
@@ -577,8 +529,7 @@ class PersonTemplateTest {
                 .where(id, isEqualTo(100));
 
         Optional<PersonRecord> newRecord = template.selectOne(selectStatement, personRowMapper);
-        assertThat(newRecord).isPresent();
-        assertThat(newRecord.get().getOccupation()).isEqualTo("Programmer");
+        assertThat(newRecord).hasValueSatisfying(r -> assertThat(r.occupation()).isEqualTo("Programmer"));
     }
 
     @Test
@@ -618,25 +569,25 @@ class PersonTemplateTest {
     void testTypeHandledLike() {
         Buildable<SelectModel> selectStatement = select(id, firstName, lastName, birthDate, employed, occupation, addressId)
                 .from(person)
-                .where(lastName, isLike(LastName.of("Fl%")))
+                .where(lastName, isLike(new LastName("Fl%")))
                 .orderBy(id);
 
         List<PersonRecord> rows = template.selectList(selectStatement, personRowMapper);
         assertThat(rows).hasSize(3);
-        assertThat(rows.get(0).getFirstName()).isEqualTo("Fred");
+        assertThat(rows.get(0).firstName()).isEqualTo("Fred");
     }
 
     @Test
     void testTypeHandledNotLike() {
         Buildable<SelectModel> selectStatement = select(id, firstName, lastName, birthDate, employed, occupation, addressId)
                 .from(person)
-                .where(lastName, isNotLike(LastName.of("Fl%")))
+                .where(lastName, isNotLike(new LastName("Fl%")))
                 .orderBy(id);
 
         List<PersonRecord> rows = template.selectList(selectStatement, personRowMapper);
 
         assertThat(rows).hasSize(3);
-        assertThat(rows.get(0).getFirstName()).isEqualTo("Barney");
+        assertThat(rows.get(0).firstName()).isEqualTo("Barney");
     }
 
     @Test
@@ -646,14 +597,15 @@ class PersonTemplateTest {
                 .from(address)
                 .orderBy(address.id);
 
+
         List<AddressRecord> records = template.selectList(selectStatement,
-                BeanPropertyRowMapper.newInstance(AddressRecord.class));
+                DataClassRowMapper.newInstance(AddressRecord.class));
 
         assertThat(records).hasSize(2);
-        assertThat(records.get(0).getId()).isEqualTo(1);
-        assertThat(records.get(0).getStreetAddress()).isEqualTo("123 Main Street");
-        assertThat(records.get(0).getCity()).isEqualTo("Bedrock");
-        assertThat(records.get(0).getState()).isEqualTo("IN");
+        assertThat(records.get(0).id()).isEqualTo(1);
+        assertThat(records.get(0).streetAddress()).isEqualTo("123 Main Street");
+        assertThat(records.get(0).city()).isEqualTo("Bedrock");
+        assertThat(records.get(0).state()).isEqualTo("IN");
     }
 
     @Test
@@ -661,22 +613,22 @@ class PersonTemplateTest {
         Buildable<SelectModel> selectStatement = select(id, firstName, lastName, birthDate, employed, occupation,
                 address.id, address.streetAddress, address.city, address.state)
                 .from(person)
-                .join(address, on(person.addressId, equalTo(address.id)))
+                .join(address, on(person.addressId, isEqualTo(address.id)))
                 .orderBy(id);
 
         List<PersonWithAddress> records = template.selectList(selectStatement, personWithAddressRowMapper);
 
         assertThat(records).hasSize(6);
-        assertThat(records.get(0).getId()).isEqualTo(1);
-        assertThat(records.get(0).getEmployed()).isTrue();
-        assertThat(records.get(0).getFirstName()).isEqualTo("Fred");
-        assertThat(records.get(0).getLastName()).isEqualTo(LastName.of("Flintstone"));
-        assertThat(records.get(0).getOccupation()).isEqualTo("Brontosaurus Operator");
-        assertThat(records.get(0).getBirthDate()).isNotNull();
-        assertThat(records.get(0).getAddress().getId()).isEqualTo(1);
-        assertThat(records.get(0).getAddress().getStreetAddress()).isEqualTo("123 Main Street");
-        assertThat(records.get(0).getAddress().getCity()).isEqualTo("Bedrock");
-        assertThat(records.get(0).getAddress().getState()).isEqualTo("IN");
+        assertThat(records.get(0).id()).isEqualTo(1);
+        assertThat(records.get(0).employed()).isTrue();
+        assertThat(records.get(0).firstName()).isEqualTo("Fred");
+        assertThat(records.get(0).lastName()).isEqualTo(new LastName("Flintstone"));
+        assertThat(records.get(0).occupation()).isEqualTo("Brontosaurus Operator");
+        assertThat(records.get(0).birthDate()).isNotNull();
+        assertThat(records.get(0).address().id()).isEqualTo(1);
+        assertThat(records.get(0).address().streetAddress()).isEqualTo("123 Main Street");
+        assertThat(records.get(0).address().city()).isEqualTo("Bedrock");
+        assertThat(records.get(0).address().state()).isEqualTo("IN");
     }
 
     @Test
@@ -684,22 +636,22 @@ class PersonTemplateTest {
         Buildable<SelectModel> selectStatement = select(id, firstName, lastName, birthDate, employed, occupation,
                 address.id, address.streetAddress, address.city, address.state)
                 .from(person)
-                .join(address, on(person.addressId, equalTo(address.id)))
+                .join(address, on(person.addressId, isEqualTo(address.id)))
                 .where(id, isEqualTo(1));
 
         List<PersonWithAddress> records = template.selectList(selectStatement, personWithAddressRowMapper);
 
         assertThat(records).hasSize(1);
-        assertThat(records.get(0).getId()).isEqualTo(1);
-        assertThat(records.get(0).getEmployed()).isTrue();
-        assertThat(records.get(0).getFirstName()).isEqualTo("Fred");
-        assertThat(records.get(0).getLastName()).isEqualTo(LastName.of("Flintstone"));
-        assertThat(records.get(0).getOccupation()).isEqualTo("Brontosaurus Operator");
-        assertThat(records.get(0).getBirthDate()).isNotNull();
-        assertThat(records.get(0).getAddress().getId()).isEqualTo(1);
-        assertThat(records.get(0).getAddress().getStreetAddress()).isEqualTo("123 Main Street");
-        assertThat(records.get(0).getAddress().getCity()).isEqualTo("Bedrock");
-        assertThat(records.get(0).getAddress().getState()).isEqualTo("IN");
+        assertThat(records.get(0).id()).isEqualTo(1);
+        assertThat(records.get(0).employed()).isTrue();
+        assertThat(records.get(0).firstName()).isEqualTo("Fred");
+        assertThat(records.get(0).lastName()).isEqualTo(new LastName("Flintstone"));
+        assertThat(records.get(0).occupation()).isEqualTo("Brontosaurus Operator");
+        assertThat(records.get(0).birthDate()).isNotNull();
+        assertThat(records.get(0).address().id()).isEqualTo(1);
+        assertThat(records.get(0).address().streetAddress()).isEqualTo("123 Main Street");
+        assertThat(records.get(0).address().city()).isEqualTo("Bedrock");
+        assertThat(records.get(0).address().state()).isEqualTo("IN");
     }
 
     @Test
@@ -707,22 +659,22 @@ class PersonTemplateTest {
         Buildable<SelectModel> selectStatement = select(id, firstName, lastName, birthDate, employed, occupation,
                 address.id, address.streetAddress, address.city, address.state)
                 .from(person)
-                .join(address, on(person.addressId, equalTo(address.id)))
+                .join(address, on(person.addressId, isEqualTo(address.id)))
                 .where(id, isEqualTo(1));
 
-        Optional<PersonWithAddress> record = template.selectOne(selectStatement, personWithAddressRowMapper);
+        Optional<PersonWithAddress> row = template.selectOne(selectStatement, personWithAddressRowMapper);
 
-        assertThat(record).hasValueSatisfying(r -> {
-            assertThat(r.getId()).isEqualTo(1);
-            assertThat(r.getEmployed()).isTrue();
-            assertThat(r.getFirstName()).isEqualTo("Fred");
-            assertThat(r.getLastName()).isEqualTo(LastName.of("Flintstone"));
-            assertThat(r.getOccupation()).isEqualTo("Brontosaurus Operator");
-            assertThat(r.getBirthDate()).isNotNull();
-            assertThat(r.getAddress().getId()).isEqualTo(1);
-            assertThat(r.getAddress().getStreetAddress()).isEqualTo("123 Main Street");
-            assertThat(r.getAddress().getCity()).isEqualTo("Bedrock");
-            assertThat(r.getAddress().getState()).isEqualTo("IN");
+        assertThat(row).hasValueSatisfying(r -> {
+            assertThat(r.id()).isEqualTo(1);
+            assertThat(r.employed()).isTrue();
+            assertThat(r.firstName()).isEqualTo("Fred");
+            assertThat(r.lastName()).isEqualTo(new LastName("Flintstone"));
+            assertThat(r.occupation()).isEqualTo("Brontosaurus Operator");
+            assertThat(r.birthDate()).isNotNull();
+            assertThat(r.address().id()).isEqualTo(1);
+            assertThat(r.address().streetAddress()).isEqualTo("123 Main Street");
+            assertThat(r.address().city()).isEqualTo("Bedrock");
+            assertThat(r.address().state()).isEqualTo("IN");
         });
     }
 
@@ -731,17 +683,17 @@ class PersonTemplateTest {
         Buildable<SelectModel> selectStatement = select(id, firstName, lastName, birthDate, employed, occupation,
                 address.id, address.streetAddress, address.city, address.state)
                 .from(person)
-                .join(address, on(person.addressId, equalTo(address.id)))
+                .join(address, on(person.addressId, isEqualTo(address.id)))
                 .where(id, isEqualTo(55));
 
-        Optional<PersonWithAddress> record = template.selectOne(selectStatement, personWithAddressRowMapper);
-        assertThat(record).isEmpty();
+        Optional<PersonWithAddress> row = template.selectOne(selectStatement, personWithAddressRowMapper);
+        assertThat(row).isEmpty();
     }
 
     @Test
     void testJoinCount() {
         Buildable<SelectModel> countStatement = countFrom(person)
-                .join(address, on(person.addressId, equalTo(address.id)))
+                .join(address, on(person.addressId, isEqualTo(address.id)))
                 .where(id, isEqualTo(55));
 
         long count = template.count(countStatement);
@@ -751,7 +703,7 @@ class PersonTemplateTest {
     @Test
     void testJoinCountWithSubCriteria() {
         Buildable<SelectModel> countStatement = countFrom(person)
-                .join(address, on(person.addressId, equalTo(address.id)))
+                .join(address, on(person.addressId, isEqualTo(address.id)))
                 .where(person.id, isEqualTo(55), or(person.id, isEqualTo(1)));
 
         long count = template.count(countStatement);
@@ -759,36 +711,24 @@ class PersonTemplateTest {
     }
 
     private final RowMapper<PersonWithAddress> personWithAddressRowMapper =
-            (rs, i) -> {
-                PersonWithAddress record = new PersonWithAddress();
-                record.setId(rs.getInt(1));
-                record.setFirstName(rs.getString(2));
-                record.setLastName(LastName.of(rs.getString(3)));
-                record.setBirthDate(rs.getTimestamp(4));
-                record.setEmployed("Yes".equals(rs.getString(5)));
-                record.setOccupation(rs.getString(6));
-
-                AddressRecord address = new AddressRecord();
-                record.setAddress(address);
-                address.setId(rs.getInt(7));
-                address.setStreetAddress(rs.getString(8));
-                address.setCity(rs.getString(9));
-                address.setState(rs.getString(10));
-
-                return record;
-            };
+            (rs, i) -> new PersonWithAddress(rs.getInt(1),
+                    rs.getString(2),
+                    new LastName(rs.getString(3)),
+                    rs.getTimestamp(4),
+                    "Yes".equals(rs.getString(5)),
+                    rs.getString(6),
+                    new AddressRecord(rs.getInt(7),
+                            rs.getString(8),
+                            rs.getString(9),
+                            rs.getString(10)));
 
 
-    static RowMapper<PersonRecord> personRowMapper =
-            (rs, i) -> {
-                PersonRecord record = new PersonRecord();
-                record.setId(rs.getInt(1));
-                record.setFirstName(rs.getString(2));
-                record.setLastName(LastName.of(rs.getString(3)));
-                record.setBirthDate(rs.getTimestamp(4));
-                record.setEmployed("Yes".equals(rs.getString(5)));
-                record.setOccupation(rs.getString(6));
-                record.setAddressId(rs.getInt(7));
-                return record;
-            };
+    static final RowMapper<PersonRecord> personRowMapper =
+            (rs, i) -> new PersonRecord(rs.getInt(1),
+                    rs.getString(2),
+                    new LastName(rs.getString(3)),
+                    rs.getTimestamp(4),
+                    "Yes".equals(rs.getString(5)),
+                    rs.getString(6),
+                    rs.getInt(7));
 }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,27 +20,28 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.BindableColumn;
-import org.mybatis.dynamic.sql.VisitableCondition;
+import org.mybatis.dynamic.sql.RenderableCondition;
 
 public class SimpleCaseDSL<T> implements ElseDSL<SimpleCaseDSL<T>.SimpleCaseEnder> {
     private final BindableColumn<T> column;
     private final List<SimpleCaseWhenCondition<T>> whenConditions = new ArrayList<>();
-    private BasicColumn elseValue;
+    private @Nullable BasicColumn elseValue;
 
     private SimpleCaseDSL(BindableColumn<T> column) {
         this.column = Objects.requireNonNull(column);
     }
 
     @SafeVarargs
-    public final ConditionBasedWhenFinisher when(VisitableCondition<T> condition,
-                                                 VisitableCondition<T>... subsequentConditions) {
+    public final ConditionBasedWhenFinisher when(RenderableCondition<T> condition,
+                                                 RenderableCondition<T>... subsequentConditions) {
         return when(condition, Arrays.asList(subsequentConditions));
     }
 
-    public ConditionBasedWhenFinisher when(VisitableCondition<T> condition,
-                                           List<VisitableCondition<T>> subsequentConditions) {
+    public ConditionBasedWhenFinisher when(RenderableCondition<T> condition,
+                                           List<RenderableCondition<T>> subsequentConditions) {
         return new ConditionBasedWhenFinisher(condition, subsequentConditions);
     }
 
@@ -60,7 +61,7 @@ public class SimpleCaseDSL<T> implements ElseDSL<SimpleCaseDSL<T>.SimpleCaseEnde
         return new SimpleCaseEnder();
     }
 
-    public BasicColumn end() {
+    public SimpleCaseModel<T> end() {
         return new SimpleCaseModel.Builder<T>()
                 .withColumn(column)
                 .withWhenConditions(whenConditions)
@@ -69,10 +70,10 @@ public class SimpleCaseDSL<T> implements ElseDSL<SimpleCaseDSL<T>.SimpleCaseEnde
     }
 
     public class ConditionBasedWhenFinisher implements ThenDSL<SimpleCaseDSL<T>> {
-        private final List<VisitableCondition<T>> conditions = new ArrayList<>();
+        private final List<RenderableCondition<T>> conditions = new ArrayList<>();
 
-        private ConditionBasedWhenFinisher(VisitableCondition<T> condition,
-                                           List<VisitableCondition<T>> subsequentConditions) {
+        private ConditionBasedWhenFinisher(RenderableCondition<T> condition,
+                                           List<RenderableCondition<T>> subsequentConditions) {
             conditions.add(condition);
             conditions.addAll(subsequentConditions);
         }
@@ -100,7 +101,7 @@ public class SimpleCaseDSL<T> implements ElseDSL<SimpleCaseDSL<T>.SimpleCaseEnde
     }
 
     public class SimpleCaseEnder {
-        public BasicColumn end() {
+        public SimpleCaseModel<T> end() {
             return SimpleCaseDSL.this.end();
         }
     }

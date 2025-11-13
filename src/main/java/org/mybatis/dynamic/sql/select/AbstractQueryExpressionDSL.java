@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,12 +23,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+import org.mybatis.dynamic.sql.AndOrCriteriaGroup;
+import org.mybatis.dynamic.sql.SqlCriterion;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.TableExpression;
 import org.mybatis.dynamic.sql.exception.DuplicateTableAliasException;
-import org.mybatis.dynamic.sql.select.join.JoinCriterion;
 import org.mybatis.dynamic.sql.select.join.JoinModel;
 import org.mybatis.dynamic.sql.select.join.JoinSpecification;
 import org.mybatis.dynamic.sql.select.join.JoinType;
@@ -38,9 +40,9 @@ import org.mybatis.dynamic.sql.where.AbstractWhereStarter;
 
 public abstract class AbstractQueryExpressionDSL<W extends AbstractWhereFinisher<?>,
             T extends AbstractQueryExpressionDSL<W, T>>
-        extends AbstractWhereStarter<W, T> {
+        implements AbstractWhereStarter<W, T> {
 
-    private final List<JoinSpecification.Builder> joinSpecificationBuilders = new ArrayList<>();
+    private final List<Supplier<JoinSpecification>> joinSpecificationSuppliers = new ArrayList<>();
     private final Map<SqlTable, String> tableAliases = new HashMap<>();
     private final TableExpression table;
 
@@ -52,151 +54,151 @@ public abstract class AbstractQueryExpressionDSL<W extends AbstractWhereFinisher
         return table;
     }
 
-    public T join(SqlTable joinTable, JoinCriterion<?> onJoinCriterion,
-            JoinCriterion<?>... andJoinCriteria) {
-        addJoinSpecificationBuilder(joinTable, onJoinCriterion, JoinType.INNER, Arrays.asList(andJoinCriteria));
+    public T join(SqlTable joinTable, SqlCriterion onJoinCriterion,
+                  AndOrCriteriaGroup... andJoinCriteria) {
+        addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.INNER, Arrays.asList(andJoinCriteria));
         return getThis();
     }
 
-    public T join(SqlTable joinTable, String tableAlias, JoinCriterion<?> onJoinCriterion,
-            JoinCriterion<?>... andJoinCriteria) {
+    public T join(SqlTable joinTable, String tableAlias, SqlCriterion onJoinCriterion,
+                  AndOrCriteriaGroup... andJoinCriteria) {
         addTableAlias(joinTable, tableAlias);
         return join(joinTable, onJoinCriterion, andJoinCriteria);
     }
 
-    public T join(SqlTable joinTable, JoinCriterion<?> onJoinCriterion,
-            List<JoinCriterion<?>> andJoinCriteria) {
-        addJoinSpecificationBuilder(joinTable, onJoinCriterion, JoinType.INNER, andJoinCriteria);
+    public T join(SqlTable joinTable, @Nullable SqlCriterion onJoinCriterion,
+            List<AndOrCriteriaGroup> andJoinCriteria) {
+        addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.INNER, andJoinCriteria);
         return getThis();
     }
 
-    public T join(SqlTable joinTable, String tableAlias, JoinCriterion<?> onJoinCriterion,
-            List<JoinCriterion<?>> andJoinCriteria) {
+    public T join(SqlTable joinTable, String tableAlias, @Nullable SqlCriterion onJoinCriterion,
+            List<AndOrCriteriaGroup> andJoinCriteria) {
         addTableAlias(joinTable, tableAlias);
         return join(joinTable, onJoinCriterion, andJoinCriteria);
     }
 
-    public T join(Buildable<SelectModel> subQuery, String tableAlias, JoinCriterion<?> onJoinCriterion,
-                  List<JoinCriterion<?>> andJoinCriteria) {
-        addJoinSpecificationBuilder(buildSubQuery(subQuery, tableAlias), onJoinCriterion, JoinType.INNER,
+    public T join(Buildable<SelectModel> subQuery, @Nullable String tableAlias, @Nullable SqlCriterion onJoinCriterion,
+                  List<AndOrCriteriaGroup> andJoinCriteria) {
+        addJoinSpecificationSupplier(buildSubQuery(subQuery, tableAlias), onJoinCriterion, JoinType.INNER,
                 andJoinCriteria);
         return getThis();
     }
 
-    public T leftJoin(SqlTable joinTable, JoinCriterion<?> onJoinCriterion,
-            JoinCriterion<?>... andJoinCriteria) {
-        addJoinSpecificationBuilder(joinTable, onJoinCriterion, JoinType.LEFT, Arrays.asList(andJoinCriteria));
+    public T leftJoin(SqlTable joinTable, SqlCriterion onJoinCriterion,
+                      AndOrCriteriaGroup... andJoinCriteria) {
+        addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.LEFT, Arrays.asList(andJoinCriteria));
         return getThis();
     }
 
-    public T leftJoin(SqlTable joinTable, String tableAlias, JoinCriterion<?> onJoinCriterion,
-            JoinCriterion<?>... andJoinCriteria) {
+    public T leftJoin(SqlTable joinTable, String tableAlias, SqlCriterion onJoinCriterion,
+                      AndOrCriteriaGroup... andJoinCriteria) {
         addTableAlias(joinTable, tableAlias);
         return leftJoin(joinTable, onJoinCriterion, andJoinCriteria);
     }
 
-    public T leftJoin(SqlTable joinTable, JoinCriterion<?> onJoinCriterion,
-            List<JoinCriterion<?>> andJoinCriteria) {
-        addJoinSpecificationBuilder(joinTable, onJoinCriterion, JoinType.LEFT, andJoinCriteria);
+    public T leftJoin(SqlTable joinTable, @Nullable SqlCriterion onJoinCriterion,
+            List<AndOrCriteriaGroup> andJoinCriteria) {
+        addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.LEFT, andJoinCriteria);
         return getThis();
     }
 
-    public T leftJoin(SqlTable joinTable, String tableAlias, JoinCriterion<?> onJoinCriterion,
-            List<JoinCriterion<?>> andJoinCriteria) {
+    public T leftJoin(SqlTable joinTable, String tableAlias, @Nullable SqlCriterion onJoinCriterion,
+            List<AndOrCriteriaGroup> andJoinCriteria) {
         addTableAlias(joinTable, tableAlias);
         return leftJoin(joinTable, onJoinCriterion, andJoinCriteria);
     }
 
-    public T leftJoin(Buildable<SelectModel> subQuery, String tableAlias, JoinCriterion<?> onJoinCriterion,
-                      List<JoinCriterion<?>> andJoinCriteria) {
-        addJoinSpecificationBuilder(buildSubQuery(subQuery, tableAlias), onJoinCriterion, JoinType.LEFT,
+    public T leftJoin(Buildable<SelectModel> subQuery, @Nullable String tableAlias,
+                      @Nullable SqlCriterion onJoinCriterion, List<AndOrCriteriaGroup> andJoinCriteria) {
+        addJoinSpecificationSupplier(buildSubQuery(subQuery, tableAlias), onJoinCriterion, JoinType.LEFT,
                 andJoinCriteria);
         return getThis();
     }
 
-    public T rightJoin(SqlTable joinTable, JoinCriterion<?> onJoinCriterion,
-            JoinCriterion<?>... andJoinCriteria) {
-        addJoinSpecificationBuilder(joinTable, onJoinCriterion, JoinType.RIGHT, Arrays.asList(andJoinCriteria));
+    public T rightJoin(SqlTable joinTable, SqlCriterion onJoinCriterion,
+                       AndOrCriteriaGroup... andJoinCriteria) {
+        addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.RIGHT, Arrays.asList(andJoinCriteria));
         return getThis();
     }
 
-    public T rightJoin(SqlTable joinTable, String tableAlias, JoinCriterion<?> onJoinCriterion,
-            JoinCriterion<?>... andJoinCriteria) {
+    public T rightJoin(SqlTable joinTable, String tableAlias, SqlCriterion onJoinCriterion,
+                       AndOrCriteriaGroup... andJoinCriteria) {
         addTableAlias(joinTable, tableAlias);
         return rightJoin(joinTable, onJoinCriterion, andJoinCriteria);
     }
 
-    public T rightJoin(SqlTable joinTable, JoinCriterion<?> onJoinCriterion,
-            List<JoinCriterion<?>> andJoinCriteria) {
-        addJoinSpecificationBuilder(joinTable, onJoinCriterion, JoinType.RIGHT, andJoinCriteria);
+    public T rightJoin(SqlTable joinTable, @Nullable SqlCriterion onJoinCriterion,
+            List<AndOrCriteriaGroup> andJoinCriteria) {
+        addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.RIGHT, andJoinCriteria);
         return getThis();
     }
 
-    public T rightJoin(SqlTable joinTable, String tableAlias, JoinCriterion<?> onJoinCriterion,
-            List<JoinCriterion<?>> andJoinCriteria) {
+    public T rightJoin(SqlTable joinTable, String tableAlias, @Nullable SqlCriterion onJoinCriterion,
+            List<AndOrCriteriaGroup> andJoinCriteria) {
         addTableAlias(joinTable, tableAlias);
         return rightJoin(joinTable, onJoinCriterion, andJoinCriteria);
     }
 
-    public T rightJoin(Buildable<SelectModel> subQuery, String tableAlias, JoinCriterion<?> onJoinCriterion,
-                      List<JoinCriterion<?>> andJoinCriteria) {
-        addJoinSpecificationBuilder(buildSubQuery(subQuery, tableAlias), onJoinCriterion, JoinType.RIGHT,
+    public T rightJoin(Buildable<SelectModel> subQuery, @Nullable String tableAlias,
+                       @Nullable SqlCriterion onJoinCriterion, List<AndOrCriteriaGroup> andJoinCriteria) {
+        addJoinSpecificationSupplier(buildSubQuery(subQuery, tableAlias), onJoinCriterion, JoinType.RIGHT,
                 andJoinCriteria);
         return getThis();
     }
 
-    public T fullJoin(SqlTable joinTable, JoinCriterion<?> onJoinCriterion,
-            JoinCriterion<?>... andJoinCriteria) {
-        addJoinSpecificationBuilder(joinTable, onJoinCriterion, JoinType.FULL, Arrays.asList(andJoinCriteria));
+    public T fullJoin(SqlTable joinTable, SqlCriterion onJoinCriterion,
+                      AndOrCriteriaGroup... andJoinCriteria) {
+        addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.FULL, Arrays.asList(andJoinCriteria));
         return getThis();
     }
 
-    public T fullJoin(SqlTable joinTable, String tableAlias, JoinCriterion<?> onJoinCriterion,
-            JoinCriterion<?>... andJoinCriteria) {
+    public T fullJoin(SqlTable joinTable, String tableAlias, SqlCriterion onJoinCriterion,
+                      AndOrCriteriaGroup... andJoinCriteria) {
         addTableAlias(joinTable, tableAlias);
         return fullJoin(joinTable, onJoinCriterion, andJoinCriteria);
     }
 
-    public T fullJoin(SqlTable joinTable, JoinCriterion<?> onJoinCriterion,
-            List<JoinCriterion<?>> andJoinCriteria) {
-        addJoinSpecificationBuilder(joinTable, onJoinCriterion, JoinType.FULL, andJoinCriteria);
+    public T fullJoin(SqlTable joinTable, @Nullable SqlCriterion onJoinCriterion,
+            List<AndOrCriteriaGroup> andJoinCriteria) {
+        addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.FULL, andJoinCriteria);
         return getThis();
     }
 
-    public T fullJoin(SqlTable joinTable, String tableAlias, JoinCriterion<?> onJoinCriterion,
-            List<JoinCriterion<?>> andJoinCriteria) {
+    public T fullJoin(SqlTable joinTable, String tableAlias, @Nullable SqlCriterion onJoinCriterion,
+            List<AndOrCriteriaGroup> andJoinCriteria) {
         addTableAlias(joinTable, tableAlias);
         return fullJoin(joinTable, onJoinCriterion, andJoinCriteria);
     }
 
-    public T fullJoin(Buildable<SelectModel> subQuery, String tableAlias, JoinCriterion<?> onJoinCriterion,
-                  List<JoinCriterion<?>> andJoinCriteria) {
-        addJoinSpecificationBuilder(buildSubQuery(subQuery, tableAlias), onJoinCriterion, JoinType.FULL,
+    public T fullJoin(Buildable<SelectModel> subQuery, @Nullable String tableAlias,
+                      @Nullable SqlCriterion onJoinCriterion, List<AndOrCriteriaGroup> andJoinCriteria) {
+        addJoinSpecificationSupplier(buildSubQuery(subQuery, tableAlias), onJoinCriterion, JoinType.FULL,
                 andJoinCriteria);
         return getThis();
     }
 
-    private void addJoinSpecificationBuilder(TableExpression joinTable, JoinCriterion<?> onJoinCriterion,
-            JoinType joinType, List<JoinCriterion<?>> andJoinCriteria) {
-        joinSpecificationBuilders.add(new JoinSpecification.Builder()
+    private void addJoinSpecificationSupplier(TableExpression joinTable, @Nullable SqlCriterion onJoinCriterion,
+                                              JoinType joinType, List<AndOrCriteriaGroup> andJoinCriteria) {
+        joinSpecificationSuppliers.add(() -> new JoinSpecification.Builder()
                 .withJoinTable(joinTable)
                 .withJoinType(joinType)
-                .withJoinCriterion(onJoinCriterion)
-                .withJoinCriteria(andJoinCriteria));
+                .withInitialCriterion(onJoinCriterion)
+                .withSubCriteria(andJoinCriteria).build());
     }
 
-    protected void addJoinSpecificationBuilder(JoinSpecification.Builder builder) {
-        joinSpecificationBuilders.add(builder);
+    protected void addJoinSpecificationSupplier(Supplier<JoinSpecification> joinSpecificationSupplier) {
+        joinSpecificationSuppliers.add(joinSpecificationSupplier);
     }
 
     protected Optional<JoinModel> buildJoinModel() {
-        if (joinSpecificationBuilders.isEmpty()) {
+        if (joinSpecificationSuppliers.isEmpty()) {
             return Optional.empty();
         }
 
-        return Optional.of(JoinModel.of(joinSpecificationBuilders.stream()
-                .map(JoinSpecification.Builder::build)
-                .collect(Collectors.toList())));
+        return Optional.of(JoinModel.of(joinSpecificationSuppliers.stream()
+                .map(Supplier::get)
+                .toList()));
     }
 
     protected void addTableAlias(SqlTable table, String tableAlias) {
@@ -217,7 +219,7 @@ public abstract class AbstractQueryExpressionDSL<W extends AbstractWhereFinisher
                 .build();
     }
 
-    protected static SubQuery buildSubQuery(Buildable<SelectModel> selectModel, String alias) {
+    protected static SubQuery buildSubQuery(Buildable<SelectModel> selectModel, @Nullable String alias) {
         return new SubQuery.Builder()
                 .withSelectModel(selectModel.build())
                 .withAlias(alias)

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,8 +22,11 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import org.mybatis.dynamic.sql.AbstractListValueCondition;
+import org.mybatis.dynamic.sql.render.RenderingContext;
+import org.mybatis.dynamic.sql.util.Validator;
 
-public class IsNotIn<T> extends AbstractListValueCondition<T> {
+public class IsNotIn<T> extends AbstractListValueCondition<T>
+        implements AbstractListValueCondition.Filterable<T>, AbstractListValueCondition.Mappable<T> {
     private static final IsNotIn<?> EMPTY = new IsNotIn<>(Collections.emptyList());
 
     public static <T> IsNotIn<T> empty() {
@@ -37,6 +40,12 @@ public class IsNotIn<T> extends AbstractListValueCondition<T> {
     }
 
     @Override
+    public boolean shouldRender(RenderingContext renderingContext) {
+        Validator.assertNotEmpty(values, "ERROR.44", "IsNotIn"); //$NON-NLS-1$ //$NON-NLS-2$
+        return true;
+    }
+
+    @Override
     public String operator() {
         return "not in"; //$NON-NLS-1$
     }
@@ -46,18 +55,9 @@ public class IsNotIn<T> extends AbstractListValueCondition<T> {
         return filterSupport(predicate, IsNotIn::new, this, IsNotIn::empty);
     }
 
-    /**
-     * If renderable, apply the mapping to each value in the list return a new condition with the mapped values.
-     *     Else return a condition that will not render (this).
-     *
-     * @param mapper a mapping function to apply to the values, if renderable
-     * @param <R> type of the new condition
-     * @return a new condition with mapped values if renderable, otherwise a condition
-     *     that will not render.
-     */
+    @Override
     public <R> IsNotIn<R> map(Function<? super T, ? extends R> mapper) {
-        Function<Collection<R>, IsNotIn<R>> constructor = IsNotIn::new;
-        return mapSupport(mapper, constructor, IsNotIn::empty);
+        return mapSupport(mapper, IsNotIn::new, IsNotIn::empty);
     }
 
     @SafeVarargs

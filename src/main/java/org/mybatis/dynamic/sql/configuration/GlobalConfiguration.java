@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.mybatis.dynamic.sql.configuration;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.Properties;
 
 import org.mybatis.dynamic.sql.exception.DynamicSqlException;
@@ -26,7 +27,6 @@ public class GlobalConfiguration {
     public static final String CONFIGURATION_FILE_PROPERTY = "mybatis-dynamic-sql.configurationFile"; //$NON-NLS-1$
     private static final String DEFAULT_PROPERTY_FILE = "mybatis-dynamic-sql.properties"; //$NON-NLS-1$
     private boolean isNonRenderingWhereClauseAllowed = false;
-    private boolean isEmptyListConditionRenderingAllowed = false;
     private final Properties properties = new Properties();
 
     public GlobalConfiguration() {
@@ -48,11 +48,7 @@ public class GlobalConfiguration {
 
     private String getConfigurationFileName() {
         String property = System.getProperty(CONFIGURATION_FILE_PROPERTY);
-        if (property == null) {
-            return DEFAULT_PROPERTY_FILE;
-        } else {
-            return property;
-        }
+        return Objects.requireNonNullElse(property, DEFAULT_PROPERTY_FILE);
     }
 
     void loadProperties(InputStream inputStream, String propertyFile) {
@@ -66,16 +62,9 @@ public class GlobalConfiguration {
     private void initializeKnownProperties() {
         String value = properties.getProperty("nonRenderingWhereClauseAllowed", "false"); //$NON-NLS-1$ //$NON-NLS-2$
         isNonRenderingWhereClauseAllowed = Boolean.parseBoolean(value);
-
-        value = properties.getProperty("emptyListConditionRenderingAllowed", "false"); //$NON-NLS-1$ //$NON-NLS-2$
-        isEmptyListConditionRenderingAllowed = Boolean.parseBoolean(value);
     }
 
     public boolean isIsNonRenderingWhereClauseAllowed() {
         return isNonRenderingWhereClauseAllowed;
-    }
-
-    public boolean isEmptyListConditionRenderingAllowed() {
-        return isEmptyListConditionRenderingAllowed;
     }
 }

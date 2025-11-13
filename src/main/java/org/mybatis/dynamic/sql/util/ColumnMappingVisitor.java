@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ package org.mybatis.dynamic.sql.util;
  * may or may not be supported. For example, it makes no sense to map a column to another column in
  * an insert - so the ColumnToColumnMapping is only supported on update statements.
  *
- * <p>Rather than implement this interface directly, we recommend implementing one of the derived
+ * <p>Rather than implement this interface directly, we recommend extending one of the derived
  * classes. The derived classes encapsulate the rules about which mappings are applicable to the
  * different types of statements.
  *
@@ -52,4 +52,8 @@ public interface ColumnMappingVisitor<R> {
     R visit(ColumnToColumnMapping mapping);
 
     R visit(RowMapping mapping);
+
+    R visit(MappedColumnMapping mapping);
+
+    R visit(MappedColumnWhenPresentMapping mapping);
 }

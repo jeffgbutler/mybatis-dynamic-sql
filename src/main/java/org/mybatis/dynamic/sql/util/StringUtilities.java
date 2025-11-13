@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -25,10 +25,6 @@ public interface StringUtilities {
         return " " + in; //$NON-NLS-1$
     }
 
-    static String safelyUpperCase(String s) {
-        return s == null ? null : s.toUpperCase();
-    }
-
     static String toCamelCase(String inputString) {
         StringBuilder sb = new StringBuilder();
 
@@ -44,7 +40,7 @@ public interface StringUtilities {
                     sb.append(Character.toLowerCase(c));
                 }
             } else {
-                if (sb.length() > 0) {
+                if (!sb.isEmpty()) {
                     nextUpperCase = true;
                 }
             }
@@ -56,6 +52,15 @@ public interface StringUtilities {
     static String formatConstantForSQL(String in) {
         String escaped = in.replace("'", "''"); //$NON-NLS-1$ //$NON-NLS-2$
         return "'" + escaped + "'"; //$NON-NLS-1$ //$NON-NLS-2$
+    }
 
+    static <T> T upperCaseIfPossible(T value) {
+        if (value instanceof String) {
+            @SuppressWarnings("unchecked")
+            T t = (T) ((String) value).toUpperCase();
+            return t;
+        }
+
+        return value;
     }
 }

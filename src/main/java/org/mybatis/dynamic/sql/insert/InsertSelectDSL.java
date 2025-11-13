@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
@@ -31,7 +31,7 @@ import org.mybatis.dynamic.sql.util.ConfigurableStatement;
 public class InsertSelectDSL implements Buildable<InsertSelectModel>, ConfigurableStatement<InsertSelectDSL> {
 
     private final SqlTable table;
-    private final InsertColumnListModel columnList;
+    private final @Nullable InsertColumnListModel columnList;
     private final SelectModel selectModel;
     private final StatementConfiguration statementConfiguration = new StatementConfiguration();
 
@@ -47,7 +47,6 @@ public class InsertSelectDSL implements Buildable<InsertSelectModel>, Configurab
         this.columnList = null;
     }
 
-    @NotNull
     @Override
     public InsertSelectModel build() {
         return InsertSelectModel.withTable(table)

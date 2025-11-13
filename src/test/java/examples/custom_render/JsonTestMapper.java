@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,9 +18,7 @@ package examples.custom_render;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.ibatis.annotations.Result;
-import org.apache.ibatis.annotations.ResultMap;
-import org.apache.ibatis.annotations.Results;
+import org.apache.ibatis.annotations.Arg;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
@@ -32,14 +30,14 @@ import org.mybatis.dynamic.sql.util.mybatis3.CommonUpdateMapper;
 public interface JsonTestMapper extends CommonDeleteMapper, CommonInsertMapper<JsonTestRecord>, CommonSelectMapper,
         CommonUpdateMapper {
     @SelectProvider(type = SqlProviderAdapter.class, method = "select")
-    @Results(id = "JsonTestResult", value = {
-            @Result(column = "id", property = "id", id = true),
-            @Result(column = "description", property = "description"),
-            @Result(column = "info", property = "info")
-    })
+    @Arg(column = "id", javaType = int.class, id = true)
+    @Arg(column = "description", javaType = String.class)
+    @Arg(column = "info", javaType = String.class)
     List<JsonTestRecord> selectMany(SelectStatementProvider selectStatement);
 
     @SelectProvider(type = SqlProviderAdapter.class, method = "select")
-    @ResultMap("JsonTestResult")
+    @Arg(column = "id", javaType = int.class, id = true)
+    @Arg(column = "description", javaType = String.class)
+    @Arg(column = "info", javaType = String.class)
     Optional<JsonTestRecord> selectOne(SelectStatementProvider selectStatement);
 }

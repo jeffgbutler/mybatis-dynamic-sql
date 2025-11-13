@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@ import org.mybatis.dynamic.sql.util.Buildable
 typealias MultiSelectCompleter = KotlinMultiSelectBuilder.() -> Unit
 
 @MyBatisDslMarker
-class KotlinMultiSelectBuilder: Buildable<MultiSelectModel> {
+class KotlinMultiSelectBuilder: Buildable<MultiSelectModel>, KotlinPagingDSL {
     private var dsl: MultiSelectDSL? = null
-        private set(value) {
+        set(value) {
             assertNull(field, "ERROR.33") //$NON-NLS-1$
             field = value
         }
@@ -63,16 +63,16 @@ class KotlinMultiSelectBuilder: Buildable<MultiSelectModel> {
         getDsl().orderBy(columns.asList())
     }
 
-    fun limit(limit: Long) {
-        getDsl().limit(limit)
+    override fun limitWhenPresent(limit: Long?) {
+        getDsl().limitWhenPresent(limit)
     }
 
-    fun offset(offset: Long) {
-        getDsl().offset(offset)
+    override fun offsetWhenPresent(offset: Long?) {
+        getDsl().offsetWhenPresent(offset)
     }
 
-    fun fetchFirst(fetchFirstRows: Long) {
-        getDsl().fetchFirst(fetchFirstRows).rowsOnly()
+    override fun fetchFirstWhenPresent(fetchFirstRows: Long?) {
+        getDsl().fetchFirstWhenPresent(fetchFirstRows).rowsOnly()
     }
 
     fun configureStatement(c: StatementConfiguration.() -> Unit) {

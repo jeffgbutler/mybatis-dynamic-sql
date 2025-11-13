@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,62 +19,42 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
-import org.jetbrains.annotations.NotNull;
-import org.mybatis.dynamic.sql.common.OrderByModel;
-import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
-import org.mybatis.dynamic.sql.render.RenderingContext;
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.select.render.SelectRenderer;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.Validator;
 
-public class SelectModel {
+public class SelectModel extends AbstractSelectModel {
     private final List<QueryExpressionModel> queryExpressions;
-    private final OrderByModel orderByModel;
-    private final PagingModel pagingModel;
-    private final StatementConfiguration statementConfiguration;
+    private final @Nullable String forClause;
+    private final @Nullable String waitClause;
 
     private SelectModel(Builder builder) {
+        super(builder);
         queryExpressions = Objects.requireNonNull(builder.queryExpressions);
         Validator.assertNotEmpty(queryExpressions, "ERROR.14"); //$NON-NLS-1$
-        orderByModel = builder.orderByModel;
-        pagingModel = builder.pagingModel;
-        statementConfiguration = Objects.requireNonNull(builder.statementConfiguration);
+        forClause = builder.forClause;
+        waitClause = builder.waitClause;
     }
 
-    public <R> Stream<R> mapQueryExpressions(Function<QueryExpressionModel, R> mapper) {
-        return queryExpressions.stream().map(mapper);
+    public Stream<QueryExpressionModel> queryExpressions() {
+        return queryExpressions.stream();
     }
 
-    public Optional<OrderByModel> orderByModel() {
-        return Optional.ofNullable(orderByModel);
+    public Optional<String> forClause() {
+        return Optional.ofNullable(forClause);
     }
 
-    public Optional<PagingModel> pagingModel() {
-        return Optional.ofNullable(pagingModel);
+    public Optional<String> waitClause() {
+        return Optional.ofNullable(waitClause);
     }
 
-    @NotNull
     public SelectStatementProvider render(RenderingStrategy renderingStrategy) {
-        RenderingContext renderingContext = RenderingContext.withRenderingStrategy(renderingStrategy)
-                .withStatementConfiguration(statementConfiguration)
-                .build();
-        return render(renderingContext);
-    }
-
-    /**
-     * This version is for rendering sub-queries, union queries, etc.
-     *
-     * @param renderingContext the rendering context
-     * @return a rendered select statement and parameters
-     */
-    @NotNull
-    public SelectStatementProvider render(RenderingContext renderingContext) {
         return SelectRenderer.withSelectModel(this)
-                .withRenderingContext(renderingContext)
+                .withRenderingStrategy(renderingStrategy)
                 .build()
                 .render();
     }
@@ -83,11 +63,10 @@ public class SelectModel {
         return new Builder().withQueryExpressions(queryExpressions);
     }
 
-    public static class Builder {
+    public static class Builder extends AbstractBuilder<Builder> {
         private final List<QueryExpressionModel> queryExpressions = new ArrayList<>();
-        private OrderByModel orderByModel;
-        private PagingModel pagingModel;
-        private StatementConfiguration statementConfiguration;
+        private @Nullable String forClause;
+        private @Nullable String waitClause;
 
         public Builder withQueryExpression(QueryExpressionModel queryExpression) {
             this.queryExpressions.add(queryExpression);
@@ -99,18 +78,18 @@ public class SelectModel {
             return this;
         }
 
-        public Builder withOrderByModel(OrderByModel orderByModel) {
-            this.orderByModel = orderByModel;
+        public Builder withForClause(@Nullable String forClause) {
+            this.forClause = forClause;
             return this;
         }
 
-        public Builder withPagingModel(PagingModel pagingModel) {
-            this.pagingModel = pagingModel;
+        public Builder withWaitClause(@Nullable String waitClause) {
+            this.waitClause = waitClause;
             return this;
         }
 
-        public Builder withStatementConfiguration(StatementConfiguration statementConfiguration) {
-            this.statementConfiguration = statementConfiguration;
+        @Override
+        protected Builder getThis() {
             return this;
         }
 

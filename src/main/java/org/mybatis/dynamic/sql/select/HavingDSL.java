@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,14 +15,13 @@
  */
 package org.mybatis.dynamic.sql.select;
 
-import org.jetbrains.annotations.NotNull;
 import org.mybatis.dynamic.sql.util.Buildable;
 
-public class HavingDSL extends AbstractHavingStarter<HavingDSL.StandaloneHavingFinisher> {
+public class HavingDSL implements AbstractHavingStarter<HavingDSL.StandaloneHavingFinisher> {
     private final StandaloneHavingFinisher havingFinisher = new StandaloneHavingFinisher();
 
     @Override
-    protected StandaloneHavingFinisher having() {
+    public StandaloneHavingFinisher having() {
         return havingFinisher;
     }
 
@@ -36,7 +35,6 @@ public class HavingDSL extends AbstractHavingStarter<HavingDSL.StandaloneHavingF
             return this;
         }
 
-        @NotNull
         @Override
         public HavingModel build() {
             return buildModel();

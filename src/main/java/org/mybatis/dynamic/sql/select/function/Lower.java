@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,13 +15,14 @@
  */
 package org.mybatis.dynamic.sql.select.function;
 
+import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.BindableColumn;
 import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 
 public class Lower<T> extends AbstractUniTypeFunction<T, Lower<T>> {
 
-    private Lower(BindableColumn<T> column) {
+    private Lower(BasicColumn column) {
         super(column);
     }
 

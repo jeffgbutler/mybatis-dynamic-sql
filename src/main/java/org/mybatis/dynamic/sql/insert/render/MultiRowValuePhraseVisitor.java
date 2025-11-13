@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.mybatis.dynamic.sql.insert.render;
 import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.util.ConstantMapping;
+import org.mybatis.dynamic.sql.util.MappedColumnMapping;
 import org.mybatis.dynamic.sql.util.MultiRowInsertMappingVisitor;
 import org.mybatis.dynamic.sql.util.NullMapping;
 import org.mybatis.dynamic.sql.util.PropertyMapping;
@@ -58,14 +59,24 @@ public class MultiRowValuePhraseVisitor extends MultiRowInsertMappingVisitor<Fie
     @Override
     public FieldAndValueAndParameters visit(PropertyMapping mapping) {
         return FieldAndValueAndParameters.withFieldName(mapping.columnName())
-                .withValuePhrase(mapping.mapColumn(c -> calculateJdbcPlaceholder(c, mapping.property())))
+                .withValuePhrase(calculateJdbcPlaceholder(mapping.column(), mapping.property()))
                 .build();
     }
 
     @Override
     public FieldAndValueAndParameters visit(RowMapping mapping) {
         return FieldAndValueAndParameters.withFieldName(mapping.columnName())
-                .withValuePhrase(mapping.mapColumn(this::calculateJdbcPlaceholder))
+                .withValuePhrase(calculateJdbcPlaceholder(mapping.column()))
+                .build();
+    }
+
+    @Override
+    public FieldAndValueAndParameters visit(MappedColumnMapping mapping) {
+        return FieldAndValueAndParameters.withFieldName(mapping.columnName())
+                .withValuePhrase(calculateJdbcPlaceholder(
+                        mapping.column(),
+                        InsertRenderingUtilities.getMappedPropertyName(mapping.column()))
+                )
                 .build();
     }
 

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -252,9 +252,9 @@ open class CanonicalSpringKotlinTest {
     @Test
     fun testInsert() {
 
-        val record = PersonRecord(100, "Joe", LastName("Jones"), Date(), true, "Developer", 1)
+        val row = PersonRecord(100, "Joe", LastName("Jones"), Date(), true, "Developer", 1)
 
-        val insertStatement = insert(record) {
+        val insertStatement = insert(row) {
             into(person)
             map(id).toProperty("id")
             map(firstName).toProperty("firstName")
@@ -300,13 +300,13 @@ open class CanonicalSpringKotlinTest {
         assertThat(insertStatement.insertStatement).isEqualTo(expected)
 
         val rows = template.generalInsert(insertStatement)
-        val record = template.selectOne(id, firstName, lastName, birthDate, employed, occupation, addressId) {
+        val row = template.selectOne(id, firstName, lastName, birthDate, employed, occupation, addressId) {
             from(person)
             where { id isEqualTo 100 }
         }.withRowMapper(personRowMapper)
 
         assertThat(rows).isEqualTo(1)
-        with(record!!) {
+        with(row!!) {
             assertThat(id).isEqualTo(100)
             assertThat(firstName).isEqualTo("Joe")
             assertThat(lastName!!.name).isEqualTo("Jones")
@@ -337,13 +337,13 @@ open class CanonicalSpringKotlinTest {
         assertThat(insertStatement.insertStatement).isEqualTo(expected)
 
         val rows = template.generalInsert(insertStatement)
-        val record = template.selectOne(id, firstName, lastName, birthDate, employed, occupation, addressId) {
+        val row = template.selectOne(id, firstName, lastName, birthDate, employed, occupation, addressId) {
             from(person)
             where { id isEqualTo 100 }
         }.withRowMapper(personRowMapper)
 
         assertThat(rows).isEqualTo(1)
-        with(record!!) {
+        with(row!!) {
             assertThat(id).isEqualTo(100)
             assertThat(firstName).isEqualTo("Joe")
             assertThat(lastName!!.name).isEqualTo("Jones")
@@ -530,10 +530,10 @@ open class CanonicalSpringKotlinTest {
 
     @Test
     fun testInsertNoTable() {
-        val record = PersonRecord(100, "Joe", LastName("Jones"), Date(), true, "Developer", 1)
+        val row = PersonRecord(100, "Joe", LastName("Jones"), Date(), true, "Developer", 1)
 
         assertThatExceptionOfType(KInvalidSQLException::class.java).isThrownBy {
-            insert(record) {
+            insert(row) {
                 map(person.firstName) toProperty "firstName"
             }
         }.withMessage(Messages.getString("ERROR.25")) //$NON-NLS-1$
@@ -685,9 +685,9 @@ open class CanonicalSpringKotlinTest {
             where { id isEqualTo 300 }
         }
 
-        val record = template.selectOne(selectStatement, personRowMapper)
+        val row = template.selectOne(selectStatement, personRowMapper)
 
-        assertThat(record).isNull()
+        assertThat(row).isNull()
     }
 
     @Test
@@ -699,9 +699,9 @@ open class CanonicalSpringKotlinTest {
             where { id isEqualTo 1 }
         }
 
-        val record = template.selectOne(selectStatement, personRowMapper)
+        val row = template.selectOne(selectStatement, personRowMapper)
 
-        with(record!!) {
+        with(row!!) {
             assertThat(id).isEqualTo(1)
             assertThat(firstName).isEqualTo("Fred")
             assertThat(lastName!!.name).isEqualTo("Flintstone")
@@ -1122,8 +1122,8 @@ open class CanonicalSpringKotlinTest {
             address.streetAddress, address.city, address.state
         ) {
             from(person, "p")
-            join(address, "a") {
-                on(addressId) equalTo address.id
+            join(address, "a") on {
+                addressId isEqualTo address.id
             }
             where { id isLessThan 4 }
             orderBy(id)

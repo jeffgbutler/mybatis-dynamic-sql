@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,5 +19,10 @@ public abstract class MultiRowInsertMappingVisitor<R> extends InsertMappingVisit
     @Override
     public final R visit(PropertyWhenPresentMapping mapping) {
         throw new UnsupportedOperationException(Messages.getInternalErrorString(InternalError.INTERNAL_ERROR_12));
+    }
+
+    @Override
+    public R visit(MappedColumnWhenPresentMapping mapping) {
+        throw new UnsupportedOperationException(Messages.getInternalErrorString(InternalError.INTERNAL_ERROR_18));
     }
 }

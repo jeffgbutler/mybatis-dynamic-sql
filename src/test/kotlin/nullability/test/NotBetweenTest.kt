@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -36,7 +36,9 @@ class NotBetweenTest {
         """
 
         val compilerMessageCollector = compile(source)
-        assertThat(compilerMessageCollector.errorLocations()).isEqualTo(listOf(ErrorLocation(9, 33)))
+        assertThat(compilerMessageCollector.errorLocations())
+            .hasSize(1)
+            .contains(ErrorLocation(9, 33))
     }
 
     @Test
@@ -56,7 +58,9 @@ class NotBetweenTest {
         """
 
         val compilerMessageCollector = compile(source)
-        assertThat(compilerMessageCollector.errorLocations()).isEqualTo(listOf(ErrorLocation(9, 39)))
+        assertThat(compilerMessageCollector.errorLocations())
+            .hasSize(1)
+            .contains(ErrorLocation(9, 39))
     }
 
     @Test
@@ -76,10 +80,9 @@ class NotBetweenTest {
         """
 
         val compilerMessageCollector = compile(source)
-        assertThat(compilerMessageCollector.errorLocations()).isEqualTo(listOf(
-            ErrorLocation(9, 33),
-            ErrorLocation(9, 42)
-        ))
+        assertThat(compilerMessageCollector.errorLocations())
+            .hasSize(2)
+            .contains(ErrorLocation(9, 33), ErrorLocation(9, 42))
     }
 
     @Test
@@ -100,7 +103,9 @@ class NotBetweenTest {
         """
 
         val compilerMessageCollector = compile(source)
-        assertThat(compilerMessageCollector.errorLocations()).isEqualTo(listOf(ErrorLocation(10, 39)))
+        assertThat(compilerMessageCollector.errorLocations())
+            .hasSize(1)
+            .contains(ErrorLocation(10, 39))
     }
 
     @Test
@@ -121,7 +126,9 @@ class NotBetweenTest {
         """
 
         val compilerMessageCollector = compile(source)
-        assertThat(compilerMessageCollector.errorLocations()).isEqualTo(listOf(ErrorLocation(10, 41)))
+        assertThat(compilerMessageCollector.errorLocations())
+            .hasSize(1)
+            .contains(ErrorLocation(10, 41))
     }
 
     @Test
@@ -142,9 +149,8 @@ class NotBetweenTest {
         """
 
         val compilerMessageCollector = compile(source)
-        assertThat(compilerMessageCollector.errorLocations()).isEqualTo(listOf(
-            ErrorLocation(10, 39),
-            ErrorLocation(10, 49)
-        ))
+        assertThat(compilerMessageCollector.errorLocations())
+            .hasSize(2)
+            .contains(ErrorLocation(10, 39), ErrorLocation(10, 49))
     }
 }

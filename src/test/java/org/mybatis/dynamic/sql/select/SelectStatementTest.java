@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mybatis.dynamic.sql.SqlBuilder.*;
 
 import java.sql.JDBCType;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -180,9 +179,7 @@ class SelectStatementTest {
 
     @Test
     void testOrderByMultipleColumnsWithCollection() {
-        Collection<SortSpecification> orderByColumns = new ArrayList<>();
-        orderByColumns.add(column2.descending());
-        orderByColumns.add(column1);
+        Collection<SortSpecification> orderByColumns = List.of(column2.descending(), column1);
 
         SelectStatementProvider selectStatement = select(column1.as("A_COLUMN1"), column2)
                 .from(table, "a")
@@ -286,24 +283,11 @@ class SelectStatementTest {
     }
 
     @Test
-    void testInEmptyList() {
-        List<String> emptyList = Collections.emptyList();
-        SelectModel selectModel = select(column1, column3)
-                .from(table, "a")
-                .where(column3, isIn(emptyList))
-                .build();
-
-        assertThatExceptionOfType(RuntimeException.class).isThrownBy(() ->
-                selectModel.render(RenderingStrategies.MYBATIS3)
-        );
-    }
-
-    @Test
     void testNotInEmptyList() {
         List<String> emptyList = Collections.emptyList();
         SelectModel selectModel = select(column1, column3)
                 .from(table, "a")
-                .where(column3, isNotIn(emptyList))
+                .where(column3, isNotInWhenPresent(emptyList))
                 .build();
 
         assertThatExceptionOfType(RuntimeException.class).isThrownBy(() ->
@@ -328,7 +312,7 @@ class SelectStatementTest {
     void testInCaseInsensitiveEmptyList() {
         SelectModel selectModel = select(column1, column3)
                 .from(table, "a")
-                .where(column3, isInCaseInsensitive(Collections.emptyList()))
+                .where(column3, isInCaseInsensitiveWhenPresent(Collections.emptyList()))
                 .build();
 
         assertThatExceptionOfType(RuntimeException.class).isThrownBy(() ->
@@ -354,18 +338,6 @@ class SelectStatementTest {
         SelectModel selectModel = select(column1, column3)
                 .from(table, "a")
                 .where(column3, isNotInWhenPresent(emptyList))
-                .build();
-
-        assertThatExceptionOfType(NonRenderingWhereClauseException.class).isThrownBy(() ->
-                selectModel.render(RenderingStrategies.MYBATIS3)
-        );
-    }
-
-    @Test
-    void testNotInCaseInsensitiveEmptyList() {
-        SelectModel selectModel = select(column1, column3)
-                .from(table, "a")
-                .where(column3, isNotInCaseInsensitive(Collections.emptyList()))
                 .build();
 
         assertThatExceptionOfType(NonRenderingWhereClauseException.class).isThrownBy(() ->

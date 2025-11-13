@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.apache.ibatis.annotations.SelectProvider;
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
 
@@ -50,7 +50,7 @@ public interface CommonSelectMapper {
     /**
      * Select a single row as a Map of values. The row may have any number of columns.
      * The Map key will be the column name as returned from the
-     * database (may be aliased if an alias is specified in the select statement). Map entries will be
+     * database (the key will be aliased if an alias is specified in the select statement). Map entries will be
      * of data types determined by the JDBC driver. MyBatis will call ResultSet.getObject() to retrieve
      * values from the ResultSet. Reference your JDBC driver documentation to learn about type mappings
      * for your specific database.
@@ -59,7 +59,7 @@ public interface CommonSelectMapper {
      * @return A Map containing the row values.
      */
     @SelectProvider(type = SqlProviderAdapter.class, method = "select")
-    Map<String, Object> selectOneMappedRow(SelectStatementProvider selectStatement);
+    @Nullable Map<String, Object> selectOneMappedRow(SelectStatementProvider selectStatement);
 
     /**
      * Select a single row of values and then convert the values to a custom type. This is similar
@@ -75,16 +75,17 @@ public interface CommonSelectMapper {
      * @param <R> the datatype of the converted object
      * @return the converted object
      */
-    default <R> R selectOne(SelectStatementProvider selectStatement,
+    default <R> @Nullable R selectOne(SelectStatementProvider selectStatement,
                             Function<Map<String, Object>, R> rowMapper) {
-        return rowMapper.apply(selectOneMappedRow(selectStatement));
+        var result = selectOneMappedRow(selectStatement);
+        return result == null ? null : rowMapper.apply(result);
     }
 
     /**
      * Select any number of rows and return a List of Maps containing row values (one Map for each row returned).
      * The rows may have any number of columns.
      * The Map key will be the column name as returned from the
-     * database (may be aliased if an alias is specified in the select statement). Map entries will be
+     * database (the key will be aliased if an alias is specified in the select statement). Map entries will be
      * of data types determined by the JDBC driver. MyBatis will call ResultSet.getObject() to retrieve
      * values from the ResultSet. Reference your JDBC driver documentation to learn about type mappings
      * for your specific database.
@@ -110,7 +111,7 @@ public interface CommonSelectMapper {
                                    Function<Map<String, Object>, R> rowMapper) {
         return selectManyMappedRows(selectStatement).stream()
                 .map(rowMapper)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -123,7 +124,7 @@ public interface CommonSelectMapper {
      *     column is null
      */
     @SelectProvider(type = SqlProviderAdapter.class, method = "select")
-    BigDecimal selectOneBigDecimal(SelectStatementProvider selectStatement);
+    @Nullable BigDecimal selectOneBigDecimal(SelectStatementProvider selectStatement);
 
     /**
      * Retrieve a single {@link java.math.BigDecimal} from a result set. The result set must have
@@ -158,7 +159,7 @@ public interface CommonSelectMapper {
      *     column is null
      */
     @SelectProvider(type = SqlProviderAdapter.class, method = "select")
-    Double selectOneDouble(SelectStatementProvider selectStatement);
+    @Nullable Double selectOneDouble(SelectStatementProvider selectStatement);
 
     /**
      * Retrieve a single {@link java.lang.Double} from a result set. The result set must have
@@ -193,7 +194,7 @@ public interface CommonSelectMapper {
      *     column is null
      */
     @SelectProvider(type = SqlProviderAdapter.class, method = "select")
-    Integer selectOneInteger(SelectStatementProvider selectStatement);
+    @Nullable Integer selectOneInteger(SelectStatementProvider selectStatement);
 
     /**
      * Retrieve a single {@link java.lang.Integer} from a result set. The result set must have
@@ -228,7 +229,7 @@ public interface CommonSelectMapper {
      *     column is null
      */
     @SelectProvider(type = SqlProviderAdapter.class, method = "select")
-    Long selectOneLong(SelectStatementProvider selectStatement);
+    @Nullable Long selectOneLong(SelectStatementProvider selectStatement);
 
     /**
      * Retrieve a single {@link java.lang.Long} from a result set. The result set must have
@@ -263,7 +264,7 @@ public interface CommonSelectMapper {
      *     column is null
      */
     @SelectProvider(type = SqlProviderAdapter.class, method = "select")
-    String selectOneString(SelectStatementProvider selectStatement);
+    @Nullable String selectOneString(SelectStatementProvider selectStatement);
 
     /**
      * Retrieve a single {@link java.lang.String} from a result set. The result set must have

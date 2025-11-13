@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import org.mybatis.dynamic.sql.SqlTable;
 
 public final class PersonDynamicSqlSupport {
     public static final Person person = new Person();
-    public static final SqlColumn<Integer> id = person.id;
+    public static final PrimaryKeyColumn<Integer> id = person.id;
     public static final SqlColumn<String> firstName = person.firstName;
     public static final SqlColumn<LastName> lastName = person.lastName;
     public static final SqlColumn<Date> birthDate = person.birthDate;
@@ -32,13 +32,27 @@ public final class PersonDynamicSqlSupport {
     public static final SqlColumn<Integer> addressId = person.addressId;
 
     public static final class Person extends SqlTable {
-        public final SqlColumn<Integer> id = column("id", JDBCType.INTEGER);
-        public final SqlColumn<String> firstName = column("first_name", JDBCType.VARCHAR);
-        public final SqlColumn<LastName> lastName = column("last_name", JDBCType.VARCHAR, "examples.simple.LastNameTypeHandler");
-        public final SqlColumn<Date> birthDate = column("birth_date", JDBCType.DATE);
-        public final SqlColumn<Boolean> employed = column("employed", JDBCType.VARCHAR, "examples.simple.YesNoTypeHandler");
-        public final SqlColumn<String> occupation = column("occupation", JDBCType.VARCHAR);
-        public final SqlColumn<Integer> addressId = column("address_id", JDBCType.INTEGER);
+        public final PrimaryKeyColumn<Integer> id = new PrimaryKeyColumn.Builder<Integer>()
+                .withTable(this)
+                .withName("id")
+                .withJdbcType(JDBCType.INTEGER)
+                .withJavaProperty("id")
+                .isPrimaryKeyColumn(true)
+                .build();
+        public final SqlColumn<String> firstName = column("first_name", JDBCType.VARCHAR)
+                .withJavaProperty("firstName");
+        public final SqlColumn<LastName> lastName =
+                column("last_name", JDBCType.VARCHAR, "examples.simple.LastNameTypeHandler")
+                        .withJavaProperty("lastName");
+        public final SqlColumn<Date> birthDate = column("birth_date", JDBCType.DATE)
+                .withJavaProperty("birthDate");
+        public final SqlColumn<Boolean> employed =
+                column("employed", JDBCType.VARCHAR, "examples.simple.YesNoTypeHandler")
+                        .withJavaProperty("employed");
+        public final SqlColumn<String> occupation = column("occupation", JDBCType.VARCHAR)
+                .withJavaProperty("occupation");
+        public final SqlColumn<Integer> addressId = column("address_id", JDBCType.INTEGER)
+                .withJavaProperty("addressId");
 
         public Person() {
             super("Person");

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,13 +22,13 @@ import org.mybatis.dynamic.sql.SqlTable;
 
 public class OrderDynamicSqlSupport {
 
-    public static Order order = new Order();
-    public static SqlColumn<Integer> personId = order.personId;
-    public static SqlColumn<Date> orderDate = order.orderDate;
+    public static final Order order = new Order();
+    public static final SqlColumn<Integer> personId = order.personId;
+    public static final SqlColumn<Date> orderDate = order.orderDate;
 
     public static class Order extends SqlTable {
-        public SqlColumn<Integer> personId = column("person_id");
-        public SqlColumn<Date> orderDate = column("order_date");
+        public final SqlColumn<Integer> personId = column("person_id");
+        public final SqlColumn<Date> orderDate = column("order_date");
 
         public Order() {
             super("order");

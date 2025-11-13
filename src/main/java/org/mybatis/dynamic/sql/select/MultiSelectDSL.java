@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
@@ -32,10 +32,10 @@ import org.mybatis.dynamic.sql.util.ConfigurableStatement;
 public class MultiSelectDSL implements Buildable<MultiSelectModel>, ConfigurableStatement<MultiSelectDSL> {
     private final List<UnionQuery> unionQueries = new ArrayList<>();
     private final SelectModel initialSelect;
-    private OrderByModel orderByModel;
-    private Long limit;
-    private Long offset;
-    private Long fetchFirstRows;
+    private @Nullable OrderByModel orderByModel;
+    private @Nullable Long limit;
+    private @Nullable Long offset;
+    private @Nullable Long fetchFirstRows;
     private final StatementConfiguration statementConfiguration = new StatementConfiguration();
 
     public MultiSelectDSL(Buildable<SelectModel> builder) {
@@ -61,22 +61,33 @@ public class MultiSelectDSL implements Buildable<MultiSelectModel>, Configurable
         return this;
     }
 
-    public LimitFinisher limit(long limit) {
+    public MultiSelectDSL.LimitFinisher limit(long limit) {
+        return limitWhenPresent(limit);
+    }
+
+    public MultiSelectDSL.LimitFinisher limitWhenPresent(@Nullable Long limit) {
         this.limit = limit;
         return new LimitFinisher();
     }
 
-    public OffsetFirstFinisher offset(long offset) {
+    public MultiSelectDSL.OffsetFirstFinisher offset(long offset) {
+        return offsetWhenPresent(offset);
+    }
+
+    public MultiSelectDSL.OffsetFirstFinisher offsetWhenPresent(@Nullable Long offset) {
         this.offset = offset;
         return new OffsetFirstFinisher();
     }
 
-    public FetchFirstFinisher fetchFirst(long fetchFirstRows) {
+    public MultiSelectDSL.FetchFirstFinisher fetchFirst(long fetchFirstRows) {
+        return fetchFirstWhenPresent(fetchFirstRows);
+    }
+
+    public MultiSelectDSL.FetchFirstFinisher fetchFirstWhenPresent(@Nullable Long fetchFirstRows) {
         this.fetchFirstRows = fetchFirstRows;
         return new FetchFirstFinisher();
     }
 
-    @NotNull
     @Override
     public MultiSelectModel build() {
         return new MultiSelectModel.Builder()
@@ -102,34 +113,32 @@ public class MultiSelectDSL implements Buildable<MultiSelectModel>, Configurable
         return this;
     }
 
-    public class LimitFinisher implements Buildable<MultiSelectModel> {
-        public OffsetFinisher offset(long offset) {
-            MultiSelectDSL.this.offset(offset);
-            return new OffsetFinisher();
-        }
-
-        @NotNull
-        @Override
-        public MultiSelectModel build() {
-            return MultiSelectDSL.this.build();
-        }
-    }
-
-    public class OffsetFinisher implements Buildable<MultiSelectModel> {
-        @NotNull
-        @Override
-        public MultiSelectModel build() {
-            return MultiSelectDSL.this.build();
-        }
-    }
-
     public class OffsetFirstFinisher implements Buildable<MultiSelectModel> {
         public FetchFirstFinisher fetchFirst(long fetchFirstRows) {
-            MultiSelectDSL.this.fetchFirst(fetchFirstRows);
+            return fetchFirstWhenPresent(fetchFirstRows);
+        }
+
+        public FetchFirstFinisher fetchFirstWhenPresent(@Nullable Long fetchFirstRows) {
+            MultiSelectDSL.this.fetchFirstRows = fetchFirstRows;
             return new FetchFirstFinisher();
         }
 
-        @NotNull
+        @Override
+        public MultiSelectModel build() {
+            return MultiSelectDSL.this.build();
+        }
+    }
+
+    public class LimitFinisher implements Buildable<MultiSelectModel> {
+        public MultiSelectDSL offset(long offset) {
+            return offsetWhenPresent(offset);
+        }
+
+        public MultiSelectDSL offsetWhenPresent(@Nullable Long offset) {
+            MultiSelectDSL.this.offset = offset;
+            return MultiSelectDSL.this;
+        }
+
         @Override
         public MultiSelectModel build() {
             return MultiSelectDSL.this.build();
@@ -137,16 +146,8 @@ public class MultiSelectDSL implements Buildable<MultiSelectModel>, Configurable
     }
 
     public class FetchFirstFinisher {
-        public RowsOnlyFinisher rowsOnly() {
-            return new RowsOnlyFinisher();
-        }
-    }
-
-    public class RowsOnlyFinisher implements Buildable<MultiSelectModel> {
-        @NotNull
-        @Override
-        public MultiSelectModel build() {
-            return MultiSelectDSL.this.build();
+        public MultiSelectDSL rowsOnly() {
+            return MultiSelectDSL.this;
         }
     }
 }

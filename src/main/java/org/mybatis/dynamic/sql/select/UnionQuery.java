@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,20 +17,9 @@ package org.mybatis.dynamic.sql.select;
 
 import java.util.Objects;
 
-public class UnionQuery {
-    private final String connector;
-    private final SelectModel selectModel;
-
+public record UnionQuery(String connector, SelectModel selectModel) {
     public UnionQuery(String connector, SelectModel selectModel) {
         this.connector = Objects.requireNonNull(connector);
         this.selectModel = Objects.requireNonNull(selectModel);
-    }
-
-    public String connector() {
-        return connector;
-    }
-
-    public SelectModel selectModel() {
-        return selectModel;
     }
 }

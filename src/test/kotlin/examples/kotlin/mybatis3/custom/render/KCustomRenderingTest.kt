@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -35,9 +35,9 @@ import org.mybatis.dynamic.sql.util.kotlin.mybatis3.insertMultiple
 import org.mybatis.dynamic.sql.util.kotlin.mybatis3.select
 import org.mybatis.dynamic.sql.util.kotlin.mybatis3.update
 import org.mybatis.dynamic.sql.util.mybatis3.CommonSelectMapper
-import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
+import org.testcontainers.postgresql.PostgreSQLContainer
 import java.sql.JDBCType
 
 @Testcontainers
@@ -64,13 +64,13 @@ class KCustomRenderingTest {
     fun testInsertRecord() {
         sqlSessionFactory.openSession().use {
             val mapper = it.getMapper(KJsonTestMapper::class.java)
-            var record = KJsonTestRecord(
+            var row = KJsonTestRecord(
                 id = 1,
                 description = "Fred",
                 info = "{\"firstName\": \"Fred\", \"lastName\": \"Flintstone\", \"age\": 30}"
             )
 
-            var insertStatement = insert(record) {
+            var insertStatement = insert(row) {
                 into(jsonTest)
                 map(id) toProperty "id"
                 map(description) toProperty "description"
@@ -82,13 +82,13 @@ class KCustomRenderingTest {
             assertThat(insertStatement.insertStatement).isEqualTo(expected)
             var rows = mapper.insert(insertStatement)
             assertThat(rows).isEqualTo(1)
-            record = KJsonTestRecord(
+            row = KJsonTestRecord(
                 id = 2,
                 description = "Wilma",
                 info = "{\"firstName\": \"Wilma\", \"lastName\": \"Flintstone\", \"age\": 25}"
             )
 
-            insertStatement = insert(record) {
+            insertStatement = insert(row) {
                 into(jsonTest)
                 map(id) toProperty "id"
                 map(description) toProperty "description"
@@ -260,9 +260,9 @@ class KCustomRenderingTest {
                 "from JsonTest " +
                 "where info->>'age' = #{parameters.p1,jdbcType=VARCHAR}"
             assertThat(selectStatement.selectStatement).isEqualTo(expected)
-            val record = mapper.selectOne(selectStatement)
-            assertThat(record).isNotNull
-            assertThat(record!!.info).isEqualTo(
+            val row = mapper.selectOne(selectStatement)
+            assertThat(row).isNotNull
+            assertThat(row!!.info).isEqualTo(
                 "{\"firstName\": \"Wilma\", \"lastName\": \"Flintstone\", \"age\": 25}"
             )
         }
@@ -304,7 +304,7 @@ class KCustomRenderingTest {
         }
     }
 
-    private fun <T> dereference(column: SqlColumn<T>, attribute: String) =
+    private fun <T : Any> dereference(column: SqlColumn<T>, attribute: String) =
         SqlColumn.of<String>(column.name() + "->>'" + attribute + "'", column.table(), JDBCType.VARCHAR)
 
     companion object {

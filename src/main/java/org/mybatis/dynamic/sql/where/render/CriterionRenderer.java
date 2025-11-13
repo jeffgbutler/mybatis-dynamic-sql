@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.mybatis.dynamic.sql.NotCriterion;
 import org.mybatis.dynamic.sql.SqlCriterion;
 import org.mybatis.dynamic.sql.SqlCriterionVisitor;
 import org.mybatis.dynamic.sql.render.RenderingContext;
-import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
+import org.mybatis.dynamic.sql.select.render.SubQueryRenderer;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 import org.mybatis.dynamic.sql.util.FragmentCollector;
 
@@ -119,25 +119,18 @@ public class CriterionRenderer implements SqlCriterionVisitor<Optional<RenderedC
 
     private FragmentAndParameters renderExists(ExistsCriterion criterion) {
         ExistsPredicate existsPredicate = criterion.existsPredicate();
-
-        SelectStatementProvider selectStatement = existsPredicate.selectModelBuilder().build().render(renderingContext);
-
-        String fragment = existsPredicate.operator()
-                + " (" //$NON-NLS-1$
-                + selectStatement.getSelectStatement()
-                + ")"; //$NON-NLS-1$
-
-        return FragmentAndParameters
-                .withFragment(fragment)
-                .withParameters(selectStatement.getParameters())
-                .build();
+        return SubQueryRenderer.withSelectModel(existsPredicate.selectModelBuilder().build())
+                .withRenderingContext(renderingContext)
+                .withPrefix(existsPredicate.operator() + " (") //$NON-NLS-1$
+                .withSuffix(")") //$NON-NLS-1$
+                .build()
+                .render();
     }
 
     private List<RenderedCriterion> renderSubCriteria(List<AndOrCriteriaGroup> subCriteria) {
         return subCriteria.stream().map(this::renderAndOrCriteriaGroup)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+                .flatMap(Optional::stream)
+                .toList();
     }
 
     private Optional<RenderedCriterion> renderAndOrCriteriaGroup(AndOrCriteriaGroup criterion) {

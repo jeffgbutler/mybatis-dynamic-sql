@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package examples.springbatch.paging;
 
 import static examples.springbatch.mapper.PersonDynamicSqlSupport.*;
 import static org.mybatis.dynamic.sql.SqlBuilder.isEqualTo;
+import static org.mybatis.dynamic.sql.SqlBuilder.select;
 
 import javax.sql.DataSource;
 
@@ -88,12 +89,14 @@ public class PagingReaderBatchConfiguration {
 
     @Bean
     public MyBatisPagingItemReader<PersonRecord> reader(SqlSessionFactory sqlSessionFactory) {
-        SelectStatementProvider selectStatement =  SpringBatchUtility.selectForPaging(person.allColumns())
+        SelectStatementProvider selectStatement =  select(person.allColumns())
                 .from(person)
                 .where(forPagingTest, isEqualTo(true))
                 .orderBy(id)
+                .limit(SpringBatchUtility.MYBATIS_SPRING_BATCH_PAGESIZE)
+                .offset(SpringBatchUtility.MYBATIS_SPRING_BATCH_SKIPROWS)
                 .build()
-                .render();
+                .render(SpringBatchUtility.SPRING_BATCH_PAGING_ITEM_READER_RENDERING_STRATEGY);
 
         MyBatisPagingItemReader<PersonRecord> reader = new MyBatisPagingItemReader<>();
         reader.setQueryId(PersonMapper.class.getName() + ".selectMany");

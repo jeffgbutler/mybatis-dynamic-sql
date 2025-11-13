@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,12 +16,13 @@
 package org.mybatis.dynamic.sql.util.kotlin.elements
 
 import org.mybatis.dynamic.sql.BasicColumn
-import org.mybatis.dynamic.sql.VisitableCondition
+import org.mybatis.dynamic.sql.RenderableCondition
 import org.mybatis.dynamic.sql.select.caseexpression.BasicWhenCondition
 import org.mybatis.dynamic.sql.select.caseexpression.ConditionBasedWhenCondition
 import org.mybatis.dynamic.sql.select.caseexpression.SearchedCaseWhenCondition
 import org.mybatis.dynamic.sql.select.caseexpression.SimpleCaseWhenCondition
 import org.mybatis.dynamic.sql.util.kotlin.GroupingCriteriaCollector
+import org.mybatis.dynamic.sql.util.kotlin.assertNotNull
 import org.mybatis.dynamic.sql.util.kotlin.assertNull
 
 class KSearchedCaseDSL : KElseDSL {
@@ -34,14 +35,14 @@ class KSearchedCaseDSL : KElseDSL {
 
     fun `when`(dslCompleter: SearchedCaseCriteriaCollector.() -> Unit) =
         SearchedCaseCriteriaCollector().apply(dslCompleter).run {
+            assertNotNull(thenValue, "ERROR.47") //$NON-NLS-1$
             whenConditions.add(SearchedCaseWhenCondition.Builder().withInitialCriterion(initialCriterion)
                 .withSubCriteria(subCriteria)
-                .withThenValue(thenValue)
+                .withThenValue(thenValue!!)
                 .build())
-
         }
 
-    override fun `else`(column: BasicColumn) {
+    override infix fun `else`(column: BasicColumn) {
         this.elseValue = column
     }
 }
@@ -53,7 +54,7 @@ class SearchedCaseCriteriaCollector : GroupingCriteriaCollector(), KThenDSL {
             field = value
         }
 
-    override fun then(column: BasicColumn) {
+    override infix fun then(column: BasicColumn) {
         thenValue = column
     }
 }
@@ -66,88 +67,67 @@ class KSimpleCaseDSL<T : Any> : KElseDSL {
         }
     internal val whenConditions = mutableListOf<SimpleCaseWhenCondition<T>>()
 
-    fun `when`(firstCondition: VisitableCondition<T>, vararg subsequentConditions: VisitableCondition<T>,
-               completer: SimpleCaseThenGatherer.() -> Unit) =
-        SimpleCaseThenGatherer().apply(completer).run {
-            val allConditions = buildList {
-                add(firstCondition)
-                addAll(subsequentConditions)
-            }
+    fun `when`(vararg conditions: RenderableCondition<T>) =
+        SimpleCaseThenGatherer { whenConditions.add(ConditionBasedWhenCondition(conditions.asList(), it)) }
 
-            whenConditions.add(ConditionBasedWhenCondition(allConditions, thenValue))
-        }
+    fun `when`(vararg values: T) =
+        SimpleCaseThenGatherer { whenConditions.add(BasicWhenCondition(values.asList(), it)) }
 
-    fun `when`(firstValue: T, vararg subsequentValues: T, completer: SimpleCaseThenGatherer.() -> Unit) =
-        SimpleCaseThenGatherer().apply(completer).run {
-            val allConditions = buildList {
-                add(firstValue)
-                addAll(subsequentValues)
-            }
-
-            whenConditions.add(BasicWhenCondition(allConditions, thenValue))
-        }
-
-    override fun `else`(column: BasicColumn) {
+    override infix fun `else`(column: BasicColumn) {
         this.elseValue = column
     }
 }
 
-class SimpleCaseThenGatherer: KThenDSL {
-    internal var thenValue: BasicColumn? = null
-        private set(value) {
-            assertNull(field, "ERROR.41") //$NON-NLS-1$
-            field = value
-        }
-
-    override fun then(column: BasicColumn) {
-        thenValue = column
+class SimpleCaseThenGatherer(private val consumer: (BasicColumn) -> Unit): KThenDSL {
+    override infix fun then(column: BasicColumn) {
+        consumer.invoke(column)
     }
 }
 
 interface KThenDSL {
-    fun then(value: String) {
+    infix fun then(value: String) {
         then(stringConstant(value))
     }
 
-    fun then(value: Boolean) {
+    infix fun then(value: Boolean) {
         then(constant<String>(value.toString()))
     }
 
-    fun then(value: Int) {
+    infix fun then(value: Int) {
         then(constant<String>(value.toString()))
     }
 
-    fun then(value: Long) {
+    infix fun then(value: Long) {
         then(constant<String>(value.toString()))
     }
 
-    fun then(value: Double) {
+    infix fun then(value: Double) {
         then(constant<String>(value.toString()))
     }
 
-    fun then(column: BasicColumn)
+    infix fun then(column: BasicColumn)
 }
 
 interface KElseDSL {
-    fun `else`(value: String) {
+    infix fun `else`(value: String) {
         `else`(stringConstant(value))
     }
 
-    fun `else`(value: Boolean) {
+    infix fun `else`(value: Boolean) {
         `else`(constant<String>(value.toString()))
     }
 
-    fun `else`(value: Int) {
+    infix fun `else`(value: Int) {
         `else`(constant<String>(value.toString()))
     }
 
-    fun `else`(value: Long) {
+    infix fun `else`(value: Long) {
         `else`(constant<String>(value.toString()))
     }
 
-    fun `else`(value: Double) {
+    infix fun `else`(value: Double) {
         `else`(constant<String>(value.toString()))
     }
 
-    fun `else`(column: BasicColumn)
+    infix fun `else`(column: BasicColumn)
 }

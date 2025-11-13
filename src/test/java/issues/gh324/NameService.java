@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ public class NameService {
         try {
             Class.forName(JDBC_DRIVER);
             InputStream is = getClass().getResourceAsStream("/issues/gh324/CreateDB.sql");
+            assert is != null;
             try (Connection connection = DriverManager.getConnection(JDBC_URL, "sa", "")) {
                 ScriptRunner sr = new ScriptRunner(connection);
                 sr.setLogWriter(null);
@@ -59,20 +60,16 @@ public class NameService {
     public void insertRecord() {
         try (SqlSession session = sqlSessionFactory.openSession(true)) {
             NameTableMapper mapper = session.getMapper(NameTableMapper.class);
-            NameRecord record = new NameRecord();
-            record.setId(1);
-            record.setName("Fred");
-            mapper.insert(record);
+            NameRecord row = new NameRecord(1, "Fred");
+            mapper.insert(row);
         }
     }
 
     public void updateRecordWithAutoCommit() {
         try (SqlSession session = sqlSessionFactory.openSession(true)) {
             NameTableMapper mapper = session.getMapper(NameTableMapper.class);
-            NameRecord record = new NameRecord();
-            record.setId(1);
-            record.setName("Barney");
-            mapper.updateByPrimaryKey(record);
+            NameRecord row = new NameRecord(1, "Barney");
+            mapper.updateByPrimaryKey(row);
         }
     }
 
@@ -80,20 +77,16 @@ public class NameService {
         // this should rollback
         try (SqlSession session = sqlSessionFactory.openSession()) {
             NameTableMapper mapper = session.getMapper(NameTableMapper.class);
-            NameRecord record = new NameRecord();
-            record.setId(1);
-            record.setName("Barney");
-            mapper.updateByPrimaryKey(record);
+            NameRecord row = new NameRecord(1, "Barney");
+            mapper.updateByPrimaryKey(row);
         }
     }
 
     public void updateRecordWithoutAutoCommitAndExplicitCommit() {
         try (SqlSession session = sqlSessionFactory.openSession()) {
             NameTableMapper mapper = session.getMapper(NameTableMapper.class);
-            NameRecord record = new NameRecord();
-            record.setId(1);
-            record.setName("Barney");
-            mapper.updateByPrimaryKey(record);
+            NameRecord row = new NameRecord(1, "Barney");
+            mapper.updateByPrimaryKey(row);
             session.commit();
         }
     }

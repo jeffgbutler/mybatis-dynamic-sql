@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,13 +15,12 @@
  */
 package org.mybatis.dynamic.sql;
 
+import java.sql.JDBCType;
 import java.util.Optional;
 
-import org.mybatis.dynamic.sql.exception.DynamicSqlException;
 import org.mybatis.dynamic.sql.render.RenderingContext;
-import org.mybatis.dynamic.sql.render.TableAliasCalculator;
+import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
-import org.mybatis.dynamic.sql.util.Messages;
 
 /**
  * Describes attributes of columns that are necessary for rendering if the column is not expected to
@@ -59,24 +58,18 @@ public interface BasicColumn {
      * @return a rendered SQL fragment and, optionally, parameters associated with the fragment
      * @since 1.5.1
      */
-    default FragmentAndParameters render(RenderingContext renderingContext) {
-        // the default implementation ensures compatibility with prior releases. When the
-        // deprecated renderWithTableAlias method is removed, this function can become purely abstract.
-        // Also remove the method tableAliasCalculator() from RenderingContext.
-        return FragmentAndParameters.fromFragment(renderWithTableAlias(renderingContext.tableAliasCalculator()));
+    FragmentAndParameters render(RenderingContext renderingContext);
+
+    default Optional<JDBCType> jdbcType() {
+        return Optional.empty();
     }
 
-    /**
-     * Returns the name of the item aliased with a table name if appropriate.
-     * For example, "a.foo".  This is appropriate for where clauses and order by clauses.
-     *
-     * @param tableAliasCalculator the table alias calculator for the current renderer
-     * @return the item name with the table alias applied
-     * @deprecated Please replace this method by overriding the more general "render" method
-     */
-    @Deprecated
-    default String renderWithTableAlias(TableAliasCalculator tableAliasCalculator) {
-        throw new DynamicSqlException(Messages.getString("ERROR.36"));  //$NON-NLS-1$
+    default Optional<String> typeHandler() {
+        return Optional.empty();
+    }
+
+    default Optional<RenderingStrategy> renderingStrategy() {
+        return Optional.empty();
     }
 
     /**

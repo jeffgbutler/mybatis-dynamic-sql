@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,15 +15,26 @@
  */
 package org.mybatis.dynamic.sql.where.condition;
 
-import java.util.Objects;
+import java.util.NoSuchElementException;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import org.mybatis.dynamic.sql.AbstractTwoValueCondition;
 
-public class IsBetween<T> extends AbstractTwoValueCondition<T> {
-    private static final IsBetween<?> EMPTY = new IsBetween<Object>(null, null) {
+public class IsBetween<T> extends AbstractTwoValueCondition<T>
+        implements AbstractTwoValueCondition.Filterable<T>, AbstractTwoValueCondition.Mappable<T> {
+    private static final IsBetween<?> EMPTY = new IsBetween<Object>(-1, -1) {
+        @Override
+        public Object value1() {
+            throw new NoSuchElementException("No value present"); //$NON-NLS-1$
+        }
+
+        @Override
+        public Object value2() {
+            throw new NoSuchElementException("No value present"); //$NON-NLS-1$
+        }
+
         @Override
         public boolean isEmpty() {
             return true;
@@ -60,29 +71,13 @@ public class IsBetween<T> extends AbstractTwoValueCondition<T> {
         return filterSupport(predicate, IsBetween::empty, this);
     }
 
-    /**
-     * If renderable, apply the mappings to the values and return a new condition with the new values. Else return a
-     * condition that will not render (this).
-     *
-     * @param mapper1 a mapping function to apply to the first value, if renderable
-     * @param mapper2 a mapping function to apply to the second value, if renderable
-     * @param <R> type of the new condition
-     * @return a new condition with the result of applying the mappers to the values of this condition,
-     *     if renderable, otherwise a condition that will not render.
-     */
-    public <R> IsBetween<R> map(Function<? super T, ? extends R> mapper1, Function<? super T, ? extends R> mapper2) {
+    @Override
+    public <R> IsBetween<R> map(Function<? super T, ? extends R> mapper1,
+                                Function<? super T, ? extends R> mapper2) {
         return mapSupport(mapper1, mapper2, IsBetween::new, IsBetween::empty);
     }
 
-    /**
-     * If renderable, apply the mapping to both values and return a new condition with the new values. Else return a
-     *     condition that will not render (this).
-     *
-     * @param mapper a mapping function to apply to both values, if renderable
-     * @param <R> type of the new condition
-     * @return a new condition with the result of applying the mappers to the values of this condition,
-     *     if renderable, otherwise a condition that will not render.
-     */
+    @Override
     public <R> IsBetween<R> map(Function<? super T, ? extends R> mapper) {
         return map(mapper, mapper);
     }
@@ -91,29 +86,14 @@ public class IsBetween<T> extends AbstractTwoValueCondition<T> {
         return new Builder<>(value1);
     }
 
-    public static <T> WhenPresentBuilder<T> isBetweenWhenPresent(T value1) {
-        return new WhenPresentBuilder<>(value1);
-    }
-
     public static class Builder<T> extends AndGatherer<T, IsBetween<T>> {
         private Builder(T value1) {
             super(value1);
         }
 
         @Override
-        protected IsBetween<T> build() {
+        protected IsBetween<T> build(T value2) {
             return new IsBetween<>(value1, value2);
-        }
-    }
-
-    public static class WhenPresentBuilder<T> extends AndGatherer<T, IsBetween<T>> {
-        private WhenPresentBuilder(T value1) {
-            super(value1);
-        }
-
-        @Override
-        protected IsBetween<T> build() {
-            return new IsBetween<>(value1, value2).filter(Objects::nonNull);
         }
     }
 }

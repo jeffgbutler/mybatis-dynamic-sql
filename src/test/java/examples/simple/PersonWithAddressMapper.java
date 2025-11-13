@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -44,13 +44,14 @@ import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
+import org.mybatis.dynamic.sql.util.mybatis3.CommonCountMapper;
 import org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils;
 
 /**
  * This is a mapper that shows coding a join
  */
 @Mapper
-public interface PersonWithAddressMapper {
+public interface PersonWithAddressMapper extends CommonCountMapper {
 
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
     @Results(id="PersonWithAddressResult", value= {
@@ -73,34 +74,31 @@ public interface PersonWithAddressMapper {
     @ResultMap("PersonWithAddressResult")
     Optional<PersonWithAddress> selectOne(SelectStatementProvider selectStatement);
 
-    @SelectProvider(type=SqlProviderAdapter.class, method="select")
-    long count(SelectStatementProvider selectStatement);
-
     BasicColumn[] selectList =
             BasicColumn.columnList(id.as("A_ID"), firstName, lastName, birthDate, employed, occupation, address.id,
                     address.streetAddress, address.city, address.state, address.addressType);
 
     default Optional<PersonWithAddress> selectOne(SelectDSLCompleter completer) {
         QueryExpressionDSL<SelectModel> start = SqlBuilder.select(selectList).from(person)
-                .join(address, on(person.addressId, equalTo(address.id)));
+                .join(address, on(person.addressId, isEqualTo(address.id)));
         return MyBatis3Utils.selectOne(this::selectOne, start, completer);
     }
 
     default List<PersonWithAddress> select(SelectDSLCompleter completer) {
         QueryExpressionDSL<SelectModel> start = SqlBuilder.select(selectList).from(person)
-                .join(address, on(person.addressId, equalTo(address.id)));
+                .join(address, on(person.addressId, isEqualTo(address.id)));
         return MyBatis3Utils.selectList(this::selectMany, start, completer);
     }
 
-    default Optional<PersonWithAddress> selectByPrimaryKey(Integer id_) {
+    default Optional<PersonWithAddress> selectByPrimaryKey(Integer recordId) {
         return selectOne(c ->
-            c.where(id, isEqualTo(id_))
+            c.where(id, isEqualTo(recordId))
         );
     }
 
     default long count(CountDSLCompleter completer) {
         CountDSL<SelectModel> start = countFrom(person)
-                .join(address, on(person.addressId, equalTo(address.id)));
+                .join(address, on(person.addressId, isEqualTo(address.id)));
         return MyBatis3Utils.countFrom(this::count, start, completer);
     }
 }

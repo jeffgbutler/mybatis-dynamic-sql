@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,13 +19,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
+
 public class DefaultDeleteStatementProvider implements DeleteStatementProvider {
     private final String deleteStatement;
     private final Map<String, Object> parameters;
 
     private DefaultDeleteStatementProvider(Builder builder) {
         deleteStatement = Objects.requireNonNull(builder.deleteStatement);
-        parameters = Objects.requireNonNull(builder.parameters);
+        parameters = builder.parameters;
     }
 
     @Override
@@ -43,7 +45,7 @@ public class DefaultDeleteStatementProvider implements DeleteStatementProvider {
     }
 
     public static class Builder {
-        private String deleteStatement;
+        private @Nullable String deleteStatement;
         private final Map<String, Object> parameters = new HashMap<>();
 
         public Builder withDeleteStatement(String deleteStatement) {

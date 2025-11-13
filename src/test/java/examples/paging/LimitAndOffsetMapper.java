@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,8 +19,7 @@ import static examples.animal.data.AnimalDataDynamicSqlSupport.*;
 
 import java.util.List;
 
-import org.apache.ibatis.annotations.Result;
-import org.apache.ibatis.annotations.Results;
+import org.apache.ibatis.annotations.Arg;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.mybatis.dynamic.sql.select.QueryExpressionDSL;
 import org.mybatis.dynamic.sql.select.SelectDSL;
@@ -32,12 +31,10 @@ import examples.animal.data.AnimalData;
 public interface LimitAndOffsetMapper {
 
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
-    @Results(id="AnimalDataResult", value={
-        @Result(column="id", property="id", id=true),
-        @Result(column="animal_name", property="animalName"),
-        @Result(column="brain_weight", property="brainWeight"),
-        @Result(column="body_weight", property="bodyWeight")
-    })
+    @Arg(column = "id", javaType = int.class, id = true)
+    @Arg(column = "animal_name", javaType = String.class)
+    @Arg(column = "brain_weight", javaType = double.class)
+    @Arg(column = "body_weight", javaType = double.class)
     List<AnimalData> selectMany(SelectStatementProvider selectStatement);
 
     default QueryExpressionDSL<LimitAndOffsetAdapter<List<AnimalData>>> selectWithLimitAndOffset(int limit, int offset) {

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -33,7 +33,12 @@ public enum InternalError {
     INTERNAL_ERROR_12(12),
     INTERNAL_ERROR_13(13),
     INTERNAL_ERROR_14(14),
-    INTERNAL_ERROR_15(15);
+    INTERNAL_ERROR_15(15),
+    INTERNAL_ERROR_16(16),
+    INTERNAL_ERROR_17(17),
+    INTERNAL_ERROR_18(18),
+    INTERNAL_ERROR_19(19),
+    INTERNAL_ERROR_20(20);
 
     private final int number;
 

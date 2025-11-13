@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,6 +14,9 @@
  *    limitations under the License.
  */
 package org.mybatis.dynamic.sql;
+
+import org.mybatis.dynamic.sql.render.RenderingContext;
+import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 
 /**
  * Defines attributes of columns that are necessary for rendering an order by expression.
@@ -30,17 +33,12 @@ public interface SortSpecification {
     SortSpecification descending();
 
     /**
-     * Return the phrase that should be written into a rendered order by clause. This should
-     * NOT include the "DESC" word for descending sort specifications.
+     * Return a fragment rendered for use in an ORDER BY clause. The fragment should include "DESC" if a
+     * descending order is desired.
      *
-     * @return the order by phrase
+     * @param renderingContext the current rendering context
+     * @return a rendered fragment and  parameters if applicable
+     * @since 2.0.0
      */
-    String orderByName();
-
-    /**
-     * Return true if the sort order is descending.
-     *
-     * @return true if the SortSpecification should render as descending
-     */
-    boolean isDescending();
+    FragmentAndParameters renderForOrderBy(RenderingContext renderingContext);
 }

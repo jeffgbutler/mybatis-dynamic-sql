@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.mybatis.dynamic.sql.BindableColumn;
-import org.mybatis.dynamic.sql.VisitableCondition;
+import org.mybatis.dynamic.sql.RenderableCondition;
 import org.mybatis.dynamic.sql.render.RenderedParameterInfo;
 import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.select.caseexpression.BasicWhenCondition;
@@ -28,27 +28,26 @@ import org.mybatis.dynamic.sql.select.caseexpression.SimpleCaseWhenConditionVisi
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 import org.mybatis.dynamic.sql.util.FragmentCollector;
 import org.mybatis.dynamic.sql.util.Validator;
-import org.mybatis.dynamic.sql.where.render.DefaultConditionVisitor;
 
 public class SimpleCaseWhenConditionRenderer<T> implements SimpleCaseWhenConditionVisitor<T, FragmentAndParameters> {
     private final RenderingContext renderingContext;
     private final BindableColumn<T> column;
-    private final DefaultConditionVisitor<T> conditionVisitor;
 
     public SimpleCaseWhenConditionRenderer(RenderingContext renderingContext, BindableColumn<T> column) {
         this.renderingContext = Objects.requireNonNull(renderingContext);
         this.column = Objects.requireNonNull(column);
-        conditionVisitor = new DefaultConditionVisitor.Builder<T>()
-                .withColumn(column)
-                .withRenderingContext(renderingContext)
-                .build();
     }
 
     @Override
     public FragmentAndParameters visit(ConditionBasedWhenCondition<T> whenCondition) {
-        return whenCondition.conditions().map(this::renderCondition)
-                .collect(FragmentCollector.collect())
-                .toFragmentAndParameters(Collectors.joining(", ")); //$NON-NLS-1$
+        FragmentCollector fragmentCollector = whenCondition.conditions()
+                .filter(this::shouldRender)
+                .map(this::renderCondition)
+                .collect(FragmentCollector.collect());
+
+        Validator.assertFalse(fragmentCollector.isEmpty(), "ERROR.39"); //$NON-NLS-1$
+
+        return fragmentCollector.toFragmentAndParameters(Collectors.joining(", ")); //$NON-NLS-1$
     }
 
     @Override
@@ -58,9 +57,12 @@ public class SimpleCaseWhenConditionRenderer<T> implements SimpleCaseWhenConditi
                 .toFragmentAndParameters(Collectors.joining(", ")); //$NON-NLS-1$
     }
 
-    private FragmentAndParameters renderCondition(VisitableCondition<T> condition) {
-        Validator.assertTrue(condition.shouldRender(renderingContext), "ERROR.39"); //$NON-NLS-1$
-        return condition.accept(conditionVisitor);
+    private boolean shouldRender(RenderableCondition<T> condition) {
+        return condition.shouldRender(renderingContext);
+    }
+
+    private FragmentAndParameters renderCondition(RenderableCondition<T> condition) {
+        return condition.renderCondition(renderingContext, column);
     }
 
     private FragmentAndParameters renderBasicValue(T value) {

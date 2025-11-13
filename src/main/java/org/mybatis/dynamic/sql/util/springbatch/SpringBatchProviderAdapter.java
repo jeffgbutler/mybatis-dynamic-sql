@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,13 +17,9 @@ package org.mybatis.dynamic.sql.util.springbatch;
 
 import java.util.Map;
 
-import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
-
 public class SpringBatchProviderAdapter {
 
     public String select(Map<String, Object> parameterValues) {
-        SelectStatementProvider selectStatement =
-                (SelectStatementProvider) parameterValues.get(SpringBatchUtility.PARAMETER_KEY);
-        return selectStatement.getSelectStatement();
+        return (String) parameterValues.get(SpringBatchUtility.PARAMETER_KEY);
     }
 }

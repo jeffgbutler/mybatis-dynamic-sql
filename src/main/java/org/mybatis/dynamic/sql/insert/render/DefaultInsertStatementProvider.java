@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,32 +17,18 @@ package org.mybatis.dynamic.sql.insert.render;
 
 import java.util.Objects;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 
 public class DefaultInsertStatementProvider<T> implements InsertStatementProvider<T> {
     private final String insertStatement;
-    // need to keep both row and record for now so we don't break
-    // old code. The MyBatis reflection utilities don't handle
-    // the case where the attribute name is different from the getter.
-    //
-    // MyBatis Generator version 1.4.1 (March 8, 2022) changed to use "row" instead of "record".
-    // Target March 2023 for removing "record" from MyBatis Dynamic SQL.
-    private final T record;
     private final T row;
 
     private DefaultInsertStatementProvider(Builder<T> builder) {
         insertStatement = Objects.requireNonNull(builder.insertStatement);
         row = Objects.requireNonNull(builder.row);
-        record = row;
     }
 
     @Override
-    public T getRecord() {
-        return record;
-    }
-
-    @Override
-    @NotNull
     public T getRow() {
         return row;
     }
@@ -57,8 +43,8 @@ public class DefaultInsertStatementProvider<T> implements InsertStatementProvide
     }
 
     public static class Builder<T> {
-        private String insertStatement;
-        private T row;
+        private @Nullable String insertStatement;
+        private @Nullable T row;
 
         public Builder<T> withInsertStatement(String insertStatement) {
             this.insertStatement = insertStatement;

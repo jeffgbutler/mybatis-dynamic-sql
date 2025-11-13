@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -35,8 +35,8 @@ private val columnList = listOf(id `as` "A_ID", firstName, lastName, birthDate,
 fun PersonWithAddressMapper.selectOne(completer: SelectCompleter): PersonWithAddress? =
     select(columnList) {
         from(person)
-        fullJoin(address) {
-            on(person.addressId) equalTo address.id
+        fullJoin(address) on {
+            person.addressId isEqualTo address.id
         }
         completer()
     }.run(this::selectOne)
@@ -44,8 +44,8 @@ fun PersonWithAddressMapper.selectOne(completer: SelectCompleter): PersonWithAdd
 fun PersonWithAddressMapper.select(completer: SelectCompleter): List<PersonWithAddress> =
     select(columnList) {
         from(person, "p")
-        fullJoin(address) {
-            on(person.addressId) equalTo address.id
+        fullJoin(address) on {
+            person.addressId isEqualTo address.id
         }
         completer()
     }.run(this::selectMany)
@@ -53,8 +53,8 @@ fun PersonWithAddressMapper.select(completer: SelectCompleter): List<PersonWithA
 fun PersonWithAddressMapper.selectDistinct(completer: SelectCompleter): List<PersonWithAddress> =
     selectDistinct(columnList) {
         from(person)
-        fullJoin(address) {
-            on(person.addressId) equalTo address.id
+        fullJoin(address) on {
+            person.addressId isEqualTo address.id
         }
         completer()
     }.run(this::selectMany)

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.mybatis.dynamic.sql.util;
 
 import java.util.Collection;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.exception.InvalidSqlException;
 
 public class Validator {
@@ -26,12 +27,20 @@ public class Validator {
         assertFalse(collection.isEmpty(), messageNumber);
     }
 
+    public static void assertNotEmpty(Collection<?> collection, String messageNumber, String p1) {
+        assertFalse(collection.isEmpty(), messageNumber, p1);
+    }
+
     public static void assertFalse(boolean condition, String messageNumber) {
-        internalAssertFalse(condition, Messages.getString(messageNumber));
+        if (condition) {
+            throw new InvalidSqlException(Messages.getString(messageNumber));
+        }
     }
 
     public static void assertFalse(boolean condition, String messageNumber, String p1) {
-        internalAssertFalse(condition, Messages.getString(messageNumber, p1));
+        if (condition) {
+            throw new InvalidSqlException(Messages.getString(messageNumber, p1));
+        }
     }
 
     public static void assertTrue(boolean condition, String messageNumber) {
@@ -42,9 +51,9 @@ public class Validator {
         assertFalse(!condition, messageNumber, p1);
     }
 
-    private static void internalAssertFalse(boolean condition, String message) {
-        if (condition) {
-            throw new InvalidSqlException(message);
+    public static void assertNull(@Nullable Object object, String messageNumber) {
+        if (object != null) {
+            throw new InvalidSqlException(Messages.getString(messageNumber));
         }
     }
 }

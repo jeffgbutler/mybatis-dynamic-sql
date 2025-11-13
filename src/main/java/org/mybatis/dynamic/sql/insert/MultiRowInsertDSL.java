@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,12 +20,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import org.jetbrains.annotations.NotNull;
 import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping;
 import org.mybatis.dynamic.sql.util.Buildable;
 import org.mybatis.dynamic.sql.util.ConstantMapping;
+import org.mybatis.dynamic.sql.util.MappedColumnMapping;
 import org.mybatis.dynamic.sql.util.NullMapping;
 import org.mybatis.dynamic.sql.util.PropertyMapping;
 import org.mybatis.dynamic.sql.util.RowMapping;
@@ -47,7 +47,11 @@ public class MultiRowInsertDSL<T> implements Buildable<MultiRowInsertModel<T>> {
         return new ColumnMappingFinisher<>(column);
     }
 
-    @NotNull
+    public <F> MultiRowInsertDSL<T> withMappedColumn(SqlColumn<F> column) {
+        columnMappings.add(MappedColumnMapping.of(column));
+        return this;
+    }
+
     @Override
     public MultiRowInsertModel<T> build() {
         return MultiRowInsertModel.withRecords(records)
@@ -57,11 +61,11 @@ public class MultiRowInsertDSL<T> implements Buildable<MultiRowInsertModel<T>> {
     }
 
     @SafeVarargs
-    public static <T> IntoGatherer<T> insert(T... records) {
-        return MultiRowInsertDSL.insert(Arrays.asList(records));
+    public static <T> MultiRowInsertDSL.IntoGatherer<T> insert(T... records) {
+        return insert(Arrays.asList(records));
     }
 
-    public static <T> IntoGatherer<T> insert(Collection<T> records) {
+    public static <T> MultiRowInsertDSL.IntoGatherer<T> insert(Collection<T> records) {
         return new IntoGatherer<>(records);
     }
 

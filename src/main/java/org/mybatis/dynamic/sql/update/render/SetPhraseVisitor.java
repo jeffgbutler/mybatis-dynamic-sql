@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,9 +18,10 @@ package org.mybatis.dynamic.sql.update.render;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.render.RenderedParameterInfo;
 import org.mybatis.dynamic.sql.render.RenderingContext;
-import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
+import org.mybatis.dynamic.sql.select.render.SubQueryRenderer;
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping;
 import org.mybatis.dynamic.sql.util.ColumnToColumnMapping;
 import org.mybatis.dynamic.sql.util.ConstantMapping;
@@ -49,7 +50,7 @@ public class SetPhraseVisitor extends UpdateMappingVisitor<Optional<FragmentAndP
 
     @Override
     public Optional<FragmentAndParameters> visit(ConstantMapping mapping) {
-        String fragment = mapping.mapColumn(renderingContext::aliasedColumnName)
+        String fragment = renderingContext.aliasedColumnName(mapping.column())
                 + " = " + mapping.constant(); //$NON-NLS-1$
         return FragmentAndParameters.withFragment(fragment)
                 .buildOptional();
@@ -57,7 +58,7 @@ public class SetPhraseVisitor extends UpdateMappingVisitor<Optional<FragmentAndP
 
     @Override
     public Optional<FragmentAndParameters> visit(StringConstantMapping mapping) {
-        String fragment = mapping.mapColumn(renderingContext::aliasedColumnName)
+        String fragment = renderingContext.aliasedColumnName(mapping.column())
                 + " = " //$NON-NLS-1$
                 + StringUtilities.formatConstantForSQL(mapping.constant());
 
@@ -84,33 +85,28 @@ public class SetPhraseVisitor extends UpdateMappingVisitor<Optional<FragmentAndP
 
     @Override
     public Optional<FragmentAndParameters> visit(SelectMapping mapping) {
-        SelectStatementProvider selectStatement = mapping.selectModel().render(renderingContext);
-        String fragment = mapping.mapColumn(renderingContext::aliasedColumnName)
-                + " = (" //$NON-NLS-1$
-                + selectStatement.getSelectStatement()
-                + ")"; //$NON-NLS-1$
+        String prefix = renderingContext.aliasedColumnName(mapping.column()) + " = ("; //$NON-NLS-1$
 
-        return FragmentAndParameters.withFragment(fragment)
-                .withParameters(selectStatement.getParameters())
-                .buildOptional();
+        FragmentAndParameters fragmentAndParameters = SubQueryRenderer.withSelectModel(mapping.selectModel())
+                .withRenderingContext(renderingContext)
+                .withPrefix(prefix)
+                .withSuffix(")") //$NON-NLS-1$
+                .build()
+                .render();
+
+        return Optional.of(fragmentAndParameters);
     }
 
     @Override
     public Optional<FragmentAndParameters> visit(ColumnToColumnMapping mapping) {
-        FragmentAndParameters renderedColumn = mapping.rightColumn().render(renderingContext);
-
-        String setPhrase = mapping.mapColumn(renderingContext::aliasedColumnName)
-                + " = "  //$NON-NLS-1$
-                + renderedColumn.fragment();
-
-        return FragmentAndParameters.withFragment(setPhrase)
-                .withParameters(renderedColumn.parameters())
-                .buildOptional();
+        FragmentAndParameters fragmentAndParameters = mapping.rightColumn().render(renderingContext)
+                .mapFragment(f -> renderingContext.aliasedColumnName(mapping.column()) + " = " + f); //$NON-NLS-1$
+        return Optional.of(fragmentAndParameters);
     }
 
-    private <T> Optional<FragmentAndParameters> buildValueFragment(AbstractColumnMapping mapping, T value) {
-        RenderedParameterInfo parameterInfo = mapping.mapColumn(renderingContext::calculateParameterInfo);
-        String setPhrase = mapping.mapColumn(renderingContext::aliasedColumnName)
+    private <T> Optional<FragmentAndParameters> buildValueFragment(AbstractColumnMapping mapping, @Nullable T value) {
+        RenderedParameterInfo parameterInfo = renderingContext.calculateParameterInfo(mapping.column());
+        String setPhrase = renderingContext.aliasedColumnName(mapping.column())
                 + " = "  //$NON-NLS-1$
                 + parameterInfo.renderedPlaceHolder();
 
@@ -121,7 +117,7 @@ public class SetPhraseVisitor extends UpdateMappingVisitor<Optional<FragmentAndP
 
     private Optional<FragmentAndParameters> buildNullFragment(AbstractColumnMapping mapping) {
         return FragmentAndParameters
-                .withFragment(mapping.mapColumn(renderingContext::aliasedColumnName) + " = null") //$NON-NLS-1$
+                .withFragment(renderingContext.aliasedColumnName(mapping.column()) + " = null") //$NON-NLS-1$
                 .buildOptional();
     }
 }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.mybatis.dynamic.sql.select.aggregate;
 
 import java.util.Optional;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BindableColumn;
 
 /**
@@ -25,13 +26,13 @@ import org.mybatis.dynamic.sql.BindableColumn;
  * as it is assumed that the count functions always return a number.
  */
 public abstract class AbstractCount implements BindableColumn<Long> {
-    private final String alias;
+    private final @Nullable String alias;
 
     protected AbstractCount() {
         this(null);
     }
 
-    protected AbstractCount(String alias) {
+    protected AbstractCount(@Nullable String alias) {
         this.alias = alias;
     }
 

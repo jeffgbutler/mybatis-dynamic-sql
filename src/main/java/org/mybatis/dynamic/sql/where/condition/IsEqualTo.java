@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,14 +15,21 @@
  */
 package org.mybatis.dynamic.sql.where.condition;
 
+import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import org.mybatis.dynamic.sql.AbstractSingleValueCondition;
 
-public class IsEqualTo<T> extends AbstractSingleValueCondition<T> {
+public class IsEqualTo<T> extends AbstractSingleValueCondition<T>
+        implements AbstractSingleValueCondition.Filterable<T>, AbstractSingleValueCondition.Mappable<T> {
 
-    private static final IsEqualTo<?> EMPTY = new IsEqualTo<Object>(null) {
+    private static final IsEqualTo<?> EMPTY = new IsEqualTo<Object>(-1) {
+        @Override
+        public Object value() {
+            throw new NoSuchElementException("No value present"); //$NON-NLS-1$
+        }
+
         @Override
         public boolean isEmpty() {
             return true;
@@ -53,15 +60,7 @@ public class IsEqualTo<T> extends AbstractSingleValueCondition<T> {
         return filterSupport(predicate, IsEqualTo::empty, this);
     }
 
-    /**
-     * If renderable, apply the mapping to the value and return a new condition with the new value. Else return a
-     * condition that will not render (this).
-     *
-     * @param mapper a mapping function to apply to the value, if renderable
-     * @param <R> type of the new condition
-     * @return a new condition with the result of applying the mapper to the value of this condition,
-     *     if renderable, otherwise a condition that will not render.
-     */
+    @Override
     public <R> IsEqualTo<R> map(Function<? super T, ? extends R> mapper) {
         return mapSupport(mapper, IsEqualTo::new, IsEqualTo::empty);
     }

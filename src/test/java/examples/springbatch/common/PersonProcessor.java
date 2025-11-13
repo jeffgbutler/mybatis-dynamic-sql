@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ public class PersonProcessor implements ItemProcessor<PersonRecord, PersonRecord
     private ExecutionContext executionContext;
 
     @Override
-    public PersonRecord process(PersonRecord person) throws Exception {
+    public PersonRecord process(PersonRecord person) {
         incrementRowCount();
 
         PersonRecord transformed = new PersonRecord();

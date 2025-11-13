@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,24 +21,28 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.BindableColumn;
+import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.select.render.SimpleCaseRenderer;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
 import org.mybatis.dynamic.sql.util.Validator;
 
-public class SimpleCaseModel<T> implements BasicColumn {
+public class SimpleCaseModel<T> implements BasicColumn, SortSpecification {
     private final BindableColumn<T> column;
     private final List<SimpleCaseWhenCondition<T>> whenConditions;
-    private final BasicColumn elseValue;
-    private final String alias;
+    private final @Nullable BasicColumn elseValue;
+    private final @Nullable String alias;
+    private final String descendingPhrase;
 
     private SimpleCaseModel(Builder<T> builder) {
         column = Objects.requireNonNull(builder.column);
         whenConditions = builder.whenConditions;
         elseValue = builder.elseValue;
         alias = builder.alias;
+        descendingPhrase = builder.descendingPhrase;
         Validator.assertNotEmpty(whenConditions, "ERROR.40"); //$NON-NLS-1$
     }
 
@@ -66,7 +70,24 @@ public class SimpleCaseModel<T> implements BasicColumn {
                 .withWhenConditions(whenConditions)
                 .withElseValue(elseValue)
                 .withAlias(alias)
+                .withDescendingPhrase(descendingPhrase)
                 .build();
+    }
+
+    @Override
+    public SimpleCaseModel<T> descending() {
+        return new Builder<T>()
+                .withColumn(column)
+                .withWhenConditions(whenConditions)
+                .withElseValue(elseValue)
+                .withAlias(alias)
+                .withDescendingPhrase(" DESC") //$NON-NLS-1$
+                .build();
+    }
+
+    @Override
+    public FragmentAndParameters renderForOrderBy(RenderingContext renderingContext) {
+        return render(renderingContext).mapFragment(f -> f + descendingPhrase);
     }
 
     @Override
@@ -75,10 +96,11 @@ public class SimpleCaseModel<T> implements BasicColumn {
     }
 
     public static class Builder<T> {
-        private BindableColumn<T> column;
+        private @Nullable BindableColumn<T> column;
         private final List<SimpleCaseWhenCondition<T>> whenConditions = new ArrayList<>();
-        private BasicColumn elseValue;
-        private String alias;
+        private @Nullable BasicColumn elseValue;
+        private @Nullable String alias;
+        private String descendingPhrase = ""; //$NON-NLS-1$
 
         public Builder<T> withColumn(BindableColumn<T> column) {
             this.column = column;
@@ -90,13 +112,18 @@ public class SimpleCaseModel<T> implements BasicColumn {
             return this;
         }
 
-        public Builder<T> withElseValue(BasicColumn elseValue) {
+        public Builder<T> withElseValue(@Nullable BasicColumn elseValue) {
             this.elseValue = elseValue;
             return this;
         }
 
-        public Builder<T> withAlias(String alias) {
+        public Builder<T> withAlias(@Nullable String alias) {
             this.alias = alias;
+            return this;
+        }
+
+        public Builder<T> withDescendingPhrase(String descendingPhrase) {
+            this.descendingPhrase = descendingPhrase;
             return this;
         }
 

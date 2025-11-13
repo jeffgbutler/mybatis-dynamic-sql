@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.TableExpression;
 import org.mybatis.dynamic.sql.render.ExplicitTableAliasCalculator;
@@ -43,7 +44,8 @@ public class QueryExpressionRenderer {
         queryExpression = Objects.requireNonNull(builder.queryExpression);
         TableAliasCalculator childTableAliasCalculator = calculateChildTableAliasCalculator(queryExpression);
 
-        renderingContext = builder.renderingContext.withChildTableAliasCalculator(childTableAliasCalculator);
+        renderingContext = Objects.requireNonNull(builder.renderingContext)
+                .withChildTableAliasCalculator(childTableAliasCalculator);
 
         tableExpressionRenderer = new TableExpressionRenderer.Builder()
                 .withRenderingContext(renderingContext)
@@ -130,7 +132,8 @@ public class QueryExpressionRenderer {
     }
 
     private FragmentAndParameters calculateColumnList() {
-        return queryExpression.mapColumns(this::renderColumnAndAlias)
+        return queryExpression.columns()
+                .map(this::renderColumnAndAlias)
                 .collect(FragmentCollector.collect())
                 .toFragmentAndParameters(Collectors.joining(", ")); //$NON-NLS-1$
     }
@@ -138,12 +141,8 @@ public class QueryExpressionRenderer {
     private FragmentAndParameters renderColumnAndAlias(BasicColumn selectListItem) {
         FragmentAndParameters renderedColumn = selectListItem.render(renderingContext);
 
-        String nameAndTableAlias = selectListItem.alias().map(a -> renderedColumn.fragment() + " as " + a) //$NON-NLS-1$
-                .orElse(renderedColumn.fragment());
-
-        return FragmentAndParameters.withFragment(nameAndTableAlias)
-                .withParameters(renderedColumn.parameters())
-                .build();
+        return selectListItem.alias().map(a -> renderedColumn.mapFragment(f -> f + " as " + a)) //$NON-NLS-1$
+                .orElse(renderedColumn);
     }
 
     private FragmentAndParameters renderTableExpression(TableExpression table) {
@@ -175,7 +174,8 @@ public class QueryExpressionRenderer {
     }
 
     private FragmentAndParameters renderGroupBy(GroupByModel groupByModel) {
-        return groupByModel.mapColumns(this::renderColumn)
+        return groupByModel.columns()
+                .map(this::renderColumn)
                 .collect(FragmentCollector.collect())
                 .toFragmentAndParameters(
                         Collectors.joining(", ", "group by ", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$)
@@ -201,8 +201,8 @@ public class QueryExpressionRenderer {
     }
 
     public static class Builder {
-        private QueryExpressionModel queryExpression;
-        private RenderingContext renderingContext;
+        private @Nullable QueryExpressionModel queryExpression;
+        private @Nullable RenderingContext renderingContext;
 
         public Builder withRenderingContext(RenderingContext renderingContext) {
             this.renderingContext = renderingContext;

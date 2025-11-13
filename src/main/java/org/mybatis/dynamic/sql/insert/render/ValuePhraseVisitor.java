@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.util.ConstantMapping;
 import org.mybatis.dynamic.sql.util.InsertMappingVisitor;
+import org.mybatis.dynamic.sql.util.MappedColumnMapping;
+import org.mybatis.dynamic.sql.util.MappedColumnWhenPresentMapping;
 import org.mybatis.dynamic.sql.util.NullMapping;
 import org.mybatis.dynamic.sql.util.PropertyMapping;
 import org.mybatis.dynamic.sql.util.PropertyWhenPresentMapping;
@@ -60,7 +62,7 @@ public class ValuePhraseVisitor extends InsertMappingVisitor<Optional<FieldAndVa
     @Override
     public Optional<FieldAndValueAndParameters> visit(PropertyMapping mapping) {
         return FieldAndValueAndParameters.withFieldName(mapping.columnName())
-                .withValuePhrase(mapping.mapColumn(c -> calculateJdbcPlaceholder(c, mapping.property())))
+                .withValuePhrase(calculateJdbcPlaceholder(mapping.column(), mapping.property()))
                 .buildOptional();
     }
 
@@ -76,8 +78,27 @@ public class ValuePhraseVisitor extends InsertMappingVisitor<Optional<FieldAndVa
     @Override
     public Optional<FieldAndValueAndParameters> visit(RowMapping mapping) {
         return FieldAndValueAndParameters.withFieldName(mapping.columnName())
-                .withValuePhrase(mapping.mapColumn(this::calculateJdbcPlaceholder))
+                .withValuePhrase(calculateJdbcPlaceholder(mapping.column()))
                 .buildOptional();
+    }
+
+    @Override
+    public Optional<FieldAndValueAndParameters> visit(MappedColumnMapping mapping) {
+        return FieldAndValueAndParameters.withFieldName(mapping.columnName())
+                .withValuePhrase(calculateJdbcPlaceholder(
+                        mapping.column(),
+                        InsertRenderingUtilities.getMappedPropertyName(mapping.column()))
+                )
+                .buildOptional();
+    }
+
+    @Override
+    public Optional<FieldAndValueAndParameters> visit(MappedColumnWhenPresentMapping mapping) {
+        if (mapping.shouldRender()) {
+            return visit((MappedColumnMapping) mapping);
+        } else {
+            return Optional.empty();
+        }
     }
 
     private String calculateJdbcPlaceholder(SqlColumn<?> column) {

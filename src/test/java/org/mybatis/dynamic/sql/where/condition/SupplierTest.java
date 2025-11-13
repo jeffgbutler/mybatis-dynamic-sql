@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,9 +16,12 @@
 package org.mybatis.dynamic.sql.where.condition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.SqlBuilder;
+
+import java.util.NoSuchElementException;
 
 // series of tests to check that the Supplier based DSL methods function correctly
 
@@ -32,16 +35,8 @@ class SupplierTest {
     }
 
     @Test
-    void testIsBetweenNull() {
-        IsBetween<Integer> cond = SqlBuilder.isBetween(() -> (Integer) null).and(() -> null);
-        assertThat(cond.value1()).isNull();
-        assertThat(cond.value2()).isNull();
-        assertThat(cond.isEmpty()).isFalse();
-    }
-
-    @Test
     void testIsBetweenWhenPresent() {
-        IsBetween<Integer> cond = SqlBuilder.isBetweenWhenPresent(() -> 3).and(() -> 4);
+        IsBetweenWhenPresent<Integer> cond = SqlBuilder.isBetweenWhenPresent(() -> 3).and(() -> 4);
         assertThat(cond.value1()).isEqualTo(3);
         assertThat(cond.value2()).isEqualTo(4);
         assertThat(cond.isEmpty()).isFalse();
@@ -49,9 +44,9 @@ class SupplierTest {
 
     @Test
     void testIsBetweenWhenPresentNull() {
-        IsBetween<Integer> cond = SqlBuilder.isBetweenWhenPresent(() -> (Integer) null).and(() -> null);
-        assertThat(cond.value1()).isNull();
-        assertThat(cond.value2()).isNull();
+        IsBetweenWhenPresent<Integer> cond = SqlBuilder.isBetweenWhenPresent(() -> (Integer) null).and(() -> null);
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(cond::value1);
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(cond::value2);
         assertThat(cond.isEmpty()).isTrue();
     }
 
@@ -64,16 +59,8 @@ class SupplierTest {
     }
 
     @Test
-    void testIsNotBetweenNull() {
-        IsNotBetween<Integer> cond = SqlBuilder.isNotBetween(() -> (Integer) null).and(() -> null);
-        assertThat(cond.value1()).isNull();
-        assertThat(cond.value2()).isNull();
-        assertThat(cond.isEmpty()).isFalse();
-    }
-
-    @Test
     void testIsNotBetweenWhenPresent() {
-        IsNotBetween<Integer> cond = SqlBuilder.isNotBetweenWhenPresent(() -> 3).and(() -> 4);
+        IsNotBetweenWhenPresent<Integer> cond = SqlBuilder.isNotBetweenWhenPresent(() -> 3).and(() -> 4);
         assertThat(cond.value1()).isEqualTo(3);
         assertThat(cond.value2()).isEqualTo(4);
         assertThat(cond.isEmpty()).isFalse();
@@ -81,23 +68,23 @@ class SupplierTest {
 
     @Test
     void testIsNotBetweenWhenPresentNull() {
-        IsNotBetween<Integer> cond = SqlBuilder.isNotBetweenWhenPresent(() -> (Integer) null).and(() -> null);
-        assertThat(cond.value1()).isNull();
-        assertThat(cond.value2()).isNull();
+        IsNotBetweenWhenPresent<Integer> cond = SqlBuilder.isNotBetweenWhenPresent(() -> (Integer) null).and(() -> null);
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(cond::value1);
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(cond::value2);
         assertThat(cond.isEmpty()).isTrue();
     }
 
     @Test
     void testIsEqualToWhenPresent() {
-        IsEqualTo<Integer> cond = SqlBuilder.isEqualToWhenPresent(() -> 3);
+        IsEqualToWhenPresent<Integer> cond = SqlBuilder.isEqualToWhenPresent(() -> 3);
         assertThat(cond.value()).isEqualTo(3);
         assertThat(cond.isEmpty()).isFalse();
     }
 
     @Test
     void testIsEqualToWhenPresentNull() {
-        IsEqualTo<Integer> cond = SqlBuilder.isEqualToWhenPresent(() -> null);
-        assertThat(cond.value()).isNull();
+        IsEqualToWhenPresent<Integer> cond = SqlBuilder.isEqualToWhenPresent(() -> null);
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(cond::value);
         assertThat(cond.isEmpty()).isTrue();
     }
 
@@ -109,23 +96,16 @@ class SupplierTest {
     }
 
     @Test
-    void testIsNotEqualToNull() {
-        IsNotEqualTo<Integer> cond = SqlBuilder.isNotEqualTo(() -> (Integer) null);
-        assertThat(cond.value()).isNull();
-        assertThat(cond.isEmpty()).isFalse();
-    }
-
-    @Test
     void testIsNotEqualToWhenPresent() {
-        IsNotEqualTo<Integer> cond = SqlBuilder.isNotEqualToWhenPresent(() -> 3);
+        IsNotEqualToWhenPresent<Integer> cond = SqlBuilder.isNotEqualToWhenPresent(() -> 3);
         assertThat(cond.value()).isEqualTo(3);
         assertThat(cond.isEmpty()).isFalse();
     }
 
     @Test
     void testIsNotEqualToWhenPresentNull() {
-        IsNotEqualTo<Integer> cond = SqlBuilder.isNotEqualToWhenPresent(() -> null);
-        assertThat(cond.value()).isNull();
+        IsNotEqualToWhenPresent<Integer> cond = SqlBuilder.isNotEqualToWhenPresent(() -> null);
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(cond::value);
         assertThat(cond.isEmpty()).isTrue();
     }
 
@@ -137,23 +117,16 @@ class SupplierTest {
     }
 
     @Test
-    void testIsGreaterThanNull() {
-        IsGreaterThan<Integer> cond = SqlBuilder.isGreaterThan(() -> (Integer) null);
-        assertThat(cond.value()).isNull();
-        assertThat(cond.isEmpty()).isFalse();
-    }
-
-    @Test
     void testIsGreaterThanWhenPresent() {
-        IsGreaterThan<Integer> cond = SqlBuilder.isGreaterThanWhenPresent(() -> 3);
+        IsGreaterThanWhenPresent<Integer> cond = SqlBuilder.isGreaterThanWhenPresent(() -> 3);
         assertThat(cond.value()).isEqualTo(3);
         assertThat(cond.isEmpty()).isFalse();
     }
 
     @Test
     void testIsGreaterThanWhenPresentNull() {
-        IsGreaterThan<Integer> cond = SqlBuilder.isGreaterThanWhenPresent(() -> null);
-        assertThat(cond.value()).isNull();
+        IsGreaterThanWhenPresent<Integer> cond = SqlBuilder.isGreaterThanWhenPresent(() -> null);
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(cond::value);
         assertThat(cond.isEmpty()).isTrue();
     }
 
@@ -165,23 +138,16 @@ class SupplierTest {
     }
 
     @Test
-    void testIsGreaterThanOrEqualToNull() {
-        IsGreaterThanOrEqualTo<Integer> cond = SqlBuilder.isGreaterThanOrEqualTo(() -> (Integer) null);
-        assertThat(cond.value()).isNull();
-        assertThat(cond.isEmpty()).isFalse();
-    }
-
-    @Test
     void testIsGreaterThanOrEqualToWhenPresent() {
-        IsGreaterThanOrEqualTo<Integer> cond = SqlBuilder.isGreaterThanOrEqualToWhenPresent(() -> 3);
+        IsGreaterThanOrEqualToWhenPresent<Integer> cond = SqlBuilder.isGreaterThanOrEqualToWhenPresent(() -> 3);
         assertThat(cond.value()).isEqualTo(3);
         assertThat(cond.isEmpty()).isFalse();
     }
 
     @Test
     void testIsGreaterThanOrEqualToWhenPresentNull() {
-        IsGreaterThanOrEqualTo<Integer> cond = SqlBuilder.isGreaterThanOrEqualToWhenPresent(() -> null);
-        assertThat(cond.value()).isNull();
+        IsGreaterThanOrEqualToWhenPresent<Integer> cond = SqlBuilder.isGreaterThanOrEqualToWhenPresent(() -> null);
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(cond::value);
         assertThat(cond.isEmpty()).isTrue();
     }
 
@@ -193,23 +159,16 @@ class SupplierTest {
     }
 
     @Test
-    void testIsLessThanNull() {
-        IsLessThan<Integer> cond = SqlBuilder.isLessThan(() -> (Integer) null);
-        assertThat(cond.value()).isNull();
-        assertThat(cond.isEmpty()).isFalse();
-    }
-
-    @Test
     void testIsLessThanWhenPresent() {
-        IsLessThan<Integer> cond = SqlBuilder.isLessThanWhenPresent(() -> 3);
+        IsLessThanWhenPresent<Integer> cond = SqlBuilder.isLessThanWhenPresent(() -> 3);
         assertThat(cond.value()).isEqualTo(3);
         assertThat(cond.isEmpty()).isFalse();
     }
 
     @Test
     void testIsLessThanWhenPresentNull() {
-        IsLessThan<Integer> cond = SqlBuilder.isLessThanWhenPresent(() -> null);
-        assertThat(cond.value()).isNull();
+        IsLessThanWhenPresent<Integer> cond = SqlBuilder.isLessThanWhenPresent(() -> null);
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(cond::value);
         assertThat(cond.isEmpty()).isTrue();
     }
 
@@ -221,23 +180,16 @@ class SupplierTest {
     }
 
     @Test
-    void testIsLessThanOrEqualToNull() {
-        IsLessThanOrEqualTo<Integer> cond = SqlBuilder.isLessThanOrEqualTo(() -> (Integer) null);
-        assertThat(cond.value()).isNull();
-        assertThat(cond.isEmpty()).isFalse();
-    }
-
-    @Test
     void testIsLessThanOrEqualToWhenPresent() {
-        IsLessThanOrEqualTo<Integer> cond = SqlBuilder.isLessThanOrEqualToWhenPresent(() -> 3);
+        IsLessThanOrEqualToWhenPresent<Integer> cond = SqlBuilder.isLessThanOrEqualToWhenPresent(() -> 3);
         assertThat(cond.value()).isEqualTo(3);
         assertThat(cond.isEmpty()).isFalse();
     }
 
     @Test
     void testIsLessThanOrEqualToWhenPresentNull() {
-        IsLessThanOrEqualTo<Integer> cond = SqlBuilder.isLessThanOrEqualToWhenPresent(() -> null);
-        assertThat(cond.value()).isNull();
+        IsLessThanOrEqualToWhenPresent<Integer> cond = SqlBuilder.isLessThanOrEqualToWhenPresent(() -> null);
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(cond::value);
         assertThat(cond.isEmpty()).isTrue();
     }
 
@@ -249,51 +201,37 @@ class SupplierTest {
     }
 
     @Test
-    void testIsLikeNull() {
-        IsLike<String> cond = SqlBuilder.isLike(() -> null);
-        assertThat(cond.value()).isNull();
-        assertThat(cond.isEmpty()).isFalse();
-    }
-
-    @Test
     void testIsLikeCaseInsensitive() {
-        IsLikeCaseInsensitive cond = SqlBuilder.isLikeCaseInsensitive(() -> "%f%");
+        IsLikeCaseInsensitive<String> cond = SqlBuilder.isLikeCaseInsensitive(() -> "%f%");
         assertThat(cond.value()).isEqualTo("%F%");
         assertThat(cond.isEmpty()).isFalse();
     }
 
     @Test
-    void testIsLikeCaseInsensitiveNull() {
-        IsLikeCaseInsensitive cond = SqlBuilder.isLikeCaseInsensitive(() -> null);
-        assertThat(cond.value()).isNull();
-        assertThat(cond.isEmpty()).isFalse();
-    }
-
-    @Test
     void testIsLikeCaseInsensitiveWhenPresent() {
-        IsLikeCaseInsensitive cond = SqlBuilder.isLikeCaseInsensitiveWhenPresent(() -> "%f%");
+        IsLikeCaseInsensitiveWhenPresent<String> cond = SqlBuilder.isLikeCaseInsensitiveWhenPresent(() -> "%f%");
         assertThat(cond.value()).isEqualTo("%F%");
         assertThat(cond.isEmpty()).isFalse();
     }
 
     @Test
     void testIsLikeCaseInsensitiveWhenPresentNull() {
-        IsLikeCaseInsensitive cond = SqlBuilder.isLikeCaseInsensitiveWhenPresent(() -> null);
-        assertThat(cond.value()).isNull();
+        IsLikeCaseInsensitiveWhenPresent<String> cond = SqlBuilder.isLikeCaseInsensitiveWhenPresent(() -> null);
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(cond::value);
         assertThat(cond.isEmpty()).isTrue();
     }
 
     @Test
     void testIsLikeWhenPresent() {
-        IsLike<String> cond = SqlBuilder.isLikeWhenPresent(() -> "%F%");
+        IsLikeWhenPresent<String> cond = SqlBuilder.isLikeWhenPresent(() -> "%F%");
         assertThat(cond.value()).isEqualTo("%F%");
         assertThat(cond.isEmpty()).isFalse();
     }
 
     @Test
     void testIsLikeWhenPresentNull() {
-        IsLike<String> cond = SqlBuilder.isLikeWhenPresent(() -> null);
-        assertThat(cond.value()).isNull();
+        IsLikeWhenPresent<String> cond = SqlBuilder.isLikeWhenPresent(() -> null);
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(cond::value);
         assertThat(cond.isEmpty()).isTrue();
     }
 
@@ -305,51 +243,37 @@ class SupplierTest {
     }
 
     @Test
-    void testIsNotLikeNull() {
-        IsNotLike<String> cond = SqlBuilder.isNotLike(() -> null);
-        assertThat(cond.value()).isNull();
-        assertThat(cond.isEmpty()).isFalse();
-    }
-
-    @Test
     void testIsNotLikeWhenPresent() {
-        IsNotLike<String> cond = SqlBuilder.isNotLikeWhenPresent(() -> "%F%");
+        IsNotLikeWhenPresent<String> cond = SqlBuilder.isNotLikeWhenPresent(() -> "%F%");
         assertThat(cond.value()).isEqualTo("%F%");
         assertThat(cond.isEmpty()).isFalse();
     }
 
     @Test
     void testIsNotLikeWhenPresentNull() {
-        IsNotLike<String> cond = SqlBuilder.isNotLikeWhenPresent(() -> null);
-        assertThat(cond.value()).isNull();
+        IsNotLikeWhenPresent<String> cond = SqlBuilder.isNotLikeWhenPresent(() -> null);
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(cond::value);
         assertThat(cond.isEmpty()).isTrue();
     }
 
     @Test
     void testIsNotLikeCaseInsensitive() {
-        IsNotLikeCaseInsensitive cond = SqlBuilder.isNotLikeCaseInsensitive(() -> "%f%");
+        IsNotLikeCaseInsensitive<String> cond = SqlBuilder.isNotLikeCaseInsensitive(() -> "%f%");
         assertThat(cond.value()).isEqualTo("%F%");
         assertThat(cond.isEmpty()).isFalse();
     }
 
     @Test
-    void testIsNotLikeCaseInsensitiveNull() {
-        IsNotLikeCaseInsensitive cond = SqlBuilder.isNotLikeCaseInsensitive(() -> null);
-        assertThat(cond.value()).isNull();
-        assertThat(cond.isEmpty()).isFalse();
-    }
-
-    @Test
     void testIsNotLikeCaseInsensitiveWhenPresent() {
-        IsNotLikeCaseInsensitive cond = SqlBuilder.isNotLikeCaseInsensitiveWhenPresent(() -> "%f%");
+        IsNotLikeCaseInsensitiveWhenPresent<String> cond = SqlBuilder.isNotLikeCaseInsensitiveWhenPresent(() -> "%f%");
         assertThat(cond.value()).isEqualTo("%F%");
         assertThat(cond.isEmpty()).isFalse();
     }
 
     @Test
     void testIsNotLikeCaseInsensitiveWhenPresentNull() {
-        IsNotLikeCaseInsensitive cond = SqlBuilder.isNotLikeCaseInsensitiveWhenPresent(() -> null);
-        assertThat(cond.value()).isNull();
+        IsNotLikeCaseInsensitiveWhenPresent<String> cond = SqlBuilder.isNotLikeCaseInsensitiveWhenPresent(() -> null);
+        assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(cond::value);
         assertThat(cond.isEmpty()).isTrue();
     }
 }

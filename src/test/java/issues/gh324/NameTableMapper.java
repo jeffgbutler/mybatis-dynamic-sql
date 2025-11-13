@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,26 +21,31 @@ import static org.mybatis.dynamic.sql.SqlBuilder.isEqualTo;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.annotations.Arg;
+import org.apache.ibatis.annotations.CacheNamespace;
+import org.apache.ibatis.annotations.SelectProvider;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.delete.DeleteDSLCompleter;
 import org.mybatis.dynamic.sql.select.SelectDSLCompleter;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.update.UpdateDSLCompleter;
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
-import org.mybatis.dynamic.sql.util.mybatis3.*;
+import org.mybatis.dynamic.sql.util.mybatis3.CommonCountMapper;
+import org.mybatis.dynamic.sql.util.mybatis3.CommonDeleteMapper;
+import org.mybatis.dynamic.sql.util.mybatis3.CommonInsertMapper;
+import org.mybatis.dynamic.sql.util.mybatis3.CommonUpdateMapper;
+import org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils;
 
 @CacheNamespace(implementation = ObservableCache.class)
 public interface NameTableMapper extends CommonCountMapper, CommonDeleteMapper, CommonInsertMapper<NameRecord>, CommonUpdateMapper {
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
-    @Results(id="NameTableResult", value={
-            @Result(column="id", property="id", id=true),
-            @Result(column="name", property="name")
-    })
+    @Arg(column = "id", javaType = Integer.class, id = true)
+    @Arg(column = "name", javaType = String.class)
     List<NameRecord> selectMany(SelectStatementProvider selectStatement);
 
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
-    @ResultMap("NameTableResult")
+    @Arg(column = "id", javaType = Integer.class, id = true)
+    @Arg(column = "name", javaType = String.class)
     Optional<NameRecord> selectOne(SelectStatementProvider selectStatement);
 
     BasicColumn[] selectList = BasicColumn.columnList(id, name);
@@ -49,14 +54,14 @@ public interface NameTableMapper extends CommonCountMapper, CommonDeleteMapper, 
         return MyBatis3Utils.selectOne(this::selectOne, selectList, nameTable, completer);
     }
 
-    default Optional<NameRecord> selectByPrimaryKey(Integer id_) {
+    default Optional<NameRecord> selectByPrimaryKey(Integer recordId) {
         return selectOne(c ->
-                c.where(id, isEqualTo(id_))
+                c.where(id, isEqualTo(recordId))
         );
     }
 
-    default int insert(NameRecord record) {
-        return MyBatis3Utils.insert(this::insert, record, nameTable, c ->
+    default int insert(NameRecord row) {
+        return MyBatis3Utils.insert(this::insert, row, nameTable, c ->
                 c.map(id).toProperty("id")
                         .map(name).toProperty("name")
         );
@@ -66,10 +71,10 @@ public interface NameTableMapper extends CommonCountMapper, CommonDeleteMapper, 
         return MyBatis3Utils.update(this::update, nameTable, completer);
     }
 
-    default int updateByPrimaryKey(NameRecord record) {
+    default int updateByPrimaryKey(NameRecord row) {
         return update(c ->
-                c.set(name).equalTo(record::getName)
-                        .where(id, isEqualTo(record::getId))
+                c.set(name).equalTo(row::name)
+                        .where(id, isEqualTo(row::id))
         );
     }
 

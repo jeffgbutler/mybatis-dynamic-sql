@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.mybatis.dynamic.sql.insert.render;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.insert.InsertModel;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.util.Validator;
@@ -25,19 +26,17 @@ import org.mybatis.dynamic.sql.util.Validator;
 public class InsertRenderer<T> {
 
     private final InsertModel<T> model;
-    private final RenderingStrategy renderingStrategy;
+    private final ValuePhraseVisitor visitor;
 
     private InsertRenderer(Builder<T> builder) {
         model = Objects.requireNonNull(builder.model);
-        renderingStrategy = Objects.requireNonNull(builder.renderingStrategy);
+        visitor = new ValuePhraseVisitor(Objects.requireNonNull(builder.renderingStrategy));
     }
 
     public InsertStatementProvider<T> render() {
-        ValuePhraseVisitor visitor = new ValuePhraseVisitor(renderingStrategy);
-
-        FieldAndValueCollector collector = model.mapColumnMappings(m -> m.accept(visitor))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+        FieldAndValueCollector collector = model.columnMappings()
+                .map(m -> m.accept(visitor))
+                .flatMap(Optional::stream)
                 .collect(FieldAndValueCollector.collect());
 
         Validator.assertFalse(collector.isEmpty(), "ERROR.10"); //$NON-NLS-1$
@@ -54,8 +53,8 @@ public class InsertRenderer<T> {
     }
 
     public static class Builder<T> {
-        private InsertModel<T> model;
-        private RenderingStrategy renderingStrategy;
+        private @Nullable InsertModel<T> model;
+        private @Nullable RenderingStrategy renderingStrategy;
 
         public Builder<T> withInsertModel(InsertModel<T> model) {
             this.model = model;

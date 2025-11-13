@@ -3,9 +3,9 @@
 Support for case expressions was added in version 1.5.1. For information about case expressions in the Kotlin DSL, see
 the [Kotlin Case Expressions](kotlinCaseExpressions.md) page.
 
-## Case Statements in SQL
+## Case Expressions in SQL
 The library supports different types of case expressions - a "simple" case expression, and a "searched" case
-expressions.
+expressions. Case expressions can be used in many places including select lists, order by phrases, etc.
 
 A simple case expression checks the values of a single column. It looks like this:
 
@@ -180,8 +180,8 @@ select(case_()
 ```
 
 The full syntax of "where" and "having" clauses is supported in the "when" clause - but that may or may not be supported
-by your database. Testing is crucial. In addition, the library does not support conditions that don't render in a case
-statement - so avoid the use of conditions like "isEqualToWhenPresent", etc.
+by your database. Testing is crucial. The library supports optional conditions in "when" clauses, but at least one
+condition must render, else the library will throw an `InvalidSqlException`.
 
 The rendered SQL will be as follows (without the line breaks):
 ```sql

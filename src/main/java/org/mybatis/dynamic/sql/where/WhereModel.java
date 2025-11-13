@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,12 +18,14 @@ package org.mybatis.dynamic.sql.where;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.common.AbstractBooleanExpressionModel;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
 import org.mybatis.dynamic.sql.render.TableAliasCalculator;
 import org.mybatis.dynamic.sql.util.FragmentAndParameters;
+import org.mybatis.dynamic.sql.where.render.DefaultWhereClauseProvider;
 import org.mybatis.dynamic.sql.where.render.WhereClauseProvider;
 import org.mybatis.dynamic.sql.where.render.WhereRenderer;
 
@@ -92,13 +94,13 @@ public class WhereModel extends AbstractBooleanExpressionModel {
     }
 
     private WhereClauseProvider toWhereClauseProvider(FragmentAndParameters fragmentAndParameters) {
-        return WhereClauseProvider.withWhereClause(fragmentAndParameters.fragment())
+        return DefaultWhereClauseProvider.withWhereClause(fragmentAndParameters.fragment())
                 .withParameters(fragmentAndParameters.parameters())
                 .build();
     }
 
     public static class Builder extends AbstractBuilder<Builder> {
-        private StatementConfiguration statementConfiguration;
+        private @Nullable StatementConfiguration statementConfiguration;
 
         public Builder withStatementConfiguration(StatementConfiguration statementConfiguration) {
             this.statementConfiguration = statementConfiguration;

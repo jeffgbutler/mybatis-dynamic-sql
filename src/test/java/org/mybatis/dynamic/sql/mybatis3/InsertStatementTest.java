@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static org.mybatis.dynamic.sql.SqlBuilder.insert;
 
 import java.sql.JDBCType;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.SqlTable;
@@ -35,11 +36,11 @@ class InsertStatementTest {
 
     @Test
     void testFullInsertStatementBuilder() {
-        TestRecord record = new TestRecord();
-        record.setLastName("jones");
-        record.setOccupation("dino driver");
+        TestRecord row = new TestRecord();
+        row.setLastName("jones");
+        row.setOccupation("dino driver");
 
-        InsertStatementProvider<?> insertStatement = insert(record)
+        InsertStatementProvider<?> insertStatement = insert(row)
                 .into(foo)
                 .map(id).toProperty("id")
                 .map(firstName).toProperty("firstName")
@@ -57,16 +58,16 @@ class InsertStatementTest {
 
     @Test
     void testSelectiveInsertStatementBuilder() {
-        TestRecord record = new TestRecord();
-        record.setLastName("jones");
-        record.setOccupation("dino driver");
+        TestRecord row = new TestRecord();
+        row.setLastName("jones");
+        row.setOccupation("dino driver");
 
-        InsertStatementProvider<?> insertStatement = insert(record)
+        InsertStatementProvider<?> insertStatement = insert(row)
                 .into(foo)
-                .map(id).toPropertyWhenPresent("id", record::getId)
-                .map(firstName).toPropertyWhenPresent("firstName", record::getFirstName)
-                .map(lastName).toPropertyWhenPresent("lastName", record::getLastName)
-                .map(occupation).toPropertyWhenPresent("occupation", record::getOccupation)
+                .map(id).toPropertyWhenPresent("id", row::getId)
+                .map(firstName).toPropertyWhenPresent("firstName", row::getFirstName)
+                .map(lastName).toPropertyWhenPresent("lastName", row::getLastName)
+                .map(occupation).toPropertyWhenPresent("occupation", row::getOccupation)
                 .build()
                 .render(RenderingStrategies.MYBATIS3);
 
@@ -77,12 +78,12 @@ class InsertStatementTest {
     }
 
     static class TestRecord {
-        private Integer id;
-        private String firstName;
-        private String lastName;
-        private String occupation;
+        private @Nullable Integer id;
+        private @Nullable String firstName;
+        private @Nullable String lastName;
+        private @Nullable String occupation;
 
-        Integer getId() {
+        @Nullable Integer getId() {
             return id;
         }
 
@@ -90,7 +91,7 @@ class InsertStatementTest {
             this.id = id;
         }
 
-        String getFirstName() {
+        @Nullable String getFirstName() {
             return firstName;
         }
 
@@ -98,7 +99,7 @@ class InsertStatementTest {
             this.firstName = firstName;
         }
 
-        String getLastName() {
+        @Nullable String getLastName() {
             return lastName;
         }
 
@@ -106,7 +107,7 @@ class InsertStatementTest {
             this.lastName = lastName;
         }
 
-        String getOccupation() {
+        @Nullable String getOccupation() {
             return occupation;
         }
 

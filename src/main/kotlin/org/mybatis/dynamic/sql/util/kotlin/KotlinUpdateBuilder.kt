@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -27,14 +27,18 @@ typealias UpdateCompleter = KotlinUpdateBuilder.() -> Unit
 class KotlinUpdateBuilder(private val dsl: UpdateDSL<UpdateModel>) :
     KotlinBaseBuilder<UpdateDSL<UpdateModel>>(), Buildable<UpdateModel> {
 
-    fun <T> set(column: SqlColumn<T>): KotlinSetClauseFinisher<T> = KotlinSetClauseFinisher(column)
+    fun <T : Any> set(column: SqlColumn<T>): KotlinSetClauseFinisher<T> = KotlinSetClauseFinisher(column)
 
     fun orderBy(vararg columns: SortSpecification) {
         dsl.orderBy(columns.toList())
     }
 
     fun limit(limit: Long) {
-        dsl.limit(limit)
+        limitWhenPresent(limit)
+    }
+
+    fun limitWhenPresent(limit: Long?) {
+        dsl.limitWhenPresent(limit)
     }
 
     override fun build(): UpdateModel = dsl.build()
@@ -43,7 +47,7 @@ class KotlinUpdateBuilder(private val dsl: UpdateDSL<UpdateModel>) :
 
     @MyBatisDslMarker
     @Suppress("TooManyFunctions")
-    inner class KotlinSetClauseFinisher<T>(private val column: SqlColumn<T>) {
+    inner class KotlinSetClauseFinisher<T : Any>(private val column: SqlColumn<T>) {
         fun equalToNull(): Unit =
             applyToDsl {
                 set(column).equalToNull()
@@ -59,9 +63,9 @@ class KotlinUpdateBuilder(private val dsl: UpdateDSL<UpdateModel>) :
                 set(column).equalToStringConstant(constant)
             }
 
-        infix fun equalTo(value: T & Any): Unit = equalTo { value }
+        infix fun equalTo(value: T): Unit = equalTo { value }
 
-        infix fun equalTo(value: () -> T & Any): Unit =
+        infix fun equalTo(value: () -> T): Unit =
             applyToDsl {
                 set(column).equalTo(value)
             }

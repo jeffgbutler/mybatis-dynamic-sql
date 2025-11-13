@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -26,10 +26,10 @@ public final class GeneratedAlwaysDynamicSqlSupport {
     public static final SqlColumn<String> fullName = generatedAlways.fullName;
 
     public static final class GeneratedAlways extends SqlTable {
-        public final SqlColumn<Integer> id = column("id");
-        public final SqlColumn<String> firstName = column("first_name");
-        public final SqlColumn<String> lastName = column("last_name");
-        public final SqlColumn<String> fullName = column("full_name");
+        public final SqlColumn<Integer> id = column("id").withJavaProperty("id");
+        public final SqlColumn<String> firstName = column("first_name").withJavaProperty("firstName");
+        public final SqlColumn<String> lastName = column("last_name").withJavaProperty("lastName");
+        public final SqlColumn<String> fullName = column("full_name").withJavaProperty("fullName");
 
         public GeneratedAlways() {
             super("GeneratedAlways");

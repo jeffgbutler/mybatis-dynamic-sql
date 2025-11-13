@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -672,6 +672,6 @@ open class KotlinElementsTest {
         assertThat(updateStatement.updateStatement).isEqualTo(
             "update Person set address_id = (address_id + :p1) where id = :p2"
         )
-        assertThat(updateStatement.parameters).containsExactly(entry("p1", 4), entry("p2", 5))
+        assertThat(updateStatement.parameters).containsOnly(entry("p1", 4), entry("p2", 5))
     }
 }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -39,16 +39,16 @@ class GeneratedAlwaysTest {
         newSession().use { session ->
             val mapper = session.getMapper(GeneratedAlwaysMapper::class.java)
 
-            val record = GeneratedAlwaysRecord(
+            val row = GeneratedAlwaysRecord(
                 firstName = "Fred",
                 lastName = "Flintstone"
             )
 
-            val rows = mapper.insert(record)
+            val rows = mapper.insert(row)
 
             assertThat(rows).isEqualTo(1)
-            assertThat(record.id).isEqualTo(22)
-            assertThat(record.fullName).isEqualTo("Fred Flintstone")
+            assertThat(row.id).isEqualTo(22)
+            assertThat(row.fullName).isEqualTo("Fred Flintstone")
         }
     }
 

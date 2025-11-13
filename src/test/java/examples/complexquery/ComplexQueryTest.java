@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,8 +22,7 @@ import static examples.complexquery.PersonDynamicSqlSupport.person;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mybatis.dynamic.sql.SqlBuilder.*;
 
-import java.util.Objects;
-
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.render.RenderingStrategies;
 import org.mybatis.dynamic.sql.select.QueryExpressionDSL;
@@ -107,19 +106,18 @@ class ComplexQueryTest {
         assertThat(selectStatement.getParameters()).containsEntry("p1", 50L);
     }
 
-    SelectStatementProvider search(Integer targetId, String fName, String lName) {
+    SelectStatementProvider search(@Nullable Integer targetId, @Nullable String fName, @Nullable String lName) {
         QueryExpressionDSL<SelectModel>.QueryExpressionWhereBuilder builder = select(id, firstName, lastName)
                 .from(person)
                 .where()
                 .configureStatement(c -> c.setNonRenderingWhereClauseAllowed(true));
 
         if (targetId != null) {
-            builder
-                .and(id, isEqualTo(targetId));
+            builder.and(id, isEqualTo(targetId));
         } else {
             builder
-                .and(firstName, isLike(fName).filter(Objects::nonNull).map(s -> "%" + s + "%"))
-                .and(lastName, isLikeWhenPresent(lName).map(this::addWildcards));
+                .and(firstName, isLikeWhenPresent(fName).map(s -> "%" + s + "%"))
+                .and(lastName, isLikeWhenPresent(lName).map(SearchUtils::addWildcards));
         }
 
         builder
@@ -127,9 +125,5 @@ class ComplexQueryTest {
             .fetchFirst(50).rowsOnly();
 
         return builder.build().render(RenderingStrategies.MYBATIS3);
-    }
-
-    String addWildcards(String s) {
-        return "%" + s + "%";
     }
 }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,27 +15,36 @@
  */
 package org.mybatis.dynamic.sql.where.condition;
 
+import java.util.NoSuchElementException;
+import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
 
 import org.mybatis.dynamic.sql.AbstractSingleValueCondition;
 import org.mybatis.dynamic.sql.util.StringUtilities;
 
-public class IsLikeCaseInsensitive extends AbstractSingleValueCondition<String>
-        implements CaseInsensitiveVisitableCondition {
-    private static final IsLikeCaseInsensitive EMPTY = new IsLikeCaseInsensitive(null) {
+public class IsLikeCaseInsensitive<T> extends AbstractSingleValueCondition<T>
+        implements CaseInsensitiveRenderableCondition<T>, AbstractSingleValueCondition.Filterable<T>,
+        AbstractSingleValueCondition.Mappable<T> {
+    private static final IsLikeCaseInsensitive<?> EMPTY = new IsLikeCaseInsensitive<>("") { //$NON-NLS-1$
+        @Override
+        public String value() {
+            throw new NoSuchElementException("No value present"); //$NON-NLS-1$
+        }
+
         @Override
         public boolean isEmpty() {
             return true;
         }
     };
 
-    public static IsLikeCaseInsensitive empty() {
-        return EMPTY;
+    public static <T> IsLikeCaseInsensitive<T> empty() {
+        @SuppressWarnings("unchecked")
+        IsLikeCaseInsensitive<T> t = (IsLikeCaseInsensitive<T>) EMPTY;
+        return t;
     }
 
-    protected IsLikeCaseInsensitive(String value) {
-        super(value);
+    protected IsLikeCaseInsensitive(T value) {
+        super(StringUtilities.upperCaseIfPossible(value));
     }
 
     @Override
@@ -44,23 +53,16 @@ public class IsLikeCaseInsensitive extends AbstractSingleValueCondition<String>
     }
 
     @Override
-    public IsLikeCaseInsensitive filter(Predicate<? super String> predicate) {
+    public IsLikeCaseInsensitive<T> filter(Predicate<? super T> predicate) {
         return filterSupport(predicate, IsLikeCaseInsensitive::empty, this);
     }
 
-    /**
-     * If renderable, apply the mapping to the value and return a new condition with the new value. Else return a
-     * condition that will not render (this).
-     *
-     * @param mapper a mapping function to apply to the value, if renderable
-     * @return a new condition with the result of applying the mapper to the value of this condition,
-     *     if renderable, otherwise a condition that will not render.
-     */
-    public IsLikeCaseInsensitive map(UnaryOperator<String> mapper) {
+    @Override
+    public <R> IsLikeCaseInsensitive<R> map(Function<? super T, ? extends R> mapper) {
         return mapSupport(mapper, IsLikeCaseInsensitive::new, IsLikeCaseInsensitive::empty);
     }
 
-    public static IsLikeCaseInsensitive of(String value) {
-        return new IsLikeCaseInsensitive(value).map(StringUtilities::safelyUpperCase);
+    public static <T> IsLikeCaseInsensitive<T> of(T value) {
+        return new IsLikeCaseInsensitive<>(value);
     }
 }

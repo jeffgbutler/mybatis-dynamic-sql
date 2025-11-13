@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.SqlColumn;
@@ -39,7 +39,6 @@ import org.mybatis.dynamic.sql.util.ConstantMapping;
 import org.mybatis.dynamic.sql.util.NullMapping;
 import org.mybatis.dynamic.sql.util.SelectMapping;
 import org.mybatis.dynamic.sql.util.StringConstantMapping;
-import org.mybatis.dynamic.sql.util.Utilities;
 import org.mybatis.dynamic.sql.util.ValueMapping;
 import org.mybatis.dynamic.sql.util.ValueOrNullMapping;
 import org.mybatis.dynamic.sql.util.ValueWhenPresentMapping;
@@ -47,19 +46,19 @@ import org.mybatis.dynamic.sql.where.AbstractWhereFinisher;
 import org.mybatis.dynamic.sql.where.AbstractWhereStarter;
 import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
-public class UpdateDSL<R> extends AbstractWhereStarter<UpdateDSL<R>.UpdateWhereBuilder, UpdateDSL<R>>
-        implements Buildable<R> {
+public class UpdateDSL<R> implements AbstractWhereStarter<UpdateDSL<R>.UpdateWhereBuilder, UpdateDSL<R>>,
+        Buildable<R> {
 
     private final Function<UpdateModel, R> adapterFunction;
     private final List<AbstractColumnMapping> columnMappings = new ArrayList<>();
     private final SqlTable table;
-    private final String tableAlias;
-    private UpdateWhereBuilder whereBuilder;
+    private final @Nullable String tableAlias;
+    private @Nullable UpdateWhereBuilder whereBuilder;
     private final StatementConfiguration statementConfiguration = new StatementConfiguration();
-    private Long limit;
-    private OrderByModel orderByModel;
+    private @Nullable Long limit;
+    private @Nullable OrderByModel orderByModel;
 
-    private UpdateDSL(SqlTable table, String tableAlias, Function<UpdateModel, R> adapterFunction) {
+    private UpdateDSL(SqlTable table, @Nullable String tableAlias, Function<UpdateModel, R> adapterFunction) {
         this.table = Objects.requireNonNull(table);
         this.tableAlias = tableAlias;
         this.adapterFunction = Objects.requireNonNull(adapterFunction);
@@ -71,11 +70,15 @@ public class UpdateDSL<R> extends AbstractWhereStarter<UpdateDSL<R>.UpdateWhereB
 
     @Override
     public UpdateWhereBuilder where() {
-        whereBuilder = Utilities.buildIfNecessary(whereBuilder, UpdateWhereBuilder::new);
+        whereBuilder = Objects.requireNonNullElseGet(whereBuilder, UpdateWhereBuilder::new);
         return whereBuilder;
     }
 
     public UpdateDSL<R> limit(long limit) {
+        return limitWhenPresent(limit);
+    }
+
+    public UpdateDSL<R> limitWhenPresent(@Nullable Long limit) {
         this.limit = limit;
         return this;
     }
@@ -95,7 +98,6 @@ public class UpdateDSL<R> extends AbstractWhereStarter<UpdateDSL<R>.UpdateWhereB
      *
      * @return the update model
      */
-    @NotNull
     @Override
     public R build() {
         UpdateModel updateModel = UpdateModel.withTable(table)
@@ -116,7 +118,8 @@ public class UpdateDSL<R> extends AbstractWhereStarter<UpdateDSL<R>.UpdateWhereB
         return this;
     }
 
-    public static <R> UpdateDSL<R> update(Function<UpdateModel, R> adapterFunction, SqlTable table, String tableAlias) {
+    public static <R> UpdateDSL<R> update(Function<UpdateModel, R> adapterFunction, SqlTable table,
+                                          @Nullable String tableAlias) {
         return new UpdateDSL<>(table, tableAlias, adapterFunction);
     }
 
@@ -170,20 +173,20 @@ public class UpdateDSL<R> extends AbstractWhereStarter<UpdateDSL<R>.UpdateWhereB
             return UpdateDSL.this;
         }
 
-        public UpdateDSL<R> equalToOrNull(T value) {
+        public UpdateDSL<R> equalToOrNull(@Nullable T value) {
             return equalToOrNull(() -> value);
         }
 
-        public UpdateDSL<R> equalToOrNull(Supplier<T> valueSupplier) {
+        public UpdateDSL<R> equalToOrNull(Supplier<@Nullable T> valueSupplier) {
             columnMappings.add(ValueOrNullMapping.of(column, valueSupplier));
             return UpdateDSL.this;
         }
 
-        public UpdateDSL<R> equalToWhenPresent(T value) {
+        public UpdateDSL<R> equalToWhenPresent(@Nullable T value) {
             return equalToWhenPresent(() -> value);
         }
 
-        public UpdateDSL<R> equalToWhenPresent(Supplier<T> valueSupplier) {
+        public UpdateDSL<R> equalToWhenPresent(Supplier<@Nullable T> valueSupplier) {
             columnMappings.add(ValueWhenPresentMapping.of(column, valueSupplier));
             return UpdateDSL.this;
         }
@@ -196,7 +199,11 @@ public class UpdateDSL<R> extends AbstractWhereStarter<UpdateDSL<R>.UpdateWhereB
         }
 
         public UpdateDSL<R> limit(long limit) {
-            return UpdateDSL.this.limit(limit);
+            return limitWhenPresent(limit);
+        }
+
+        public UpdateDSL<R> limitWhenPresent(@Nullable Long limit) {
+            return UpdateDSL.this.limitWhenPresent(limit);
         }
 
         public UpdateDSL<R> orderBy(SortSpecification... columns) {
@@ -208,7 +215,6 @@ public class UpdateDSL<R> extends AbstractWhereStarter<UpdateDSL<R>.UpdateWhereB
             return UpdateDSL.this;
         }
 
-        @NotNull
         @Override
         public R build() {
             return UpdateDSL.this.build();

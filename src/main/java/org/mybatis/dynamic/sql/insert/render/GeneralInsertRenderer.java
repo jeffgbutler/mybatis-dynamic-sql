@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.mybatis.dynamic.sql.insert.render;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.insert.GeneralInsertModel;
 import org.mybatis.dynamic.sql.render.RenderingContext;
 import org.mybatis.dynamic.sql.render.RenderingStrategy;
@@ -27,20 +27,21 @@ import org.mybatis.dynamic.sql.util.Validator;
 public class GeneralInsertRenderer {
 
     private final GeneralInsertModel model;
-    private final RenderingContext renderingContext;
+    private final GeneralInsertValuePhraseVisitor visitor;
 
     private GeneralInsertRenderer(Builder builder) {
         model = Objects.requireNonNull(builder.model);
-        renderingContext = RenderingContext.withRenderingStrategy(builder.renderingStrategy)
-                .withStatementConfiguration(builder.statementConfiguration)
+        RenderingContext renderingContext = RenderingContext
+                .withRenderingStrategy(Objects.requireNonNull(builder.renderingStrategy))
+                .withStatementConfiguration(model.statementConfiguration())
                 .build();
+        visitor = new GeneralInsertValuePhraseVisitor(renderingContext);
     }
 
     public GeneralInsertStatementProvider render() {
-        GeneralInsertValuePhraseVisitor visitor = new GeneralInsertValuePhraseVisitor(renderingContext);
-        FieldAndValueCollector collector = model.mapColumnMappings(m -> m.accept(visitor))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+        FieldAndValueCollector collector = model.columnMappings()
+                .map(m -> m.accept(visitor))
+                .flatMap(Optional::stream)
                 .collect(FieldAndValueCollector.collect());
 
         Validator.assertFalse(collector.isEmpty(), "ERROR.9"); //$NON-NLS-1$
@@ -57,9 +58,8 @@ public class GeneralInsertRenderer {
     }
 
     public static class Builder {
-        private GeneralInsertModel model;
-        private RenderingStrategy renderingStrategy;
-        private StatementConfiguration statementConfiguration;
+        private @Nullable GeneralInsertModel model;
+        private @Nullable RenderingStrategy renderingStrategy;
 
         public Builder withInsertModel(GeneralInsertModel model) {
             this.model = model;
@@ -68,11 +68,6 @@ public class GeneralInsertRenderer {
 
         public Builder withRenderingStrategy(RenderingStrategy renderingStrategy) {
             this.renderingStrategy = renderingStrategy;
-            return this;
-        }
-
-        public Builder withStatementConfiguration(StatementConfiguration statementConfiguration) {
-            this.statementConfiguration = statementConfiguration;
             return this;
         }
 

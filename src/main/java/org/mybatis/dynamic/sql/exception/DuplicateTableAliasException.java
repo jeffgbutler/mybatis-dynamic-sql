@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package org.mybatis.dynamic.sql.exception;
 
+import java.io.Serial;
 import java.util.Objects;
 
 import org.mybatis.dynamic.sql.SqlTable;
@@ -34,6 +35,7 @@ import org.mybatis.dynamic.sql.util.Messages;
  */
 public class DuplicateTableAliasException extends DynamicSqlException {
 
+    @Serial
     private static final long serialVersionUID = -2631664872557787391L;
 
     public DuplicateTableAliasException(SqlTable table, String newAlias, String existingAlias) {
@@ -43,6 +45,6 @@ public class DuplicateTableAliasException extends DynamicSqlException {
     }
 
     private static String generateMessage(SqlTable table, String newAlias, String existingAlias) {
-        return Messages.getString("ERROR.1", table.tableNameAtRuntime(), newAlias, existingAlias); //$NON-NLS-1$
+        return Messages.getString("ERROR.1", table.tableName(), newAlias, existingAlias); //$NON-NLS-1$
     }
 }

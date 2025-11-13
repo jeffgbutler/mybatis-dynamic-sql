@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static org.mybatis.dynamic.sql.SqlBuilder.insert;
 
 import java.sql.JDBCType;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.SqlTable;
@@ -37,11 +38,9 @@ class InsertStatementTest {
     @Test
     void testFullInsertStatementBuilder() {
 
-        TestRecord record = new TestRecord();
-        record.setLastName("jones");
-        record.setOccupation("dino driver");
+        TestRecord row = new TestRecord(null, null, "jones", "dino driver");
 
-        InsertStatementProvider<TestRecord> insertStatement = insert(record)
+        InsertStatementProvider<TestRecord> insertStatement = insert(row)
                 .into(foo)
                 .map(id).toProperty("id")
                 .map(firstName).toProperty("firstName")
@@ -60,9 +59,9 @@ class InsertStatementTest {
     @Test
     void testInsertStatementBuilderWithNulls() {
 
-        TestRecord record = new TestRecord();
+        TestRecord row = new TestRecord();
 
-        InsertStatementProvider<TestRecord> insertStatement = insert(record)
+        InsertStatementProvider<TestRecord> insertStatement = insert(row)
                 .into(foo)
                 .map(id).toProperty("id")
                 .map(firstName).toProperty("firstName")
@@ -79,9 +78,9 @@ class InsertStatementTest {
     @Test
     void testInsertStatementBuilderWithConstants() {
 
-        TestRecord record = new TestRecord();
+        TestRecord row = new TestRecord();
 
-        InsertStatementProvider<TestRecord> insertStatement = insert(record)
+        InsertStatementProvider<TestRecord> insertStatement = insert(row)
                 .into(foo)
                 .map(id).toConstant("3")
                 .map(firstName).toProperty("firstName")
@@ -97,16 +96,14 @@ class InsertStatementTest {
 
     @Test
     void testSelectiveInsertStatementBuilder() {
-        TestRecord record = new TestRecord();
-        record.setLastName("jones");
-        record.setOccupation("dino driver");
+        TestRecord row = new TestRecord(null, null, "jones", "dino driver");
 
-        InsertStatementProvider<TestRecord> insertStatement = insert(record)
+        InsertStatementProvider<TestRecord> insertStatement = insert(row)
                 .into(foo)
-                .map(id).toPropertyWhenPresent("id", record::getId)
-                .map(firstName).toPropertyWhenPresent("firstName", record::getFirstName)
-                .map(lastName).toPropertyWhenPresent("lastName", record::getLastName)
-                .map(occupation).toPropertyWhenPresent("occupation", record::getOccupation)
+                .map(id).toPropertyWhenPresent("id", row::id)
+                .map(firstName).toPropertyWhenPresent("firstName", row::firstName)
+                .map(lastName).toPropertyWhenPresent("lastName", row::lastName)
+                .map(occupation).toPropertyWhenPresent("occupation", row::occupation)
                 .build()
                 .render(RenderingStrategies.MYBATIS3);
 
@@ -115,60 +112,9 @@ class InsertStatementTest {
         assertThat(insertStatement.getInsertStatement()).isEqualTo(expected);
     }
 
-    @Test
-    void testDeprecatedMethod() {
-        TestRecord record = new TestRecord();
-        record.setLastName("jones");
-        record.setOccupation("dino driver");
-
-        InsertStatementProvider<TestRecord> insertStatement = insert(record)
-                .into(foo)
-                .map(id).toPropertyWhenPresent("id", record::getId)
-                .map(firstName).toPropertyWhenPresent("firstName", record::getFirstName)
-                .map(lastName).toPropertyWhenPresent("lastName", record::getLastName)
-                .map(occupation).toPropertyWhenPresent("occupation", record::getOccupation)
-                .build()
-                .render(RenderingStrategies.MYBATIS3);
-
-        assertThat(insertStatement.getRow()).isEqualTo(insertStatement.getRecord());
-    }
-
-    static class TestRecord {
-        private Integer id;
-        private String firstName;
-        private String lastName;
-        private String occupation;
-
-        Integer getId() {
-            return id;
-        }
-
-        void setId(Integer id) {
-            this.id = id;
-        }
-
-        String getFirstName() {
-            return firstName;
-        }
-
-        void setFirstName(String firstName) {
-            this.firstName = firstName;
-        }
-
-        String getLastName() {
-            return lastName;
-        }
-
-        void setLastName(String lastName) {
-            this.lastName = lastName;
-        }
-
-        String getOccupation() {
-            return occupation;
-        }
-
-        void setOccupation(String occupation) {
-            this.occupation = occupation;
+    record TestRecord (@Nullable Integer id, @Nullable String firstName, @Nullable String lastName, @Nullable String occupation) {
+        TestRecord() {
+            this(null, null, null, null);
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,12 +21,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping;
 import org.mybatis.dynamic.sql.util.Buildable;
 import org.mybatis.dynamic.sql.util.ConstantMapping;
+import org.mybatis.dynamic.sql.util.MappedColumnMapping;
+import org.mybatis.dynamic.sql.util.MappedColumnWhenPresentMapping;
 import org.mybatis.dynamic.sql.util.NullMapping;
 import org.mybatis.dynamic.sql.util.PropertyMapping;
 import org.mybatis.dynamic.sql.util.PropertyWhenPresentMapping;
@@ -49,7 +51,16 @@ public class InsertDSL<T> implements Buildable<InsertModel<T>> {
         return new ColumnMappingFinisher<>(column);
     }
 
-    @NotNull
+    public <F> InsertDSL<T> withMappedColumn(SqlColumn<F> column) {
+        columnMappings.add(MappedColumnMapping.of(column));
+        return this;
+    }
+
+    public <F> InsertDSL<T> withMappedColumnWhenPresent(SqlColumn<F> column, Supplier<?> valueSupplier) {
+        columnMappings.add(MappedColumnWhenPresentMapping.of(column, valueSupplier));
+        return this;
+    }
+
     @Override
     public InsertModel<T> build() {
         return InsertModel.withRow(row)
@@ -113,8 +124,8 @@ public class InsertDSL<T> implements Buildable<InsertModel<T>> {
     }
 
     public static class Builder<T> {
-        private T row;
-        private SqlTable table;
+        private @Nullable T row;
+        private @Nullable SqlTable table;
         private final List<AbstractColumnMapping> columnMappings = new ArrayList<>();
 
         public Builder<T> withRow(T row) {

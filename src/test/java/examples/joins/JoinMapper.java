@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,9 +17,8 @@ package examples.joins;
 
 import java.util.List;
 
-import org.apache.ibatis.annotations.Result;
+import org.apache.ibatis.annotations.Arg;
 import org.apache.ibatis.annotations.ResultMap;
-import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
@@ -30,10 +29,8 @@ public interface JoinMapper {
     List<OrderMaster> selectMany(SelectStatementProvider selectStatement);
 
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
-    @Results ({
-        @Result(column="user_id", property="userId"),
-        @Result(column="user_name", property="userName"),
-        @Result(column="parent_id", property="parentId")
-    })
+    @Arg(column="user_id", javaType = Integer.class)
+    @Arg(column="user_name", javaType = String.class)
+    @Arg(column="parent_id", javaType = Integer.class)
     List<User> selectUsers(SelectStatementProvider selectStatement);
 }

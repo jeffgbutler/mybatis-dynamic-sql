@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import org.mybatis.dynamic.sql.util.FragmentCollector;
 public class Concat<T> extends AbstractUniTypeFunction<T, Concat<T>> {
     private final List<BasicColumn> allColumns = new ArrayList<>();
 
-    protected Concat(BindableColumn<T> firstColumn, List<BasicColumn> subsequentColumns) {
+    protected Concat(BasicColumn firstColumn, List<BasicColumn> subsequentColumns) {
         super(firstColumn);
         allColumns.add(firstColumn);
         this.allColumns.addAll(subsequentColumns);

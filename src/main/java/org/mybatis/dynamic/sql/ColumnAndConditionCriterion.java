@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -17,9 +17,11 @@ package org.mybatis.dynamic.sql;
 
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
+
 public class ColumnAndConditionCriterion<T> extends SqlCriterion {
     private final BindableColumn<T> column;
-    private final VisitableCondition<T> condition;
+    private final RenderableCondition<T> condition;
 
     private ColumnAndConditionCriterion(Builder<T> builder) {
         super(builder);
@@ -31,7 +33,7 @@ public class ColumnAndConditionCriterion<T> extends SqlCriterion {
         return column;
     }
 
-    public VisitableCondition<T> condition() {
+    public RenderableCondition<T> condition() {
         return condition;
     }
 
@@ -45,15 +47,15 @@ public class ColumnAndConditionCriterion<T> extends SqlCriterion {
     }
 
     public static class Builder<T> extends AbstractBuilder<Builder<T>> {
-        private BindableColumn<T> column;
-        private VisitableCondition<T> condition;
+        private @Nullable BindableColumn<T> column;
+        private @Nullable RenderableCondition<T> condition;
 
         public Builder<T> withColumn(BindableColumn<T> column) {
             this.column = column;
             return this;
         }
 
-        public Builder<T> withCondition(VisitableCondition<T> condition) {
+        public Builder<T> withCondition(RenderableCondition<T> condition) {
             this.condition = condition;
             return this;
         }

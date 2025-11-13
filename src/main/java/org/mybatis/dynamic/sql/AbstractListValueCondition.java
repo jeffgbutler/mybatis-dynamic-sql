@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2024 the original author or authors.
+ *    Copyright 2016-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -23,17 +23,20 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.mybatis.dynamic.sql.render.RenderedParameterInfo;
 import org.mybatis.dynamic.sql.render.RenderingContext;
+import org.mybatis.dynamic.sql.util.FragmentAndParameters;
+import org.mybatis.dynamic.sql.util.FragmentCollector;
 
-public abstract class AbstractListValueCondition<T> implements VisitableCondition<T> {
+public abstract class AbstractListValueCondition<T> implements RenderableCondition<T> {
     protected final Collection<T> values;
 
     protected AbstractListValueCondition(Collection<T> values) {
         this.values = Objects.requireNonNull(values);
     }
 
-    public final <R> Stream<R> mapValues(Function<T, R> mapper) {
-        return values.stream().map(mapper);
+    public final Stream<T> values() {
+        return values.stream();
     }
 
     @Override
@@ -41,28 +44,14 @@ public abstract class AbstractListValueCondition<T> implements VisitableConditio
         return values.isEmpty();
     }
 
-    @Override
-    public boolean shouldRender(RenderingContext renderingContext) {
-        if (isEmpty()) {
-            return renderingContext.isEmptyListConditionRenderingAllowed();
-        } else {
-            return true;
-        }
-    }
-
-    @Override
-    public <R> R accept(ConditionVisitor<T, R> visitor) {
-        return visitor.visit(this);
-    }
-
     private <R> Collection<R> applyMapper(Function<? super T, ? extends R> mapper) {
         Objects.requireNonNull(mapper);
-        return values.stream().map(mapper).collect(Collectors.toList());
+        return values().map(mapper).collect(Collectors.toList());
     }
 
     private Collection<T> applyFilter(Predicate<? super T> predicate) {
         Objects.requireNonNull(predicate);
-        return values.stream().filter(predicate).collect(Collectors.toList());
+        return values().filter(predicate).toList();
     }
 
     protected <S extends AbstractListValueCondition<T>> S filterSupport(Predicate<? super T> predicate,
@@ -84,17 +73,71 @@ public abstract class AbstractListValueCondition<T> implements VisitableConditio
         }
     }
 
-    /**
-     * If renderable, apply the predicate to each value in the list and return a new condition with the filtered values.
-     *     Else returns a condition that will not render (this). If all values are filtered out of the value
-     *     list, then the condition will not render.
-     *
-     * @param predicate
-     *            predicate applied to the values, if renderable
-     *
-     * @return a new condition with filtered values if renderable, otherwise a condition that will not render.
-     */
-    public abstract AbstractListValueCondition<T> filter(Predicate<? super T> predicate);
-
     public abstract String operator();
+
+    @Override
+    public FragmentAndParameters renderCondition(RenderingContext renderingContext, BindableColumn<T> leftColumn) {
+        return values().map(v -> toFragmentAndParameters(v, renderingContext, leftColumn))
+                .collect(FragmentCollector.collect())
+                .toFragmentAndParameters(Collectors.joining(",", //$NON-NLS-1$
+                        operator() + " (", ")")); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    private FragmentAndParameters toFragmentAndParameters(T value, RenderingContext renderingContext,
+                                                          BindableColumn<T> leftColumn) {
+        RenderedParameterInfo parameterInfo = renderingContext.calculateParameterInfo(leftColumn);
+        return FragmentAndParameters.withFragment(parameterInfo.renderedPlaceHolder())
+                .withParameter(parameterInfo.parameterMapKey(), leftColumn.convertParameterType(value))
+                .build();
+    }
+
+    /**
+     * Conditions may implement Filterable to add optionality to rendering.
+     *
+     * <p>If a condition is Filterable, then a user may add a filter to the usage of the condition that makes a decision
+     * whether to render the condition at runtime. Conditions that fail the filter will be dropped from the
+     * rendered SQL.
+     *
+     * <p>Implementations of Filterable may call
+     * {@link AbstractListValueCondition#filterSupport(Predicate, Function, AbstractListValueCondition, Supplier)} as
+     * a common implementation of the filtering algorithm.
+     *
+     * @param <T> the Java type related to the database column type
+     */
+    public interface Filterable<T> {
+        /**
+         * If renderable and the value matches the predicate, returns this condition. Else returns a condition
+         *     that will not render.
+         *
+         * @param predicate predicate applied to the value, if renderable
+         * @return this condition if renderable and the value matches the predicate, otherwise a condition
+         *     that will not render.
+         */
+        AbstractListValueCondition<T> filter(Predicate<? super T> predicate);
+    }
+
+    /**
+     * Conditions may implement Mappable to alter condition values or types during rendering.
+     *
+     * <p>If a condition is Mappable, then a user may add a mapper to the usage of the condition that can alter the
+     * values of a condition, or change that datatype.
+     *
+     * <p>Implementations of Mappable may call
+     * {@link AbstractListValueCondition#mapSupport(Function, Function, Supplier)} as
+     * a common implementation of the mapping algorithm.
+     *
+     * @param <T> the Java type related to the database column type
+     */
+    public interface Mappable<T> {
+        /**
+         * If renderable, apply the mapping to the value and return a new condition with the new value. Else return a
+         * condition that will not render (this).
+         *
+         * @param mapper a mapping function to apply to the value, if renderable
+         * @param <R> type of the new condition
+         * @return a new condition with the result of applying the mapper to the value of this condition,
+         *     if renderable, otherwise a condition that will not render.
+         */
+        <R> AbstractListValueCondition<R> map(Function<? super T, ? extends R> mapper);
+    }
 }
