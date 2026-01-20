@@ -19,68 +19,12 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Date;
 
-public class PersonWithAddress {
-    private @Nullable Integer id;
-    private @Nullable String firstName;
-    private @Nullable LastName lastName;
-    private @Nullable Date birthDate;
-    private @Nullable Boolean employed;
-    private @Nullable String occupation;
-    private @Nullable AddressRecord address;
-
-    public @Nullable Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public @Nullable String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public @Nullable LastName getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(LastName lastName) {
-        this.lastName = lastName;
-    }
-
-    public @Nullable Date getBirthDate() {
-        return birthDate;
-    }
-
-    public void setBirthDate(Date birthDate) {
-        this.birthDate = birthDate;
-    }
-
-    public @Nullable String getOccupation() {
-        return occupation;
-    }
-
-    public void setOccupation(String occupation) {
-        this.occupation = occupation;
-    }
-
-    public @Nullable Boolean getEmployed() {
-        return employed;
-    }
-
-    public void setEmployed(Boolean employed) {
-        this.employed = employed;
-    }
-
-    public @Nullable AddressRecord getAddress() {
-        return address;
-    }
-
-    public void setAddress(AddressRecord address) {
-        this.address = address;
-    }
-}
+public record PersonWithAddress(
+        @Nullable Integer id,
+        @Nullable String firstName,
+        @Nullable LastName lastName,
+        @Nullable Date birthDate,
+        @Nullable Boolean employed,
+        @Nullable String occupation,
+        @Nullable AddressRecord address
+) {}

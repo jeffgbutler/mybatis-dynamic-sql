@@ -620,17 +620,17 @@ class PersonMapperTest {
             );
 
             assertThat(records).hasSize(6);
-            assertThat(records.get(0).getId()).isEqualTo(1);
-            assertThat(records.get(0).getEmployed()).isTrue();
-            assertThat(records.get(0).getFirstName()).isEqualTo("Fred");
-            assertThat(records.get(0).getLastName()).isEqualTo(new LastName("Flintstone"));
-            assertThat(records.get(0).getOccupation()).isEqualTo("Brontosaurus Operator");
-            assertThat(records.get(0).getBirthDate()).isNotNull();
-            assertThat(records.get(0).getAddress()).isNotNull()
+            assertThat(records.get(0).id()).isEqualTo(1);
+            assertThat(records.get(0).employed()).isTrue();
+            assertThat(records.get(0).firstName()).isEqualTo("Fred");
+            assertThat(records.get(0).lastName()).isEqualTo(new LastName("Flintstone"));
+            assertThat(records.get(0).occupation()).isEqualTo("Brontosaurus Operator");
+            assertThat(records.get(0).birthDate()).isNotNull();
+            assertThat(records.get(0).address()).isNotNull()
                     .extracting("id", "streetAddress", "city", "state", "addressType")
                     .containsExactly(1, "123 Main Street", "Bedrock", "IN", AddressRecord.AddressType.HOME);
 
-            assertThat(records.get(4).getAddress()).isNotNull()
+            assertThat(records.get(4).address()).isNotNull()
                     .extracting("addressType")
                     .isEqualTo(AddressRecord.AddressType.BUSINESS);
         }
@@ -643,13 +643,13 @@ class PersonMapperTest {
             List<PersonWithAddress> records = mapper.select(c -> c.where(id, isEqualTo(1)));
 
             assertThat(records).hasSize(1);
-            assertThat(records.get(0).getId()).isEqualTo(1);
-            assertThat(records.get(0).getEmployed()).isTrue();
-            assertThat(records.get(0).getFirstName()).isEqualTo("Fred");
-            assertThat(records.get(0).getLastName()).isEqualTo(new LastName("Flintstone"));
-            assertThat(records.get(0).getOccupation()).isEqualTo("Brontosaurus Operator");
-            assertThat(records.get(0).getBirthDate()).isNotNull();
-            assertThat(records.get(0).getAddress()).isNotNull()
+            assertThat(records.get(0).id()).isEqualTo(1);
+            assertThat(records.get(0).employed()).isTrue();
+            assertThat(records.get(0).firstName()).isEqualTo("Fred");
+            assertThat(records.get(0).lastName()).isEqualTo(new LastName("Flintstone"));
+            assertThat(records.get(0).occupation()).isEqualTo("Brontosaurus Operator");
+            assertThat(records.get(0).birthDate()).isNotNull();
+            assertThat(records.get(0).address()).isNotNull()
                     .extracting("id", "streetAddress", "city", "state", "addressType")
                     .containsExactly(1, "123 Main Street", "Bedrock", "IN", AddressRecord.AddressType.HOME);
         }
@@ -662,13 +662,13 @@ class PersonMapperTest {
             Optional<PersonWithAddress> row = mapper.selectByPrimaryKey(1);
 
             assertThat(row).hasValueSatisfying(r -> {
-                assertThat(r.getId()).isEqualTo(1);
-                assertThat(r.getEmployed()).isTrue();
-                assertThat(r.getFirstName()).isEqualTo("Fred");
-                assertThat(r.getLastName()).isEqualTo(new LastName("Flintstone"));
-                assertThat(r.getOccupation()).isEqualTo("Brontosaurus Operator");
-                assertThat(r.getBirthDate()).isNotNull();
-                assertThat(r.getAddress()).isNotNull()
+                assertThat(r.id()).isEqualTo(1);
+                assertThat(r.employed()).isTrue();
+                assertThat(r.firstName()).isEqualTo("Fred");
+                assertThat(r.lastName()).isEqualTo(new LastName("Flintstone"));
+                assertThat(r.occupation()).isEqualTo("Brontosaurus Operator");
+                assertThat(r.birthDate()).isNotNull();
+                assertThat(r.address()).isNotNull()
                         .extracting("id", "streetAddress", "city", "state", "addressType")
                         .containsExactly(1, "123 Main Street", "Bedrock", "IN", AddressRecord.AddressType.HOME);
             });

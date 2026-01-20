@@ -17,53 +17,13 @@ package examples.simple;
 
 import org.jspecify.annotations.Nullable;
 
-public class AddressRecord {
-    private @Nullable Integer id;
-    private @Nullable String streetAddress;
-    private @Nullable String city;
-    private @Nullable String state;
-    private @Nullable AddressType addressType;
-
-    public @Nullable Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public @Nullable String getStreetAddress() {
-        return streetAddress;
-    }
-
-    public void setStreetAddress(String streetAddress) {
-        this.streetAddress = streetAddress;
-    }
-
-    public @Nullable String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public @Nullable String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public @Nullable AddressType getAddressType() {
-        return addressType;
-    }
-
-    public void setAddressType(AddressType addressType) {
-        this.addressType = addressType;
-    }
-
+public record AddressRecord(
+    @Nullable Integer id,
+    @Nullable String streetAddress,
+    @Nullable String city,
+    @Nullable String state,
+    @Nullable AddressType addressType
+) {
     public enum AddressType {
         HOME,
         BUSINESS

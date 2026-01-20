@@ -28,10 +28,11 @@ import static org.mybatis.dynamic.sql.SqlBuilder.*;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.ibatis.annotations.Arg;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.ResultMap;
 import org.apache.ibatis.annotations.Results;
+import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.type.EnumOrdinalTypeHandler;
 import org.apache.ibatis.type.JdbcType;
@@ -48,27 +49,35 @@ import org.mybatis.dynamic.sql.util.mybatis3.CommonCountMapper;
 import org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils;
 
 /**
- * This is a mapper that shows coding a join
+ * This is a mapper that shows coding a join for a composed record.
+ *
+ * <p><code>PersonWithAddress</code> is a Java record that uses composition - it holds an instance of
+ * another record class (<code>AddressRecord</code>). This mapper requires MyBatis 3.6.0 or later to function properly.
  */
 @Mapper
 public interface PersonWithAddressMapper extends CommonCountMapper {
 
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
-    @Results(id="PersonWithAddressResult", value= {
-            @Result(column="A_ID", property="id", jdbcType=JdbcType.INTEGER, id=true),
-            @Result(column="first_name", property="firstName", jdbcType=JdbcType.VARCHAR),
-            @Result(column="last_name", property="lastName", jdbcType=JdbcType.VARCHAR, typeHandler=LastNameTypeHandler.class),
-            @Result(column="birth_date", property="birthDate", jdbcType=JdbcType.DATE),
-            @Result(column="employed", property="employed", jdbcType=JdbcType.VARCHAR, typeHandler=YesNoTypeHandler.class),
-            @Result(column="occupation", property="occupation", jdbcType=JdbcType.VARCHAR),
-            @Result(column="address_id", property="address.id", jdbcType=JdbcType.INTEGER),
-            @Result(column="street_address", property="address.streetAddress", jdbcType=JdbcType.VARCHAR),
-            @Result(column="city", property="address.city", jdbcType=JdbcType.VARCHAR),
-            @Result(column="state", property="address.state", jdbcType=JdbcType.CHAR),
-            @Result(column="address_type", property="address.addressType", jdbcType=JdbcType.INTEGER,
-                    typeHandler = EnumOrdinalTypeHandler.class)
-    })
+    @Results(id = "PersonWithAddressResult")
+    @Arg(column = "A_ID", jdbcType=JdbcType.INTEGER, id=true)
+    @Arg(column = "first_name", jdbcType=JdbcType.VARCHAR)
+    @Arg(column = "last_name", jdbcType=JdbcType.VARCHAR, typeHandler=LastNameTypeHandler.class)
+    @Arg(column = "birth_date", jdbcType=JdbcType.DATE)
+    @Arg(column =  "employed", jdbcType=JdbcType.VARCHAR, typeHandler=YesNoTypeHandler.class)
+    @Arg(column = "occupation", jdbcType=JdbcType.VARCHAR)
+    @Arg(resultMap = "AddressResult")
     List<PersonWithAddress> selectMany(SelectStatementProvider selectStatement);
+
+    @Results(id = "AddressResult")
+    @Arg(column = "address_id", jdbcType=JdbcType.INTEGER)
+    @Arg(column = "street_address", jdbcType=JdbcType.VARCHAR)
+    @Arg(column = "city", jdbcType=JdbcType.VARCHAR)
+    @Arg(column = "state", jdbcType=JdbcType.CHAR)
+    @Arg(column = "address_type", jdbcType=JdbcType.INTEGER, javaType = AddressRecord.AddressType.class,
+            typeHandler = EnumOrdinalTypeHandler.class)
+    @Select("-- dummy statement: result map holder only")
+    @SuppressWarnings("unused")
+    AddressRecord addressResult();
 
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
     @ResultMap("PersonWithAddressResult")
