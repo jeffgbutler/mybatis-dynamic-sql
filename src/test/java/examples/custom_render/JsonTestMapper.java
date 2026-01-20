@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.ibatis.annotations.Arg;
+import org.apache.ibatis.annotations.ResultMap;
+import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider;
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter;
@@ -30,14 +32,13 @@ import org.mybatis.dynamic.sql.util.mybatis3.CommonUpdateMapper;
 public interface JsonTestMapper extends CommonDeleteMapper, CommonInsertMapper<JsonTestRecord>, CommonSelectMapper,
         CommonUpdateMapper {
     @SelectProvider(type = SqlProviderAdapter.class, method = "select")
+    @Results(id = "TestResult")
     @Arg(column = "id", javaType = int.class, id = true)
     @Arg(column = "description", javaType = String.class)
     @Arg(column = "info", javaType = String.class)
     List<JsonTestRecord> selectMany(SelectStatementProvider selectStatement);
 
     @SelectProvider(type = SqlProviderAdapter.class, method = "select")
-    @Arg(column = "id", javaType = int.class, id = true)
-    @Arg(column = "description", javaType = String.class)
-    @Arg(column = "info", javaType = String.class)
+    @ResultMap("TestResult")
     Optional<JsonTestRecord> selectOne(SelectStatementProvider selectStatement);
 }

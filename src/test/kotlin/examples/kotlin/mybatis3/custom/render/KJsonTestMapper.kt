@@ -17,6 +17,8 @@ package examples.kotlin.mybatis3.custom.render
 
 import org.apache.ibatis.annotations.Arg
 import org.apache.ibatis.annotations.ConstructorArgs
+import org.apache.ibatis.annotations.ResultMap
+import org.apache.ibatis.annotations.Results
 import org.apache.ibatis.annotations.SelectProvider
 import org.mybatis.dynamic.sql.select.render.SelectStatementProvider
 import org.mybatis.dynamic.sql.util.SqlProviderAdapter
@@ -28,18 +30,13 @@ import org.mybatis.dynamic.sql.util.mybatis3.CommonUpdateMapper
 interface KJsonTestMapper :
     CommonDeleteMapper, CommonInsertMapper<KJsonTestRecord>, CommonSelectMapper, CommonUpdateMapper {
     @SelectProvider(type = SqlProviderAdapter::class, method = "select")
-    @ConstructorArgs(
-        Arg(column = "id", id = true, javaType = Int::class),
-        Arg(column = "description", javaType = String::class),
-        Arg(column = "info", javaType = String::class)
-    )
+    @Results(id = "TestResult")
+    @Arg(column = "id", id = true, javaType = Int::class)
+    @Arg(column = "description", javaType = String::class)
+    @Arg(column = "info", javaType = String::class)
     fun selectMany(selectStatement: SelectStatementProvider): List<KJsonTestRecord>
 
     @SelectProvider(type = SqlProviderAdapter::class, method = "select")
-    @ConstructorArgs(
-        Arg(column = "id", id = true, javaType = Int::class),
-        Arg(column = "description", javaType = String::class),
-        Arg(column = "info", javaType = String::class)
-    )
+    @ResultMap("TestResult")
     fun selectOne(selectStatement: SelectStatementProvider): KJsonTestRecord?
 }

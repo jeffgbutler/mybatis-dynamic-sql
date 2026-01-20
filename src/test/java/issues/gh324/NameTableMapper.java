@@ -23,6 +23,8 @@ import java.util.Optional;
 
 import org.apache.ibatis.annotations.Arg;
 import org.apache.ibatis.annotations.CacheNamespace;
+import org.apache.ibatis.annotations.ResultMap;
+import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.delete.DeleteDSLCompleter;
@@ -39,13 +41,13 @@ import org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils;
 @CacheNamespace(implementation = ObservableCache.class)
 public interface NameTableMapper extends CommonCountMapper, CommonDeleteMapper, CommonInsertMapper<NameRecord>, CommonUpdateMapper {
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
+    @Results(id = "NameResult")
     @Arg(column = "id", javaType = Integer.class, id = true)
     @Arg(column = "name", javaType = String.class)
     List<NameRecord> selectMany(SelectStatementProvider selectStatement);
 
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
-    @Arg(column = "id", javaType = Integer.class, id = true)
-    @Arg(column = "name", javaType = String.class)
+    @ResultMap("NameResult")
     Optional<NameRecord> selectOne(SelectStatementProvider selectStatement);
 
     BasicColumn[] selectList = BasicColumn.columnList(id, name);

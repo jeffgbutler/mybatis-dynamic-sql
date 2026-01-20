@@ -110,7 +110,7 @@ public class SqlColumn<T> implements BindableColumn<T>, SortSpecification {
     protected final @Nullable Class<T> javaType;
     protected final @Nullable String javaProperty;
 
-    protected SqlColumn(AbstractBuilder<T, ?, ?> builder) {
+    protected SqlColumn(AbstractBuilder<T, ?> builder) {
         name = Objects.requireNonNull(builder.name);
         table = Objects.requireNonNull(builder.table);
         jdbcType = builder.jdbcType;
@@ -330,7 +330,7 @@ public class SqlColumn<T> implements BindableColumn<T>, SortSpecification {
      *
      * @return a new Builder instance with all current values populated
      */
-    protected AbstractBuilder<T, ?, ?> copyBuilder() {
+    protected AbstractBuilder<T, ?> copyBuilder() {
         return populateBaseBuilder(new Builder<>());
     }
 
@@ -348,9 +348,8 @@ public class SqlColumn<T> implements BindableColumn<T>, SortSpecification {
      * @param <B> the concrete builder type
      * @return the populated builder
      */
-    @SuppressWarnings("unchecked")
-    protected <B extends AbstractBuilder<T, ?, ?>> B populateBaseBuilder(B builder) {
-        return (B) builder
+    protected <B extends AbstractBuilder<T, B>> B populateBaseBuilder(B builder) {
+        return builder
                 .withName(this.name)
                 .withTable(this.table)
                 .withJdbcType(this.jdbcType)
@@ -377,7 +376,7 @@ public class SqlColumn<T> implements BindableColumn<T>, SortSpecification {
                 .build();
     }
 
-    public abstract static class AbstractBuilder<T, C extends SqlColumn<T>, B extends AbstractBuilder<T, C, B>> {
+    public abstract static class AbstractBuilder<T, B extends AbstractBuilder<T, B>> {
         protected @Nullable String name;
         protected @Nullable SqlTable table;
         protected @Nullable JDBCType jdbcType;
@@ -445,13 +444,12 @@ public class SqlColumn<T> implements BindableColumn<T>, SortSpecification {
             return getThis();
         }
 
-        protected abstract B getThis();
+        public abstract SqlColumn<T> build();
 
-        public abstract C build();
+        protected abstract B getThis();
     }
 
-    public static class Builder<T> extends AbstractBuilder<T, SqlColumn<T>, Builder<T>> {
-        @Override
+    public static class Builder<T> extends AbstractBuilder<T, Builder<T>> {
         public SqlColumn<T> build() {
             return new SqlColumn<>(this);
         }

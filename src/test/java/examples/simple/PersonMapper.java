@@ -28,6 +28,8 @@ import java.util.function.UnaryOperator;
 
 import org.apache.ibatis.annotations.Arg;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.ResultMap;
+import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.type.JdbcType;
 import org.mybatis.dynamic.sql.BasicColumn;
@@ -56,6 +58,7 @@ import org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils;
 public interface PersonMapper extends CommonCountMapper, CommonDeleteMapper, CommonInsertMapper<PersonRecord>, CommonUpdateMapper {
 
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
+    @Results(id = "PersonResult")
     @Arg(column="A_ID", jdbcType=JdbcType.INTEGER, id=true, javaType = Integer.class)
     @Arg(column="first_name", jdbcType=JdbcType.VARCHAR, javaType = String.class)
     @Arg(column="last_name", jdbcType=JdbcType.VARCHAR, typeHandler=LastNameTypeHandler.class, javaType = LastName.class)
@@ -66,13 +69,7 @@ public interface PersonMapper extends CommonCountMapper, CommonDeleteMapper, Com
     List<PersonRecord> selectMany(SelectStatementProvider selectStatement);
 
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
-    @Arg(column="A_ID", jdbcType=JdbcType.INTEGER, id=true, javaType = Integer.class)
-    @Arg(column="first_name", jdbcType=JdbcType.VARCHAR, javaType = String.class)
-    @Arg(column="last_name", jdbcType=JdbcType.VARCHAR, typeHandler=LastNameTypeHandler.class, javaType = LastName.class)
-    @Arg(column="birth_date", jdbcType=JdbcType.DATE, javaType = Date.class)
-    @Arg(column="employed", jdbcType=JdbcType.VARCHAR, typeHandler=YesNoTypeHandler.class, javaType = Boolean.class)
-    @Arg(column="occupation", jdbcType=JdbcType.VARCHAR, javaType = String.class)
-    @Arg(column="address_id", jdbcType=JdbcType.INTEGER, javaType = Integer.class)
+    @ResultMap("PersonResult")
     Optional<PersonRecord> selectOne(SelectStatementProvider selectStatement);
 
     BasicColumn[] selectList =
