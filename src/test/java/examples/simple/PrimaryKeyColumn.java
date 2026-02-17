@@ -86,7 +86,7 @@ public class PrimaryKeyColumn<T> extends SqlColumn<T> {
         return populateBaseBuilder(new Builder<>()).isPrimaryKeyColumn(isPrimaryKeyColumn);
     }
 
-    public static class Builder<T> extends AbstractBuilder<T, PrimaryKeyColumn<T>, Builder<T>> {
+    public static class Builder<T> extends AbstractBuilder<T, Builder<T>> {
         private boolean isPrimaryKeyColumn;
 
         public Builder<T> isPrimaryKeyColumn(boolean isPrimaryKeyColumn) {
