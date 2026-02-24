@@ -60,8 +60,9 @@
     <java.release.version>17</java.release.version>
     <java.test.version>17</java.test.version>
     <java.test.release.version>17</java.test.release.version>
-    <junit.jupiter.version>6.0.1</junit.jupiter.version>
-    <spring.batch.version>6.0.0</spring.batch.version>
+    <junit.jupiter.version>6.0.3</junit.jupiter.version>
+    <spring.batch.version>6.0.2</spring.batch.version>
+    <spring.version>7.0.5</spring.version>
 
     <checkstyle.config>checkstyle-override.xml</checkstyle.config>
 
@@ -69,7 +70,7 @@
 
     <module.name>org.mybatis.dynamic.sql</module.name>
 
-    <kotlin.version>2.2.21</kotlin.version>
+    <kotlin.version>2.3.10</kotlin.version>
     <kotlin.compiler.jvmTarget>17</kotlin.compiler.jvmTarget>
     <kotlin.compiler.languageVersion>2.0</kotlin.compiler.languageVersion>
     <kotlin.compiler.apiVersion>2.0</kotlin.compiler.apiVersion>
@@ -80,12 +81,24 @@
     <sonar.host.url>http://localhost:9000</sonar.host.url>
 
     <kotlin.code.style>official</kotlin.code.style>
-    <test.containers.version>2.0.2</test.containers.version>
+    <test.containers.version>2.0.3</test.containers.version>
     <osgi.export>org.mybatis.dynamic.sql.*;version=${project.version};-noimport:=true</osgi.export>
 
     <!-- Reproducible Builds -->
     <project.build.outputTimestamp>1717449335</project.build.outputTimestamp>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-framework-bom</artifactId>
+        <version>${spring.version}</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <dependency>
@@ -103,7 +116,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
-      <version>7.0.1</version>
+      <version>${spring.version}</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>
@@ -136,7 +149,7 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.27.6</version>
+      <version>3.27.7</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -172,7 +185,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.5.21</version>
+      <version>1.5.32</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -190,7 +203,7 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>42.7.8</version>
+      <version>42.7.10</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -202,7 +215,7 @@
     <dependency>
       <groupId>org.mariadb.jdbc</groupId>
       <artifactId>mariadb-java-client</artifactId>
-      <version>3.5.6</version>
+      <version>3.5.7</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -214,7 +227,7 @@
     <dependency>
       <groupId>com.mysql</groupId>
       <artifactId>mysql-connector-j</artifactId>
-      <version>9.5.0</version>
+      <version>9.6.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
