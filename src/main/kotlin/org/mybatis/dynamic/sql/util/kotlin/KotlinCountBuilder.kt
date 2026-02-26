@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2025 the original author or authors.
+ *    Copyright 2016-2026 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,18 +22,18 @@ import org.mybatis.dynamic.sql.util.Buildable
 
 typealias CountCompleter = KotlinCountBuilder.() -> Unit
 
-class KotlinCountBuilder(private val fromGatherer: CountDSL.FromGatherer<SelectModel>) :
+class KotlinCountBuilder(private val dsl: CountDSL<SelectModel>) :
     KotlinBaseJoiningBuilder<CountDSL<SelectModel>>(),
     Buildable<SelectModel> {
 
-    private var dsl: CountDSL<SelectModel>? = null
-
     fun from(table: SqlTable): KotlinCountBuilder =
         apply {
-            dsl = fromGatherer.from(table)
+            dsl.from(table)
         }
 
-    override fun build(): SelectModel = getDsl().build()
+    override fun build(): SelectModel {
+        return dsl.build()
+    }
 
-    override fun getDsl(): CountDSL<SelectModel> = invalidIfNull(dsl, "ERROR.24") //$NON-NLS-1$
+    override fun getDsl() = dsl
 }

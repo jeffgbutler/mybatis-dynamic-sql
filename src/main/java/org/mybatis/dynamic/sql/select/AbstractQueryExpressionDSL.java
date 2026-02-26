@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2025 the original author or authors.
+ *    Copyright 2016-2026 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -44,14 +43,8 @@ public abstract class AbstractQueryExpressionDSL<W extends AbstractWhereFinisher
 
     private final List<Supplier<JoinSpecification>> joinSpecificationSuppliers = new ArrayList<>();
     private final Map<SqlTable, String> tableAliases = new HashMap<>();
-    private final TableExpression table;
 
-    protected AbstractQueryExpressionDSL(TableExpression table) {
-        this.table = Objects.requireNonNull(table);
-    }
-
-    public TableExpression table() {
-        return table;
+    protected AbstractQueryExpressionDSL() {
     }
 
     public T join(SqlTable joinTable, SqlCriterion onJoinCriterion,
