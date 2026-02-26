@@ -25,7 +25,9 @@ import org.mybatis.dynamic.sql.util.Buildable
 typealias UpdateCompleter = KotlinUpdateBuilder.() -> Unit
 
 class KotlinUpdateBuilder(private val dsl: UpdateDSL<UpdateModel>) :
-    KotlinBaseBuilder<UpdateDSL<UpdateModel>>(), Buildable<UpdateModel> {
+    KotlinWhereOperations<UpdateDSL<UpdateModel>>,
+    KotlinConfigurableStatementOperations<UpdateDSL<UpdateModel>>,
+    Buildable<UpdateModel> {
 
     fun <T : Any> set(column: SqlColumn<T>): KotlinSetClauseFinisher<T> = KotlinSetClauseFinisher(column)
 

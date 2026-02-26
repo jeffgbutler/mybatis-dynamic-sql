@@ -17,8 +17,10 @@ package org.mybatis.dynamic.sql.util.kotlin
 
 import org.mybatis.dynamic.sql.AndOrCriteriaGroup
 import org.mybatis.dynamic.sql.SqlTable
+import org.mybatis.dynamic.sql.configuration.StatementConfiguration
+import org.mybatis.dynamic.sql.dsl.JoinOperations
 import org.mybatis.dynamic.sql.dsl.WhereOperations
-import org.mybatis.dynamic.sql.select.AbstractQueryExpressionDSL
+import org.mybatis.dynamic.sql.util.ConfigurableStatement
 
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
 @DslMarker
@@ -26,12 +28,7 @@ annotation class MyBatisDslMarker
 
 @MyBatisDslMarker
 @Suppress("TooManyFunctions")
-abstract class KotlinBaseBuilder<D : WhereOperations<*>> {
-
-//    fun configureStatement(c: StatementConfiguration.() -> Unit) {
-//        getDsl().configureStatement(c)
-//    }
-
+interface KotlinWhereOperations<D : WhereOperations<*>> {
     fun where(criteria: GroupingCriteriaReceiver): Unit =
         GroupingCriteriaCollector().apply(criteria).let {
             getDsl().where(it.initialCriterion, it.subCriteria)
@@ -57,11 +54,20 @@ abstract class KotlinBaseBuilder<D : WhereOperations<*>> {
         // intentionally empty - this function exists for code beautification and clarity only
     }
 
-    protected abstract fun getDsl(): D
+    fun getDsl(): D
+}
+
+@MyBatisDslMarker
+interface KotlinConfigurableStatementOperations<D : ConfigurableStatement<*>> {
+    fun configureStatement(c: StatementConfiguration.() -> Unit) {
+        getDsl().configureStatement(c)
+    }
+
+    fun getDsl(): D
 }
 
 @Suppress("TooManyFunctions")
-abstract class KotlinBaseJoiningBuilder<D : AbstractQueryExpressionDSL<*, *>> : KotlinBaseBuilder<D>() {
+interface KotlinJoinOperations<D : JoinOperations<*>> {
 
     @Deprecated("Please use the new form with the \"on\" keyword outside the lambda")
     fun join(table: SqlTable, joinCriteria: JoinReceiver): Unit =
@@ -226,6 +232,8 @@ abstract class KotlinBaseJoiningBuilder<D : AbstractQueryExpressionDSL<*, *>> : 
     ) {
         getDsl().applyJoin(KotlinQualifiedSubQueryBuilder().apply(subQuery), JoinCollector().apply(joinCriteria))
     }
+
+    fun getDsl(): D
 }
 
 class JoinCriteriaGatherer(private val consumer: (GroupingCriteriaCollector) -> Unit) {

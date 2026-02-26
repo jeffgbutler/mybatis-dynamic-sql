@@ -23,7 +23,9 @@ import org.mybatis.dynamic.sql.util.Buildable
 typealias CountCompleter = KotlinCountBuilder.() -> Unit
 
 class KotlinCountBuilder(private val dsl: CountDSL<SelectModel>) :
-    KotlinBaseJoiningBuilder<CountDSL<SelectModel>>(),
+    KotlinWhereOperations<CountDSL<SelectModel>>,
+    KotlinJoinOperations<CountDSL<SelectModel>>,
+    KotlinConfigurableStatementOperations<CountDSL<SelectModel>>,
     Buildable<SelectModel> {
 
     fun from(table: SqlTable): KotlinCountBuilder =
