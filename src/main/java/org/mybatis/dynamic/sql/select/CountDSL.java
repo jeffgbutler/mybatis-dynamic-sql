@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2025 the original author or authors.
+ *    Copyright 2016-2026 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -41,12 +41,13 @@ public class CountDSL<R> extends AbstractQueryExpressionDSL<CountDSL<R>.CountWhe
         implements Buildable<R> {
 
     private final Function<SelectModel, R> adapterFunction;
+    private @Nullable SqlTable table;
     private @Nullable CountWhereBuilder whereBuilder;
     private final BasicColumn countColumn;
     private final StatementConfiguration statementConfiguration = new StatementConfiguration();
 
     private CountDSL(BasicColumn countColumn, SqlTable table, Function<SelectModel, R> adapterFunction) {
-        super(table);
+        this.table = table;
         this.countColumn = Objects.requireNonNull(countColumn);
         this.adapterFunction = Objects.requireNonNull(adapterFunction);
     }
@@ -71,7 +72,7 @@ public class CountDSL<R> extends AbstractQueryExpressionDSL<CountDSL<R>.CountWhe
     private SelectModel buildModel() {
         QueryExpressionModel queryExpressionModel = new QueryExpressionModel.Builder()
                 .withSelectColumn(countColumn)
-                .withTable(table())
+                .withTable(table)
                 .withTableAliases(tableAliases())
                 .withJoinModel(buildJoinModel().orElse(null))
                 .withWhereModel(whereBuilder == null ? null : whereBuilder.buildWhereModel())

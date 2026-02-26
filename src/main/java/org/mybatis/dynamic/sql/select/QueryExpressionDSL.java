@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2025 the original author or authors.
+ *    Copyright 2016-2026 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -49,12 +49,13 @@ public class QueryExpressionDSL<R>
     private final SelectDSL<R> selectDSL;
     private final boolean isDistinct;
     private final List<BasicColumn> selectList;
+    private @Nullable TableExpression table;
     private @Nullable QueryExpressionWhereBuilder whereBuilder;
     private @Nullable GroupByModel groupByModel;
     private @Nullable QueryExpressionHavingBuilder havingBuilder;
 
     protected QueryExpressionDSL(FromGatherer<R> fromGatherer, TableExpression table) {
-        super(table);
+        this.table = table;
         connector = fromGatherer.connector;
         selectList = fromGatherer.selectList;
         isDistinct = fromGatherer.isDistinct;
@@ -184,7 +185,7 @@ public class QueryExpressionDSL<R>
     protected QueryExpressionModel buildModel() {
         return QueryExpressionModel.withSelectList(selectList)
                 .withConnector(connector)
-                .withTable(table())
+                .withTable(table)
                 .isDistinct(isDistinct)
                 .withTableAliases(tableAliases())
                 .withJoinModel(buildJoinModel().orElse(null))
