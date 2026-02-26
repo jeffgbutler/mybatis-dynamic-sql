@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2025 the original author or authors.
+ *    Copyright 2016-2026 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.mybatis.dynamic.sql.exception.InvalidSqlException
 import org.mybatis.dynamic.sql.util.Messages
 import org.mybatis.dynamic.sql.util.kotlin.KInvalidSQLException
 import org.mybatis.dynamic.sql.util.kotlin.elements.`as`
@@ -599,8 +600,28 @@ class GeneralKotlinTest {
 
     @Test
     fun testRawCountWithoutFrom() {
-        assertThatExceptionOfType(KInvalidSQLException::class.java).isThrownBy {
+        assertThatExceptionOfType(InvalidSqlException::class.java).isThrownBy {
             count(id) {
+                where {
+                    id isEqualTo 5
+                    or {
+                        id isEqualTo 4
+                        or {
+                            id isEqualTo 3
+                            or { id isEqualTo 2 }
+                        }
+                    }
+                }
+            }
+        }.withMessage(Messages.getString("ERROR.24")) //$NON-NLS-1$
+    }
+
+    @Test
+    fun testRawCountDoubleFrom() {
+        assertThatExceptionOfType(InvalidSqlException::class.java).isThrownBy {
+            count(id) {
+                from(person)
+                from(person)
                 where {
                     id isEqualTo 5
                     or {
