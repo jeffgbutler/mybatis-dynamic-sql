@@ -34,6 +34,7 @@ import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.TableExpression;
 import org.mybatis.dynamic.sql.dsl.AbstractBooleanOperations;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
+import org.mybatis.dynamic.sql.dsl.HavingOperations;
 import org.mybatis.dynamic.sql.select.join.JoinSpecification;
 import org.mybatis.dynamic.sql.select.join.JoinType;
 import org.mybatis.dynamic.sql.util.Buildable;
@@ -439,7 +440,7 @@ public class QueryExpressionDSL<R>
         }
     }
 
-    public class GroupByFinisher implements AbstractHavingStarter<QueryExpressionHavingBuilder>,
+    public class GroupByFinisher implements HavingOperations<QueryExpressionHavingBuilder>,
             Buildable<R>, SelectDSLOperations<R> {
         public SelectDSL<R> orderBy(SortSpecification... columns) {
             return orderBy(Arrays.asList(columns));

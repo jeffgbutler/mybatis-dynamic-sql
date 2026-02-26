@@ -24,7 +24,7 @@ import org.mybatis.dynamic.sql.dsl.AbstractBooleanOperations;
 
 public abstract class AbstractHavingFinisher<T extends AbstractHavingFinisher<T>>
         extends AbstractBooleanOperations<T> {
-    void initialize(SqlCriterion sqlCriterion) {
+    public void initialize(SqlCriterion sqlCriterion) {
         setInitialCriterion(sqlCriterion, StatementType.HAVING);
     }
 
