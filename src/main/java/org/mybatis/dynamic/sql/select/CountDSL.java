@@ -18,12 +18,17 @@ package org.mybatis.dynamic.sql.select;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
+import org.mybatis.dynamic.sql.dsl.AbstractDSL;
+import org.mybatis.dynamic.sql.dsl.JoinOperations;
+import org.mybatis.dynamic.sql.dsl.WhereOperations;
+import org.mybatis.dynamic.sql.select.join.JoinSpecification;
 import org.mybatis.dynamic.sql.util.Buildable;
 import org.mybatis.dynamic.sql.util.ConfigurableStatement;
 import org.mybatis.dynamic.sql.util.Validator;
@@ -39,8 +44,8 @@ import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
  *
  * @author Jeff Butler
  */
-public class CountDSL<R> extends AbstractQueryExpressionDSL<CountDSL<R>.CountWhereBuilder, CountDSL<R>>
-        implements ConfigurableStatement<CountDSL<R>>, Buildable<R> {
+public class CountDSL<R> extends AbstractDSL implements WhereOperations<CountDSL<R>.CountWhereBuilder>,
+        JoinOperations<CountDSL<R>>, ConfigurableStatement<CountDSL<R>>, Buildable<R> {
 
     private final Function<SelectModel, R> adapterFunction;
     private @Nullable SqlTable table;
@@ -81,7 +86,7 @@ public class CountDSL<R> extends AbstractQueryExpressionDSL<CountDSL<R>.CountWhe
         QueryExpressionModel queryExpressionModel = new QueryExpressionModel.Builder()
                 .withSelectColumn(countColumn)
                 .withTable(table)
-                .withTableAliases(tableAliases())
+                .withTableAliases(tableAliases)
                 .withJoinModel(buildJoinModel().orElse(null))
                 .withWhereModel(whereBuilder == null ? null : whereBuilder.buildWhereModel())
                 .build();
@@ -127,8 +132,18 @@ public class CountDSL<R> extends AbstractQueryExpressionDSL<CountDSL<R>.CountWhe
     }
 
     @Override
+    public void addTableAlias(SqlTable table, String tableAlias) {
+        super.addTableAlias(table, tableAlias);
+    }
+
+    @Override
     public CountDSL<R> getThis() {
         return this;
+    }
+
+    @Override
+    public void addJoinSpecificationSupplier(Supplier<JoinSpecification> joinSpecificationSupplier) {
+        super.addJoinSpecificationSupplier(joinSpecificationSupplier);
     }
 
     public class CountWhereBuilder extends AbstractWhereFinisher<CountWhereBuilder>

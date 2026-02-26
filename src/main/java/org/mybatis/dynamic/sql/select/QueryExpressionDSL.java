@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.AndOrCriteriaGroup;
@@ -34,7 +35,9 @@ import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.TableExpression;
 import org.mybatis.dynamic.sql.dsl.AbstractBooleanOperations;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
+import org.mybatis.dynamic.sql.dsl.AbstractDSL;
 import org.mybatis.dynamic.sql.dsl.HavingOperations;
+import org.mybatis.dynamic.sql.dsl.JoinOperations;
 import org.mybatis.dynamic.sql.dsl.WhereOperations;
 import org.mybatis.dynamic.sql.select.join.JoinSpecification;
 import org.mybatis.dynamic.sql.select.join.JoinType;
@@ -44,9 +47,9 @@ import org.mybatis.dynamic.sql.util.Validator;
 import org.mybatis.dynamic.sql.where.AbstractWhereFinisher;
 import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
-public class QueryExpressionDSL<R>
-        extends AbstractQueryExpressionDSL<QueryExpressionDSL<R>.QueryExpressionWhereBuilder, QueryExpressionDSL<R>>
-        implements ConfigurableStatement<QueryExpressionDSL<R>>, Buildable<R>, SelectDSLOperations<R> {
+public class QueryExpressionDSL<R> extends AbstractDSL implements JoinOperations<QueryExpressionDSL<R>>,
+        WhereOperations<QueryExpressionDSL<R>.QueryExpressionWhereBuilder>,
+        ConfigurableStatement<QueryExpressionDSL<R>>, Buildable<R>, SelectDSLOperations<R> {
     private final static String ERROR_27 = "ERROR.27"; //$NON-NLS-1$
 
     private final @Nullable String connector;
@@ -211,7 +214,7 @@ public class QueryExpressionDSL<R>
                 .withConnector(connector)
                 .withTable(table)
                 .isDistinct(isDistinct)
-                .withTableAliases(tableAliases())
+                .withTableAliases(tableAliases)
                 .withJoinModel(buildJoinModel().orElse(null))
                 .withGroupByModel(groupByModel)
                 .withWhereModel(whereBuilder == null ? null : whereBuilder.buildWhereModel())
@@ -220,8 +223,18 @@ public class QueryExpressionDSL<R>
     }
 
     @Override
+    public void addTableAlias(SqlTable table, String tableAlias) {
+        super.addTableAlias(table, tableAlias);
+    }
+
+    @Override
     public QueryExpressionDSL<R> getThis() {
         return this;
+    }
+
+    @Override
+    public void addJoinSpecificationSupplier(Supplier<JoinSpecification> joinSpecificationSupplier) {
+        super.addJoinSpecificationSupplier(joinSpecificationSupplier);
     }
 
     @Override
