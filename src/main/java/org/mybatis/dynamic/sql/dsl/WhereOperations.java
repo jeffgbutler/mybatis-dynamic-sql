@@ -15,6 +15,9 @@
  */
 package org.mybatis.dynamic.sql.dsl;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.AndOrCriteriaGroup;
 import org.mybatis.dynamic.sql.BindableColumn;
@@ -24,12 +27,8 @@ import org.mybatis.dynamic.sql.ExistsCriterion;
 import org.mybatis.dynamic.sql.ExistsPredicate;
 import org.mybatis.dynamic.sql.RenderableCondition;
 import org.mybatis.dynamic.sql.SqlCriterion;
-import org.mybatis.dynamic.sql.util.ConfigurableStatement;
 import org.mybatis.dynamic.sql.where.AbstractWhereFinisher;
 import org.mybatis.dynamic.sql.where.WhereApplier;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Base class for DSLs that support where clauses - which is every DSL except Insert.
