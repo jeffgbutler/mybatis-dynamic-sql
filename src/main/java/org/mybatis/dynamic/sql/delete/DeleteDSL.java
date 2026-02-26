@@ -26,12 +26,14 @@ import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
+import org.mybatis.dynamic.sql.dsl.WhereOperations;
 import org.mybatis.dynamic.sql.util.Buildable;
+import org.mybatis.dynamic.sql.util.ConfigurableStatement;
 import org.mybatis.dynamic.sql.where.AbstractWhereFinisher;
-import org.mybatis.dynamic.sql.where.AbstractWhereStarter;
 import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
-public class DeleteDSL<R> implements AbstractWhereStarter<DeleteDSL<R>.DeleteWhereBuilder, DeleteDSL<R>>,
+public class DeleteDSL<R> implements WhereOperations<DeleteDSL<R>.DeleteWhereBuilder>,
+        ConfigurableStatement<DeleteDSL<R>>,
         Buildable<R> {
 
     private final Function<DeleteModel, R> adapterFunction;

@@ -13,10 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.mybatis.dynamic.sql.where;
-
-import java.util.Arrays;
-import java.util.List;
+package org.mybatis.dynamic.sql.dsl;
 
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.AndOrCriteriaGroup;
@@ -28,6 +25,11 @@ import org.mybatis.dynamic.sql.ExistsPredicate;
 import org.mybatis.dynamic.sql.RenderableCondition;
 import org.mybatis.dynamic.sql.SqlCriterion;
 import org.mybatis.dynamic.sql.util.ConfigurableStatement;
+import org.mybatis.dynamic.sql.where.AbstractWhereFinisher;
+import org.mybatis.dynamic.sql.where.WhereApplier;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Base class for DSLs that support where clauses - which is every DSL except Insert.
@@ -36,8 +38,7 @@ import org.mybatis.dynamic.sql.util.ConfigurableStatement;
  *
  * @param <F> the implementation of the Where DSL customized for a particular SQL statement.
  */
-public interface AbstractWhereStarter<F extends AbstractWhereFinisher<?>, D extends AbstractWhereStarter<F, D>>
-        extends ConfigurableStatement<D> {
+public interface WhereOperations<F extends AbstractWhereFinisher<?>> {
 
     default <T> F where(BindableColumn<T> column, RenderableCondition<T> condition, AndOrCriteriaGroup... subCriteria) {
         return where(column, condition, Arrays.asList(subCriteria));
@@ -95,7 +96,7 @@ public interface AbstractWhereStarter<F extends AbstractWhereFinisher<?>, D exte
         return finisher;
     }
 
-    private F initialize(SqlCriterion sqlCriterion) {
+    default F initialize(SqlCriterion sqlCriterion) {
         F finisher = where();
         finisher.initialize(sqlCriterion);
         return finisher;

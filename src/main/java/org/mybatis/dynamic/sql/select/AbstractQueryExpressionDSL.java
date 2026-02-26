@@ -26,16 +26,16 @@ import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.dsl.JoinOperations;
+import org.mybatis.dynamic.sql.dsl.WhereOperations;
 import org.mybatis.dynamic.sql.exception.DuplicateTableAliasException;
 import org.mybatis.dynamic.sql.select.join.JoinModel;
 import org.mybatis.dynamic.sql.select.join.JoinSpecification;
 import org.mybatis.dynamic.sql.util.Buildable;
 import org.mybatis.dynamic.sql.where.AbstractWhereFinisher;
-import org.mybatis.dynamic.sql.where.AbstractWhereStarter;
 
 public abstract class AbstractQueryExpressionDSL<W extends AbstractWhereFinisher<?>,
             T extends AbstractQueryExpressionDSL<W, T>>
-        implements AbstractWhereStarter<W, T>, JoinOperations<T> {
+        implements WhereOperations<W>, JoinOperations<T> {
 
     private final List<Supplier<JoinSpecification>> joinSpecificationSuppliers = new ArrayList<>();
     private final Map<SqlTable, String> tableAliases = new HashMap<>();

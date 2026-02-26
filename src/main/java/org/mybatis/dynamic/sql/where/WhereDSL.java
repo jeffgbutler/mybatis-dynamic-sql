@@ -18,14 +18,17 @@ package org.mybatis.dynamic.sql.where;
 import java.util.function.Consumer;
 
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
+import org.mybatis.dynamic.sql.dsl.WhereOperations;
 import org.mybatis.dynamic.sql.util.Buildable;
+import org.mybatis.dynamic.sql.util.ConfigurableStatement;
 
 /**
  *  DSL for standalone where clauses.
  *
  *  <p>This can also be used to create reusable where clauses for different statements.
  */
-public class WhereDSL implements AbstractWhereStarter<WhereDSL.StandaloneWhereFinisher, WhereDSL> {
+public class WhereDSL implements WhereOperations<WhereDSL.StandaloneWhereFinisher>,
+        ConfigurableStatement<WhereDSL> {
     private final StatementConfiguration statementConfiguration = new StatementConfiguration();
     private final StandaloneWhereFinisher whereBuilder = new StandaloneWhereFinisher();
 

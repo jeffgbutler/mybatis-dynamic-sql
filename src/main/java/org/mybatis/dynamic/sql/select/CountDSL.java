@@ -25,6 +25,7 @@ import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.util.Buildable;
+import org.mybatis.dynamic.sql.util.ConfigurableStatement;
 import org.mybatis.dynamic.sql.util.Validator;
 import org.mybatis.dynamic.sql.where.AbstractWhereFinisher;
 import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
@@ -39,7 +40,7 @@ import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
  * @author Jeff Butler
  */
 public class CountDSL<R> extends AbstractQueryExpressionDSL<CountDSL<R>.CountWhereBuilder, CountDSL<R>>
-        implements Buildable<R> {
+        implements ConfigurableStatement<CountDSL<R>>, Buildable<R> {
 
     private final Function<SelectModel, R> adapterFunction;
     private @Nullable SqlTable table;

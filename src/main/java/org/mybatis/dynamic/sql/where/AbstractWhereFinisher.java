@@ -34,7 +34,7 @@ public abstract class AbstractWhereFinisher<T extends AbstractWhereFinisher<T>> 
         this.parentStatement = Objects.requireNonNull(parentStatement);
     }
 
-    void initialize(SqlCriterion sqlCriterion) {
+    public void initialize(SqlCriterion sqlCriterion) {
         setInitialCriterion(sqlCriterion, StatementType.WHERE);
     }
 

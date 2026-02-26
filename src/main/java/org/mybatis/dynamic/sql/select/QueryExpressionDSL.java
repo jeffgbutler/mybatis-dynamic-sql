@@ -35,17 +35,18 @@ import org.mybatis.dynamic.sql.TableExpression;
 import org.mybatis.dynamic.sql.dsl.AbstractBooleanOperations;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.dsl.HavingOperations;
+import org.mybatis.dynamic.sql.dsl.WhereOperations;
 import org.mybatis.dynamic.sql.select.join.JoinSpecification;
 import org.mybatis.dynamic.sql.select.join.JoinType;
 import org.mybatis.dynamic.sql.util.Buildable;
+import org.mybatis.dynamic.sql.util.ConfigurableStatement;
 import org.mybatis.dynamic.sql.util.Validator;
 import org.mybatis.dynamic.sql.where.AbstractWhereFinisher;
-import org.mybatis.dynamic.sql.where.AbstractWhereStarter;
 import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
 public class QueryExpressionDSL<R>
         extends AbstractQueryExpressionDSL<QueryExpressionDSL<R>.QueryExpressionWhereBuilder, QueryExpressionDSL<R>>
-        implements Buildable<R>, SelectDSLOperations<R> {
+        implements ConfigurableStatement<QueryExpressionDSL<R>>, Buildable<R>, SelectDSLOperations<R> {
     private final static String ERROR_27 = "ERROR.27"; //$NON-NLS-1$
 
     private final @Nullable String connector;
@@ -299,7 +300,8 @@ public class QueryExpressionDSL<R>
 
     public class JoinSpecificationFinisher
             extends AbstractBooleanOperations<JoinSpecificationFinisher>
-            implements AbstractWhereStarter<QueryExpressionWhereBuilder, JoinSpecificationFinisher>, Buildable<R>,
+            implements WhereOperations<QueryExpressionWhereBuilder>,
+            ConfigurableStatement<JoinSpecificationFinisher>, Buildable<R>,
             SelectDSLOperations<R> {
 
         private final TableExpression table;
