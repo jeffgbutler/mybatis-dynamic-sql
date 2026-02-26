@@ -218,7 +218,7 @@ public class QueryExpressionDSL<R>
     }
 
     @Override
-    protected QueryExpressionDSL<R> getThis() {
+    public QueryExpressionDSL<R> getThis() {
         return this;
     }
 
