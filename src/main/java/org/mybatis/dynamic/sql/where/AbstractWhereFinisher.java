@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.AndOrCriteriaGroup;
 import org.mybatis.dynamic.sql.SqlCriterion;
@@ -44,7 +43,6 @@ public abstract class AbstractWhereFinisher<T extends AbstractWhereFinisher<T>> 
         super.subCriteria.addAll(subCriteria);
     }
 
-    @NonNull
     @Override
     public T configureStatement(Consumer<StatementConfiguration> consumer) {
         parentStatement.configureStatement(consumer);

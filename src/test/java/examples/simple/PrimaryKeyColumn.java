@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2025 the original author or authors.
+ *    Copyright 2016-2026 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -86,7 +86,7 @@ public class PrimaryKeyColumn<T> extends SqlColumn<T> {
         return populateBaseBuilder(new Builder<>()).isPrimaryKeyColumn(isPrimaryKeyColumn);
     }
 
-    public static class Builder<T> extends AbstractBuilder<T, PrimaryKeyColumn<T>, Builder<T>> {
+    public static class Builder<T> extends AbstractBuilder<T, Builder<T>> {
         private boolean isPrimaryKeyColumn;
 
         public Builder<T> isPrimaryKeyColumn(boolean isPrimaryKeyColumn) {

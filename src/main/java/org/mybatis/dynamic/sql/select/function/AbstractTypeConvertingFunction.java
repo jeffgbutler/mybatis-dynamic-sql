@@ -18,7 +18,6 @@ package org.mybatis.dynamic.sql.select.function;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.BindableColumn;
@@ -51,7 +50,6 @@ public abstract class AbstractTypeConvertingFunction<T, R, U extends AbstractTyp
         return Optional.ofNullable(alias);
     }
 
-    @NonNull
     @Override
     public U as(String alias) {
         U newThing = copy();

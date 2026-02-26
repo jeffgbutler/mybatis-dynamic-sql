@@ -45,6 +45,7 @@ import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 public class QueryExpressionDSL<R>
         extends AbstractQueryExpressionDSL<QueryExpressionDSL<R>.QueryExpressionWhereBuilder, QueryExpressionDSL<R>>
         implements Buildable<R>, SelectDSLOperations<R> {
+    private final static String ERROR_27 = "ERROR.27"; //$NON-NLS-1$
 
     private final @Nullable String connector;
     private final SelectDSL<R> selectDSL;
@@ -64,25 +65,25 @@ public class QueryExpressionDSL<R>
     }
 
     public QueryExpressionDSL<R> from(Buildable<SelectModel> select) {
-        Validator.assertNull(table, "ERROR.27"); //$NON-NLS-1$
+        Validator.assertNull(table, ERROR_27);
         table = buildSubQuery(select);
         return this;
     }
 
     public QueryExpressionDSL<R> from(Buildable<SelectModel> select, String tableAlias) {
-        Validator.assertNull(table, "ERROR.27"); //$NON-NLS-1$
+        Validator.assertNull(table, ERROR_27);
         table = buildSubQuery(select, tableAlias);
         return this;
     }
 
     public QueryExpressionDSL<R> from(SqlTable table) {
-        Validator.assertNull(this.table, "ERROR.27"); //$NON-NLS-1$
+        Validator.assertNull(this.table, ERROR_27);
         this.table = table;
         return this;
     }
 
     public QueryExpressionDSL<R> from(SqlTable table, String tableAlias) {
-        Validator.assertNull(this.table, "ERROR.27"); //$NON-NLS-1$
+        Validator.assertNull(this.table, ERROR_27);
         this.table = table;
         addTableAlias(table, tableAlias);
         return this;
@@ -203,7 +204,7 @@ public class QueryExpressionDSL<R>
     }
 
     protected QueryExpressionModel buildModel() {
-        Validator.assertTrue(table != null, "ERROR.27"); //$NON-NLS-1$
+        Validator.assertTrue(table != null, ERROR_27);
         return QueryExpressionModel.withSelectList(selectList)
                 .withConnector(connector)
                 .withTable(table)
