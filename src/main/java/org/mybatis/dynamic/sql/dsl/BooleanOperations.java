@@ -35,7 +35,7 @@ public interface BooleanOperations<T extends BooleanOperations<T>> {
 
     default <S> T and(BindableColumn<S> column, RenderableCondition<S> condition,
                      List<AndOrCriteriaGroup> subCriteria) {
-        addSubCriteria("and", buildCriterion(column, condition), subCriteria); //$NON-NLS-1$
+        addSubCriterion("and", buildCriterion(column, condition), subCriteria); //$NON-NLS-1$
         return getThis();
     }
 
@@ -44,7 +44,7 @@ public interface BooleanOperations<T extends BooleanOperations<T>> {
     }
 
     default T and(ExistsPredicate existsPredicate, List<AndOrCriteriaGroup> subCriteria) {
-        addSubCriteria("and", buildCriterion(existsPredicate), subCriteria); //$NON-NLS-1$
+        addSubCriterion("and", buildCriterion(existsPredicate), subCriteria); //$NON-NLS-1$
         return getThis();
     }
 
@@ -53,12 +53,12 @@ public interface BooleanOperations<T extends BooleanOperations<T>> {
     }
 
     default T and(SqlCriterion initialCriterion, List<AndOrCriteriaGroup> subCriteria) {
-        addSubCriteria("and", buildCriterion(initialCriterion), subCriteria); //$NON-NLS-1$
+        addSubCriterion("and", buildCriterion(initialCriterion), subCriteria); //$NON-NLS-1$
         return getThis();
     }
 
     default T and(List<AndOrCriteriaGroup> criteria) {
-        addSubCriteria("and", criteria); //$NON-NLS-1$
+        addSubCriterion("and", criteria); //$NON-NLS-1$
         return getThis();
     }
 
@@ -69,7 +69,7 @@ public interface BooleanOperations<T extends BooleanOperations<T>> {
 
     default <S> T or(BindableColumn<S> column, RenderableCondition<S> condition,
                     List<AndOrCriteriaGroup> subCriteria) {
-        addSubCriteria("or", buildCriterion(column, condition), subCriteria); //$NON-NLS-1$
+        addSubCriterion("or", buildCriterion(column, condition), subCriteria); //$NON-NLS-1$
         return getThis();
     }
 
@@ -78,7 +78,7 @@ public interface BooleanOperations<T extends BooleanOperations<T>> {
     }
 
     default T or(ExistsPredicate existsPredicate, List<AndOrCriteriaGroup> subCriteria) {
-        addSubCriteria("or", buildCriterion(existsPredicate), subCriteria); //$NON-NLS-1$
+        addSubCriterion("or", buildCriterion(existsPredicate), subCriteria); //$NON-NLS-1$
         return getThis();
     }
 
@@ -87,12 +87,12 @@ public interface BooleanOperations<T extends BooleanOperations<T>> {
     }
 
     default T or(SqlCriterion initialCriterion, List<AndOrCriteriaGroup> subCriteria) {
-        addSubCriteria("or", buildCriterion(initialCriterion), subCriteria); //$NON-NLS-1$
+        addSubCriterion("or", buildCriterion(initialCriterion), subCriteria); //$NON-NLS-1$
         return getThis();
     }
 
     default T or(List<AndOrCriteriaGroup> criteria) {
-        addSubCriteria("or", criteria); //$NON-NLS-1$
+        addSubCriterion("or", criteria); //$NON-NLS-1$
         return getThis();
     }
 
@@ -108,8 +108,8 @@ public interface BooleanOperations<T extends BooleanOperations<T>> {
         return new CriteriaGroup.Builder().withInitialCriterion(initialCriterion).build();
     }
 
-    private void addSubCriteria(String connector, SqlCriterion initialCriterion,
-                                List<AndOrCriteriaGroup> subCriteria) {
+    private void addSubCriterion(String connector, SqlCriterion initialCriterion,
+                                 List<AndOrCriteriaGroup> subCriteria) {
         addSubCriterion(new AndOrCriteriaGroup.Builder()
                 .withInitialCriterion(initialCriterion)
                 .withConnector(connector)
@@ -117,7 +117,7 @@ public interface BooleanOperations<T extends BooleanOperations<T>> {
                 .build());
     }
 
-    private void addSubCriteria(String connector, List<AndOrCriteriaGroup> criteria) {
+    private void addSubCriterion(String connector, List<AndOrCriteriaGroup> criteria) {
         addSubCriterion(new AndOrCriteriaGroup.Builder()
                 .withConnector(connector)
                 .withSubCriteria(criteria)

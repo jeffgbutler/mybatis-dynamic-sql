@@ -22,11 +22,11 @@ import java.util.function.Consumer;
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.AndOrCriteriaGroup;
 import org.mybatis.dynamic.sql.SqlCriterion;
-import org.mybatis.dynamic.sql.common.AbstractBooleanExpressionDSL;
+import org.mybatis.dynamic.sql.dsl.AbstractBooleanOperations;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.util.ConfigurableStatement;
 
-public abstract class AbstractWhereFinisher<T extends AbstractWhereFinisher<T>> extends AbstractBooleanExpressionDSL<T>
+public abstract class AbstractWhereFinisher<T extends AbstractWhereFinisher<T>> extends AbstractBooleanOperations<T>
         implements ConfigurableStatement<T> {
     private final ConfigurableStatement<?> parentStatement;
 

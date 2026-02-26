@@ -13,7 +13,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.mybatis.dynamic.sql.common;
+package org.mybatis.dynamic.sql.dsl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +21,9 @@ import java.util.List;
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.AndOrCriteriaGroup;
 import org.mybatis.dynamic.sql.SqlCriterion;
-import org.mybatis.dynamic.sql.dsl.BooleanOperations;
 import org.mybatis.dynamic.sql.util.Validator;
 
-public abstract class AbstractBooleanExpressionDSL<T extends AbstractBooleanExpressionDSL<T>>
+public abstract class AbstractBooleanOperations<T extends AbstractBooleanOperations<T>>
         implements BooleanOperations<T> {
     private @Nullable SqlCriterion initialCriterion;
     protected final List<AndOrCriteriaGroup> subCriteria = new ArrayList<>();

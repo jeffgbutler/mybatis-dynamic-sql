@@ -20,10 +20,10 @@ import java.util.List;
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.AndOrCriteriaGroup;
 import org.mybatis.dynamic.sql.SqlCriterion;
-import org.mybatis.dynamic.sql.common.AbstractBooleanExpressionDSL;
+import org.mybatis.dynamic.sql.dsl.AbstractBooleanOperations;
 
 public abstract class AbstractHavingFinisher<T extends AbstractHavingFinisher<T>>
-        extends AbstractBooleanExpressionDSL<T> {
+        extends AbstractBooleanOperations<T> {
     void initialize(SqlCriterion sqlCriterion) {
         setInitialCriterion(sqlCriterion, StatementType.HAVING);
     }

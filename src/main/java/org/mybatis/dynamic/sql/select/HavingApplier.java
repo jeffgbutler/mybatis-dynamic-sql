@@ -17,7 +17,7 @@ package org.mybatis.dynamic.sql.select;
 
 import java.util.function.Consumer;
 
-import org.mybatis.dynamic.sql.common.AbstractBooleanExpressionDSL;
+import org.mybatis.dynamic.sql.dsl.AbstractBooleanOperations;
 
 @FunctionalInterface
 public interface HavingApplier {
@@ -31,7 +31,7 @@ public interface HavingApplier {
      *
      * @return a composed having applier that performs this operation followed by the after operation.
      */
-    default HavingApplier andThen(Consumer<AbstractBooleanExpressionDSL<?>> after) {
+    default HavingApplier andThen(Consumer<AbstractBooleanOperations<?>> after) {
         return t -> {
             accept(t);
             after.accept(t);
