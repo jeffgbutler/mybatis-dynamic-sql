@@ -221,7 +221,7 @@ public class UpdateDSL<R> implements AbstractWhereStarter<UpdateDSL<R>.UpdateWhe
         }
 
         @Override
-        protected UpdateWhereBuilder getThis() {
+        public UpdateWhereBuilder getThis() {
             return this;
         }
 

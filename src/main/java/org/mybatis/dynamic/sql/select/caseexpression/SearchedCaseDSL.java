@@ -95,7 +95,7 @@ public class SearchedCaseDSL implements ElseDSL<SearchedCaseDSL.SearchedCaseEnde
         }
 
         @Override
-        protected WhenDSL getThis() {
+        public WhenDSL getThis() {
             return this;
         }
     }

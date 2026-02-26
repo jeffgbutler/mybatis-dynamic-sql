@@ -31,7 +31,7 @@ public class HavingDSL implements AbstractHavingStarter<HavingDSL.StandaloneHavi
         private StandaloneHavingFinisher() {}
 
         @Override
-        protected StandaloneHavingFinisher getThis() {
+        public StandaloneHavingFinisher getThis() {
             return this;
         }
 

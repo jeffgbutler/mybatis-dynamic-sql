@@ -16,119 +16,18 @@
 package org.mybatis.dynamic.sql.common;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.AndOrCriteriaGroup;
-import org.mybatis.dynamic.sql.BindableColumn;
-import org.mybatis.dynamic.sql.ColumnAndConditionCriterion;
-import org.mybatis.dynamic.sql.CriteriaGroup;
-import org.mybatis.dynamic.sql.ExistsCriterion;
-import org.mybatis.dynamic.sql.ExistsPredicate;
-import org.mybatis.dynamic.sql.RenderableCondition;
 import org.mybatis.dynamic.sql.SqlCriterion;
+import org.mybatis.dynamic.sql.dsl.BooleanOperations;
 import org.mybatis.dynamic.sql.util.Validator;
 
-public abstract class AbstractBooleanExpressionDSL<T extends AbstractBooleanExpressionDSL<T>> {
+public abstract class AbstractBooleanExpressionDSL<T extends AbstractBooleanExpressionDSL<T>>
+        implements BooleanOperations<T> {
     private @Nullable SqlCriterion initialCriterion;
     protected final List<AndOrCriteriaGroup> subCriteria = new ArrayList<>();
-
-    public <S> T and(BindableColumn<S> column, RenderableCondition<S> condition,
-                     AndOrCriteriaGroup... subCriteria) {
-        return and(column, condition, Arrays.asList(subCriteria));
-    }
-
-    public <S> T and(BindableColumn<S> column, RenderableCondition<S> condition,
-                     List<AndOrCriteriaGroup> subCriteria) {
-        addSubCriteria("and", buildCriterion(column, condition), subCriteria); //$NON-NLS-1$
-        return getThis();
-    }
-
-    public T and(ExistsPredicate existsPredicate, AndOrCriteriaGroup... subCriteria) {
-        return and(existsPredicate, Arrays.asList(subCriteria));
-    }
-
-    public T and(ExistsPredicate existsPredicate, List<AndOrCriteriaGroup> subCriteria) {
-        addSubCriteria("and", buildCriterion(existsPredicate), subCriteria); //$NON-NLS-1$
-        return getThis();
-    }
-
-    public T and(SqlCriterion initialCriterion, AndOrCriteriaGroup... subCriteria) {
-        return and(initialCriterion, Arrays.asList(subCriteria));
-    }
-
-    public T and(SqlCriterion initialCriterion, List<AndOrCriteriaGroup> subCriteria) {
-        addSubCriteria("and", buildCriterion(initialCriterion), subCriteria); //$NON-NLS-1$
-        return getThis();
-    }
-
-    public T and(List<AndOrCriteriaGroup> criteria) {
-        addSubCriteria("and", criteria); //$NON-NLS-1$
-        return getThis();
-    }
-
-    public <S> T or(BindableColumn<S> column, RenderableCondition<S> condition,
-                    AndOrCriteriaGroup... subCriteria) {
-        return or(column, condition, Arrays.asList(subCriteria));
-    }
-
-    public <S> T or(BindableColumn<S> column, RenderableCondition<S> condition,
-                    List<AndOrCriteriaGroup> subCriteria) {
-        addSubCriteria("or", buildCriterion(column, condition), subCriteria); //$NON-NLS-1$
-        return getThis();
-    }
-
-    public T or(ExistsPredicate existsPredicate, AndOrCriteriaGroup... subCriteria) {
-        return or(existsPredicate, Arrays.asList(subCriteria));
-    }
-
-    public T or(ExistsPredicate existsPredicate, List<AndOrCriteriaGroup> subCriteria) {
-        addSubCriteria("or", buildCriterion(existsPredicate), subCriteria); //$NON-NLS-1$
-        return getThis();
-    }
-
-    public T or(SqlCriterion initialCriterion, AndOrCriteriaGroup... subCriteria) {
-        return or(initialCriterion, Arrays.asList(subCriteria));
-    }
-
-    public T or(SqlCriterion initialCriterion, List<AndOrCriteriaGroup> subCriteria) {
-        addSubCriteria("or", buildCriterion(initialCriterion), subCriteria); //$NON-NLS-1$
-        return getThis();
-    }
-
-    public T or(List<AndOrCriteriaGroup> criteria) {
-        addSubCriteria("or", criteria); //$NON-NLS-1$
-        return getThis();
-    }
-
-    private <R> SqlCriterion buildCriterion(BindableColumn<R> column, RenderableCondition<R> condition) {
-        return ColumnAndConditionCriterion.withColumn(column).withCondition(condition).build();
-    }
-
-    private SqlCriterion buildCriterion(ExistsPredicate existsPredicate) {
-        return new ExistsCriterion.Builder().withExistsPredicate(existsPredicate).build();
-    }
-
-    private SqlCriterion buildCriterion(SqlCriterion initialCriterion) {
-        return new CriteriaGroup.Builder().withInitialCriterion(initialCriterion).build();
-    }
-
-    private void addSubCriteria(String connector, SqlCriterion initialCriterion,
-                                List<AndOrCriteriaGroup> subCriteria) {
-        this.subCriteria.add(new AndOrCriteriaGroup.Builder()
-                .withInitialCriterion(initialCriterion)
-                .withConnector(connector)
-                .withSubCriteria(subCriteria)
-                .build());
-    }
-
-    private void addSubCriteria(String connector, List<AndOrCriteriaGroup> criteria) {
-        this.subCriteria.add(new AndOrCriteriaGroup.Builder()
-                .withConnector(connector)
-                .withSubCriteria(criteria)
-                .build());
-    }
 
     protected void setInitialCriterion(@Nullable SqlCriterion initialCriterion) {
         this.initialCriterion = initialCriterion;
@@ -143,7 +42,10 @@ public abstract class AbstractBooleanExpressionDSL<T extends AbstractBooleanExpr
         return initialCriterion;
     }
 
-    protected abstract T getThis();
+    @Override
+    public void addSubCriterion(AndOrCriteriaGroup subCriterion) {
+        subCriteria.add(subCriterion);
+    }
 
     public enum StatementType {
         WHERE("ERROR.32"), //$NON-NLS-1$

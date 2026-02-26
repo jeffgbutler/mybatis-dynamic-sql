@@ -263,7 +263,7 @@ public class QueryExpressionDSL<R>
         }
 
         @Override
-        protected QueryExpressionWhereBuilder getThis() {
+        public QueryExpressionWhereBuilder getThis() {
             return this;
         }
 
@@ -429,7 +429,7 @@ public class QueryExpressionDSL<R>
         }
 
         @Override
-        protected JoinSpecificationFinisher getThis() {
+        public JoinSpecificationFinisher getThis() {
             return this;
         }
 
@@ -531,7 +531,7 @@ public class QueryExpressionDSL<R>
         }
 
         @Override
-        protected QueryExpressionHavingBuilder getThis() {
+        public QueryExpressionHavingBuilder getThis() {
             return this;
         }
 

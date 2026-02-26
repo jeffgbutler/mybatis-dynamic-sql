@@ -47,7 +47,7 @@ public class WhereDSL implements AbstractWhereStarter<WhereDSL.StandaloneWhereFi
         }
 
         @Override
-        protected StandaloneWhereFinisher getThis() {
+        public StandaloneWhereFinisher getThis() {
             return this;
         }
 

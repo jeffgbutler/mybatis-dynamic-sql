@@ -139,7 +139,7 @@ public class DeleteDSL<R> implements AbstractWhereStarter<DeleteDSL<R>.DeleteWhe
         }
 
         @Override
-        protected DeleteWhereBuilder getThis() {
+        public DeleteWhereBuilder getThis() {
             return this;
         }
 
