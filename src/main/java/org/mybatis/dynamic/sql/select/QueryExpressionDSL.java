@@ -37,6 +37,7 @@ import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.select.join.JoinSpecification;
 import org.mybatis.dynamic.sql.select.join.JoinType;
 import org.mybatis.dynamic.sql.util.Buildable;
+import org.mybatis.dynamic.sql.util.Validator;
 import org.mybatis.dynamic.sql.where.AbstractWhereFinisher;
 import org.mybatis.dynamic.sql.where.AbstractWhereStarter;
 import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
@@ -54,18 +55,37 @@ public class QueryExpressionDSL<R>
     private @Nullable GroupByModel groupByModel;
     private @Nullable QueryExpressionHavingBuilder havingBuilder;
 
-    protected QueryExpressionDSL(FromGatherer<R> fromGatherer, TableExpression table) {
-        this.table = table;
-        connector = fromGatherer.connector;
-        selectList = fromGatherer.selectList;
-        isDistinct = fromGatherer.isDistinct;
-        selectDSL = Objects.requireNonNull(fromGatherer.selectDSL);
+    protected QueryExpressionDSL(Builder<R> builder) {
+        connector = builder.connector;
+        selectList = builder.selectList;
+        isDistinct = builder.isDistinct;
+        selectDSL = Objects.requireNonNull(builder.selectDSL);
         selectDSL.registerQueryExpression(this);
     }
 
-    protected QueryExpressionDSL(FromGatherer<R> fromGatherer, SqlTable table, String tableAlias) {
-        this(fromGatherer, table);
+    public QueryExpressionDSL<R> from(Buildable<SelectModel> select) {
+        Validator.assertNull(table, "ERROR.27"); //$NON-NLS-1$
+        table = buildSubQuery(select);
+        return this;
+    }
+
+    public QueryExpressionDSL<R> from(Buildable<SelectModel> select, String tableAlias) {
+        Validator.assertNull(table, "ERROR.27"); //$NON-NLS-1$
+        table = buildSubQuery(select, tableAlias);
+        return this;
+    }
+
+    public QueryExpressionDSL<R> from(SqlTable table) {
+        Validator.assertNull(this.table, "ERROR.27"); //$NON-NLS-1$
+        this.table = table;
+        return this;
+    }
+
+    public QueryExpressionDSL<R> from(SqlTable table, String tableAlias) {
+        Validator.assertNull(this.table, "ERROR.27"); //$NON-NLS-1$
+        this.table = table;
         addTableAlias(table, tableAlias);
+        return this;
     }
 
     @Override
@@ -95,7 +115,7 @@ public class QueryExpressionDSL<R>
      *
      * @param criteriaGroup the full criteria for a Kotlin Having clause
      */
-    protected void applyHaving(CriteriaGroup criteriaGroup) {
+    public void applyHaving(CriteriaGroup criteriaGroup) {
         having().initialize(criteriaGroup);
     }
 
@@ -183,6 +203,7 @@ public class QueryExpressionDSL<R>
     }
 
     protected QueryExpressionModel buildModel() {
+        Validator.assertTrue(table != null, "ERROR.27"); //$NON-NLS-1$
         return QueryExpressionModel.withSelectList(selectList)
                 .withConnector(connector)
                 .withTable(table)
@@ -203,67 +224,6 @@ public class QueryExpressionDSL<R>
     @Override
     public SelectDSL<R> getSelectDSL() {
         return selectDSL;
-    }
-
-    public static class FromGatherer<R> {
-        private final @Nullable String connector;
-        private final List<BasicColumn> selectList;
-        private final SelectDSL<R> selectDSL;
-        private final boolean isDistinct;
-
-        public FromGatherer(Builder<R> builder) {
-            this.connector = builder.connector;
-            this.selectList = builder.selectList;
-            this.selectDSL = Objects.requireNonNull(builder.selectDSL);
-            this.isDistinct = builder.isDistinct;
-        }
-
-        public QueryExpressionDSL<R> from(Buildable<SelectModel> select) {
-            return new QueryExpressionDSL<>(this, buildSubQuery(select));
-        }
-
-        public QueryExpressionDSL<R> from(Buildable<SelectModel> select, String tableAlias) {
-            return new QueryExpressionDSL<>(this, buildSubQuery(select, tableAlias));
-        }
-
-        public QueryExpressionDSL<R> from(SqlTable table) {
-            return new QueryExpressionDSL<>(this, table);
-        }
-
-        public QueryExpressionDSL<R> from(SqlTable table, String tableAlias) {
-            return new QueryExpressionDSL<>(this, table, tableAlias);
-        }
-
-        public static class Builder<R> {
-            private @Nullable String connector;
-            private final List<BasicColumn> selectList = new ArrayList<>();
-            private @Nullable SelectDSL<R> selectDSL;
-            private boolean isDistinct;
-
-            public Builder<R> withConnector(String connector) {
-                this.connector = connector;
-                return this;
-            }
-
-            public Builder<R> withSelectList(Collection<? extends BasicColumn> selectList) {
-                this.selectList.addAll(selectList);
-                return this;
-            }
-
-            public Builder<R> withSelectDSL(SelectDSL<R> selectDSL) {
-                this.selectDSL = selectDSL;
-                return this;
-            }
-
-            public Builder<R> isDistinct() {
-                this.isDistinct = true;
-                return this;
-            }
-
-            public FromGatherer<R> build() {
-                return new FromGatherer<>(this);
-            }
-        }
     }
 
     public class QueryExpressionWhereBuilder extends AbstractWhereFinisher<QueryExpressionWhereBuilder>
@@ -519,24 +479,24 @@ public class QueryExpressionDSL<R>
             this.connector = connector;
         }
 
-        public FromGatherer<R> select(BasicColumn... selectList) {
+        public QueryExpressionDSL<R> select(BasicColumn... selectList) {
             return select(Arrays.asList(selectList));
         }
 
-        public FromGatherer<R> select(List<BasicColumn> selectList) {
-            return new FromGatherer.Builder<R>()
+        public QueryExpressionDSL<R> select(List<BasicColumn> selectList) {
+            return new Builder<R>()
                     .withConnector(connector)
                     .withSelectList(selectList)
                     .withSelectDSL(selectDSL)
                     .build();
         }
 
-        public FromGatherer<R> selectDistinct(BasicColumn... selectList) {
+        public QueryExpressionDSL<R> selectDistinct(BasicColumn... selectList) {
             return selectDistinct(Arrays.asList(selectList));
         }
 
-        public FromGatherer<R> selectDistinct(List<BasicColumn> selectList) {
-            return new FromGatherer.Builder<R>()
+        public QueryExpressionDSL<R> selectDistinct(List<BasicColumn> selectList) {
+            return new Builder<R>()
                     .withConnector(connector)
                     .withSelectList(selectList)
                     .withSelectDSL(selectDSL)
@@ -581,6 +541,37 @@ public class QueryExpressionDSL<R>
         @Override
         public SelectDSL<R> getSelectDSL() {
             return QueryExpressionDSL.this.getSelectDSL();
+        }
+    }
+
+    public static class Builder<R> {
+        private @Nullable String connector;
+        private final List<BasicColumn> selectList = new ArrayList<>();
+        private @Nullable SelectDSL<R> selectDSL;
+        private boolean isDistinct;
+
+        public Builder<R> withConnector(String connector) {
+            this.connector = connector;
+            return this;
+        }
+
+        public Builder<R> withSelectList(Collection<? extends BasicColumn> selectList) {
+            this.selectList.addAll(selectList);
+            return this;
+        }
+
+        public Builder<R> withSelectDSL(SelectDSL<R> selectDSL) {
+            this.selectDSL = selectDSL;
+            return this;
+        }
+
+        public Builder<R> isDistinct() {
+            this.isDistinct = true;
+            return this;
+        }
+
+        public QueryExpressionDSL<R> build() {
+            return new QueryExpressionDSL<>(this);
         }
     }
 }

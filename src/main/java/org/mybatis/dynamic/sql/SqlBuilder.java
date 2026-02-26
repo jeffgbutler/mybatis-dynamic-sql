@@ -33,7 +33,7 @@ import org.mybatis.dynamic.sql.select.ColumnSortSpecification;
 import org.mybatis.dynamic.sql.select.CountDSL;
 import org.mybatis.dynamic.sql.select.HavingDSL;
 import org.mybatis.dynamic.sql.select.MultiSelectDSL;
-import org.mybatis.dynamic.sql.select.QueryExpressionDSL.FromGatherer;
+import org.mybatis.dynamic.sql.select.QueryExpressionDSL;
 import org.mybatis.dynamic.sql.select.SelectDSL;
 import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.select.SimpleSortSpecification;
@@ -230,19 +230,19 @@ public interface SqlBuilder {
         return new InsertIntoNextStep(table);
     }
 
-    static FromGatherer<SelectModel> select(BasicColumn... selectList) {
+    static QueryExpressionDSL<SelectModel> select(BasicColumn... selectList) {
         return SelectDSL.select(selectList);
     }
 
-    static FromGatherer<SelectModel> select(Collection<? extends BasicColumn> selectList) {
+    static QueryExpressionDSL<SelectModel> select(Collection<? extends BasicColumn> selectList) {
         return SelectDSL.select(selectList);
     }
 
-    static FromGatherer<SelectModel> selectDistinct(BasicColumn... selectList) {
+    static QueryExpressionDSL<SelectModel> selectDistinct(BasicColumn... selectList) {
         return SelectDSL.selectDistinct(selectList);
     }
 
-    static FromGatherer<SelectModel> selectDistinct(Collection<? extends BasicColumn> selectList) {
+    static QueryExpressionDSL<SelectModel> selectDistinct(Collection<? extends BasicColumn> selectList) {
         return SelectDSL.selectDistinct(selectList);
     }
 

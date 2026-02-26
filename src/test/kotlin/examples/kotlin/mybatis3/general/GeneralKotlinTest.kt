@@ -580,8 +580,30 @@ class GeneralKotlinTest {
 
     @Test
     fun testRawSelectWithoutFrom() {
-        assertThatExceptionOfType(KInvalidSQLException::class.java).isThrownBy {
+        assertThatExceptionOfType(InvalidSqlException::class.java).isThrownBy {
             select(id `as` "A_ID", firstName, lastName, birthDate, employed, occupation, addressId) {
+                where {
+                    id isEqualTo 5
+                    or {
+                        id isEqualTo 4
+                        or {
+                            id isEqualTo 3
+                            or { id isEqualTo 2 }
+                        }
+                    }
+                }
+                orderBy(id)
+                limit(3)
+            }
+        }.withMessage(Messages.getString("ERROR.27")) //$NON-NLS-1$
+    }
+
+    @Test
+    fun testRawSelectDoubleFrom() {
+        assertThatExceptionOfType(InvalidSqlException::class.java).isThrownBy {
+            select(id `as` "A_ID", firstName, lastName, birthDate, employed, occupation, addressId) {
+                from(person)
+                from(person)
                 where {
                     id isEqualTo 5
                     or {
