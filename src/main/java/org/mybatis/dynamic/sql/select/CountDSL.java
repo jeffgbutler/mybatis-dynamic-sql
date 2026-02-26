@@ -53,7 +53,7 @@ public class CountDSL<R> extends AbstractQueryExpressionDSL<CountDSL<R>.CountWhe
     }
 
     public CountDSL<R> from(SqlTable table) {
-        Validator.assertNull(this.table, "ERROR.24"); //$NON-NLS-1$);
+        Validator.assertNull(this.table, "ERROR.24"); //$NON-NLS-1$
         this.table = table;
         return this;
     }
@@ -76,7 +76,7 @@ public class CountDSL<R> extends AbstractQueryExpressionDSL<CountDSL<R>.CountWhe
     }
 
     private SelectModel buildModel() {
-        Validator.assertTrue(table != null, "ERROR.24"); //$NON-NLS-1$);
+        Validator.assertTrue(table != null, "ERROR.24"); //$NON-NLS-1$
         QueryExpressionModel queryExpressionModel = new QueryExpressionModel.Builder()
                 .withSelectColumn(countColumn)
                 .withTable(table)
