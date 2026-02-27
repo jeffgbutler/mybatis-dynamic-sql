@@ -27,8 +27,8 @@ import org.mybatis.dynamic.sql.util.ConfigurableStatement
 annotation class MyBatisDslMarker
 
 @MyBatisDslMarker
-@Suppress("TooManyFunctions")
-abstract class KotlinWhereOperations<D : WhereOperations<*>>(private val dsl : D) {
+abstract class KotlinWhereOperations<D>(private val dsl : D)
+        where D : ConfigurableStatement<*>, D : WhereOperations<*> {
     fun where(criteria: GroupingCriteriaReceiver): Unit =
         GroupingCriteriaCollector().apply(criteria).let {
             dsl.where(it.initialCriterion, it.subCriteria)
@@ -53,20 +53,15 @@ abstract class KotlinWhereOperations<D : WhereOperations<*>>(private val dsl : D
     fun allRows() {
         // intentionally empty - this function exists for code beautification and clarity only
     }
-}
 
-@MyBatisDslMarker
-abstract class KotlinConfigurableStatementOperations<D>(private val dsl : D) : KotlinWhereOperations<D>(dsl)
-        where D : ConfigurableStatement<*>, D : WhereOperations<*> {
     fun configureStatement(c: StatementConfiguration.() -> Unit) {
         dsl.configureStatement(c)
     }
 }
 
 @Suppress("TooManyFunctions")
-abstract class KotlinJoinOperations<D>(private val dsl : D) : KotlinConfigurableStatementOperations<D>(dsl)
+abstract class KotlinJoinOperations<D>(private val dsl : D) : KotlinWhereOperations<D>(dsl)
         where D : JoinOperations<*>, D: ConfigurableStatement<*>, D: WhereOperations<*>{
-
     @Deprecated("Please use the new form with the \"on\" keyword outside the lambda")
     fun join(table: SqlTable, joinCriteria: JoinReceiver): Unit =
         applyToDsl(joinCriteria) { jc ->
