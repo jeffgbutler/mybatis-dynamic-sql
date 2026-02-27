@@ -194,11 +194,8 @@ public class UpdateDSL<R> implements WhereOperations<UpdateDSL<R>.UpdateWhereBui
         }
     }
 
-    public class UpdateWhereBuilder extends AbstractWhereFinisher<UpdateWhereBuilder> implements Buildable<R> {
-
-        private UpdateWhereBuilder() {
-            super(UpdateDSL.this);
-        }
+    public class UpdateWhereBuilder extends AbstractWhereFinisher<UpdateWhereBuilder>
+            implements ConfigurableStatement<UpdateWhereBuilder>, Buildable<R> {
 
         public UpdateDSL<R> limit(long limit) {
             return limitWhenPresent(limit);
@@ -215,6 +212,12 @@ public class UpdateDSL<R> implements WhereOperations<UpdateDSL<R>.UpdateWhereBui
         public UpdateDSL<R> orderBy(Collection<? extends SortSpecification> columns) {
             orderByModel = OrderByModel.of(columns);
             return UpdateDSL.this;
+        }
+
+        @Override
+        public UpdateWhereBuilder configureStatement(Consumer<StatementConfiguration> consumer) {
+            UpdateDSL.this.configureStatement(consumer);
+            return this;
         }
 
         @Override

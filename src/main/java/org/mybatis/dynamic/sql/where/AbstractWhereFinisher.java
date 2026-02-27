@@ -16,24 +16,13 @@
 package org.mybatis.dynamic.sql.where;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.function.Consumer;
 
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.AndOrCriteriaGroup;
 import org.mybatis.dynamic.sql.SqlCriterion;
 import org.mybatis.dynamic.sql.dsl.AbstractBooleanOperations;
-import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
-import org.mybatis.dynamic.sql.util.ConfigurableStatement;
 
-public abstract class AbstractWhereFinisher<T extends AbstractWhereFinisher<T>> extends AbstractBooleanOperations<T>
-        implements ConfigurableStatement<T> {
-    private final ConfigurableStatement<?> parentStatement;
-
-    protected AbstractWhereFinisher(ConfigurableStatement<?> parentStatement) {
-        this.parentStatement = Objects.requireNonNull(parentStatement);
-    }
-
+public abstract class AbstractWhereFinisher<T extends AbstractWhereFinisher<T>> extends AbstractBooleanOperations<T> {
     public void initialize(SqlCriterion sqlCriterion) {
         setInitialCriterion(sqlCriterion, StatementType.WHERE);
     }
@@ -41,12 +30,6 @@ public abstract class AbstractWhereFinisher<T extends AbstractWhereFinisher<T>> 
     void initialize(@Nullable SqlCriterion sqlCriterion, List<AndOrCriteriaGroup> subCriteria) {
         setInitialCriterion(sqlCriterion, StatementType.WHERE);
         super.subCriteria.addAll(subCriteria);
-    }
-
-    @Override
-    public T configureStatement(Consumer<StatementConfiguration> consumer) {
-        parentStatement.configureStatement(consumer);
-        return getThis();
     }
 
     protected EmbeddedWhereModel buildModel() {

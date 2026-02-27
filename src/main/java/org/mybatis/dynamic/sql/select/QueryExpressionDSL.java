@@ -243,11 +243,7 @@ public class QueryExpressionDSL<R> extends AbstractDSL implements JoinOperations
     }
 
     public class QueryExpressionWhereBuilder extends AbstractWhereFinisher<QueryExpressionWhereBuilder>
-            implements Buildable<R>, SelectDSLOperations<R> {
-        private QueryExpressionWhereBuilder() {
-            super(QueryExpressionDSL.this);
-        }
-
+            implements ConfigurableStatement<QueryExpressionWhereBuilder>, Buildable<R>, SelectDSLOperations<R> {
         public UnionBuilder union() {
             return QueryExpressionDSL.this.union();
         }
@@ -270,6 +266,12 @@ public class QueryExpressionDSL<R> extends AbstractDSL implements JoinOperations
 
         public GroupByFinisher groupBy(Collection<? extends BasicColumn> columns) {
             return QueryExpressionDSL.this.groupBy(columns);
+        }
+
+        @Override
+        public QueryExpressionWhereBuilder configureStatement(Consumer<StatementConfiguration> consumer) {
+            QueryExpressionDSL.this.configureStatement(consumer);
+            return this;
         }
 
         @Override

@@ -147,9 +147,11 @@ public class CountDSL<R> extends AbstractDSL implements WhereOperations<CountDSL
     }
 
     public class CountWhereBuilder extends AbstractWhereFinisher<CountWhereBuilder>
-            implements Buildable<R> {
-        private CountWhereBuilder() {
-            super(CountDSL.this);
+            implements ConfigurableStatement<CountWhereBuilder>, Buildable<R> {
+        @Override
+        public CountWhereBuilder configureStatement(Consumer<StatementConfiguration> consumer) {
+            CountDSL.this.configureStatement(consumer);
+            return this;
         }
 
         @Override

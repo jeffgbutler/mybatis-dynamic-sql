@@ -44,10 +44,7 @@ public class WhereDSL implements WhereOperations<WhereDSL.StandaloneWhereFinishe
     }
 
     public class StandaloneWhereFinisher extends AbstractWhereFinisher<StandaloneWhereFinisher>
-            implements Buildable<WhereModel> {
-        private StandaloneWhereFinisher() {
-            super(WhereDSL.this);
-        }
+            implements ConfigurableStatement<StandaloneWhereFinisher>, Buildable<WhereModel> {
 
         @Override
         public StandaloneWhereFinisher getThis() {
@@ -61,6 +58,12 @@ public class WhereDSL implements WhereOperations<WhereDSL.StandaloneWhereFinishe
                     .withSubCriteria(subCriteria)
                     .withStatementConfiguration(statementConfiguration)
                     .build();
+        }
+
+        @Override
+        public StandaloneWhereFinisher configureStatement(Consumer<StatementConfiguration> consumer) {
+            WhereDSL.this.configureStatement(consumer);
+            return this;
         }
 
         public WhereApplier toWhereApplier() {

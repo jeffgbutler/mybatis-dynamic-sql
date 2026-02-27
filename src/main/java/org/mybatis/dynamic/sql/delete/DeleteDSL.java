@@ -112,11 +112,8 @@ public class DeleteDSL<R> implements WhereOperations<DeleteDSL<R>.DeleteWhereBui
         return deleteFrom(Function.identity(), table, tableAlias);
     }
 
-    public class DeleteWhereBuilder extends AbstractWhereFinisher<DeleteWhereBuilder> implements Buildable<R> {
-
-        private DeleteWhereBuilder() {
-            super(DeleteDSL.this);
-        }
+    public class DeleteWhereBuilder extends AbstractWhereFinisher<DeleteWhereBuilder>
+            implements ConfigurableStatement<DeleteWhereBuilder>, Buildable<R> {
 
         public DeleteDSL<R> limit(long limit) {
             return limitWhenPresent(limit);
@@ -133,6 +130,12 @@ public class DeleteDSL<R> implements WhereOperations<DeleteDSL<R>.DeleteWhereBui
         public DeleteDSL<R> orderBy(Collection<? extends SortSpecification> columns) {
             orderByModel = OrderByModel.of(columns);
             return DeleteDSL.this;
+        }
+
+        @Override
+        public DeleteWhereBuilder configureStatement(Consumer<StatementConfiguration> consumer) {
+            DeleteDSL.this.configureStatement(consumer);
+            return this;
         }
 
         @Override
