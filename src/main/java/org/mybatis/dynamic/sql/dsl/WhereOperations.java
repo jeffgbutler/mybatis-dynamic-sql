@@ -87,17 +87,17 @@ public interface WhereOperations<F extends AbstractWhereFinisher<?>> {
         return initialize(sqlCriterion);
     }
 
-    F where();
-
     default F applyWhere(WhereApplier whereApplier) {
         F finisher = where();
         whereApplier.accept(finisher);
         return finisher;
     }
 
-    default F initialize(SqlCriterion sqlCriterion) {
+    private F initialize(SqlCriterion sqlCriterion) {
         F finisher = where();
         finisher.initialize(sqlCriterion);
         return finisher;
     }
+
+    F where();
 }

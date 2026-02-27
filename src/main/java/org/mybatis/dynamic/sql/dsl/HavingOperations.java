@@ -57,17 +57,17 @@ public interface HavingOperations<F extends AbstractHavingFinisher<?>> {
         return initialize(sqlCriterion);
     }
 
-    F having();
-
     default F applyHaving(HavingApplier havingApplier) {
         F finisher = having();
         havingApplier.accept(finisher);
         return finisher;
     }
 
-    default F initialize(SqlCriterion sqlCriterion) {
+    private F initialize(SqlCriterion sqlCriterion) {
         F finisher = having();
         finisher.initialize(sqlCriterion);
         return finisher;
     }
+
+    F having();
 }
