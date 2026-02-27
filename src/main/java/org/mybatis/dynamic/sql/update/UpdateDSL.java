@@ -226,7 +226,7 @@ public class UpdateDSL<R> implements WhereOperations<UpdateDSL<R>.UpdateWhereBui
         }
 
         @Override
-        public UpdateWhereBuilder getThis() {
+        protected UpdateWhereBuilder getThis() {
             return this;
         }
 

@@ -228,13 +228,9 @@ public class QueryExpressionDSL<R> extends AbstractDSL implements JoinOperations
     }
 
     @Override
-    public QueryExpressionDSL<R> getThis() {
+    public QueryExpressionDSL<R> addJoinSpecificationSupplier(Supplier<JoinSpecification> joinSpecificationSupplier) {
+        addJoinSpecificationSupplierInternal(joinSpecificationSupplier);
         return this;
-    }
-
-    @Override
-    public void addJoinSpecificationSupplier(Supplier<JoinSpecification> joinSpecificationSupplier) {
-        super.addJoinSpecificationSupplier(joinSpecificationSupplier);
     }
 
     @Override
@@ -280,7 +276,7 @@ public class QueryExpressionDSL<R> extends AbstractDSL implements JoinOperations
         }
 
         @Override
-        public QueryExpressionWhereBuilder getThis() {
+        protected QueryExpressionWhereBuilder getThis() {
             return this;
         }
 
@@ -447,7 +443,7 @@ public class QueryExpressionDSL<R> extends AbstractDSL implements JoinOperations
         }
 
         @Override
-        public JoinSpecificationFinisher getThis() {
+        protected JoinSpecificationFinisher getThis() {
             return this;
         }
 
@@ -549,7 +545,7 @@ public class QueryExpressionDSL<R> extends AbstractDSL implements JoinOperations
         }
 
         @Override
-        public QueryExpressionHavingBuilder getThis() {
+        protected QueryExpressionHavingBuilder getThis() {
             return this;
         }
 

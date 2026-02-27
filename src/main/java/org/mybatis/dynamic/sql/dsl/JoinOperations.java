@@ -34,8 +34,7 @@ public interface JoinOperations<T extends JoinOperations<T>> {
 
     default T join(SqlTable joinTable, SqlCriterion onJoinCriterion,
                   AndOrCriteriaGroup... andJoinCriteria) {
-        addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.INNER, Arrays.asList(andJoinCriteria));
-        return getThis();
+        return addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.INNER, Arrays.asList(andJoinCriteria));
     }
 
     default T join(SqlTable joinTable, String tableAlias, SqlCriterion onJoinCriterion,
@@ -46,8 +45,7 @@ public interface JoinOperations<T extends JoinOperations<T>> {
 
     default T join(SqlTable joinTable, @Nullable SqlCriterion onJoinCriterion,
             List<AndOrCriteriaGroup> andJoinCriteria) {
-        addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.INNER, andJoinCriteria);
-        return getThis();
+        return addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.INNER, andJoinCriteria);
     }
 
     default T join(SqlTable joinTable, String tableAlias, @Nullable SqlCriterion onJoinCriterion,
@@ -58,15 +56,13 @@ public interface JoinOperations<T extends JoinOperations<T>> {
 
     default T join(Buildable<SelectModel> subQuery, @Nullable String tableAlias, @Nullable SqlCriterion onJoinCriterion,
                   List<AndOrCriteriaGroup> andJoinCriteria) {
-        addJoinSpecificationSupplier(buildSubQuery(subQuery, tableAlias), onJoinCriterion, JoinType.INNER,
+        return addJoinSpecificationSupplier(buildSubQuery(subQuery, tableAlias), onJoinCriterion, JoinType.INNER,
                 andJoinCriteria);
-        return getThis();
     }
 
     default T leftJoin(SqlTable joinTable, SqlCriterion onJoinCriterion,
                       AndOrCriteriaGroup... andJoinCriteria) {
-        addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.LEFT, Arrays.asList(andJoinCriteria));
-        return getThis();
+        return addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.LEFT, Arrays.asList(andJoinCriteria));
     }
 
     default T leftJoin(SqlTable joinTable, String tableAlias, SqlCriterion onJoinCriterion,
@@ -77,8 +73,7 @@ public interface JoinOperations<T extends JoinOperations<T>> {
 
     default T leftJoin(SqlTable joinTable, @Nullable SqlCriterion onJoinCriterion,
             List<AndOrCriteriaGroup> andJoinCriteria) {
-        addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.LEFT, andJoinCriteria);
-        return getThis();
+        return addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.LEFT, andJoinCriteria);
     }
 
     default T leftJoin(SqlTable joinTable, String tableAlias, @Nullable SqlCriterion onJoinCriterion,
@@ -89,15 +84,13 @@ public interface JoinOperations<T extends JoinOperations<T>> {
 
     default T leftJoin(Buildable<SelectModel> subQuery, @Nullable String tableAlias,
                       @Nullable SqlCriterion onJoinCriterion, List<AndOrCriteriaGroup> andJoinCriteria) {
-        addJoinSpecificationSupplier(buildSubQuery(subQuery, tableAlias), onJoinCriterion, JoinType.LEFT,
+        return addJoinSpecificationSupplier(buildSubQuery(subQuery, tableAlias), onJoinCriterion, JoinType.LEFT,
                 andJoinCriteria);
-        return getThis();
     }
 
     default T rightJoin(SqlTable joinTable, SqlCriterion onJoinCriterion,
                        AndOrCriteriaGroup... andJoinCriteria) {
-        addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.RIGHT, Arrays.asList(andJoinCriteria));
-        return getThis();
+        return addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.RIGHT, Arrays.asList(andJoinCriteria));
     }
 
     default T rightJoin(SqlTable joinTable, String tableAlias, SqlCriterion onJoinCriterion,
@@ -108,8 +101,7 @@ public interface JoinOperations<T extends JoinOperations<T>> {
 
     default T rightJoin(SqlTable joinTable, @Nullable SqlCriterion onJoinCriterion,
             List<AndOrCriteriaGroup> andJoinCriteria) {
-        addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.RIGHT, andJoinCriteria);
-        return getThis();
+        return addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.RIGHT, andJoinCriteria);
     }
 
     default T rightJoin(SqlTable joinTable, String tableAlias, @Nullable SqlCriterion onJoinCriterion,
@@ -120,15 +112,13 @@ public interface JoinOperations<T extends JoinOperations<T>> {
 
     default T rightJoin(Buildable<SelectModel> subQuery, @Nullable String tableAlias,
                        @Nullable SqlCriterion onJoinCriterion, List<AndOrCriteriaGroup> andJoinCriteria) {
-        addJoinSpecificationSupplier(buildSubQuery(subQuery, tableAlias), onJoinCriterion, JoinType.RIGHT,
+        return addJoinSpecificationSupplier(buildSubQuery(subQuery, tableAlias), onJoinCriterion, JoinType.RIGHT,
                 andJoinCriteria);
-        return getThis();
     }
 
     default T fullJoin(SqlTable joinTable, SqlCriterion onJoinCriterion,
                       AndOrCriteriaGroup... andJoinCriteria) {
-        addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.FULL, Arrays.asList(andJoinCriteria));
-        return getThis();
+        return addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.FULL, Arrays.asList(andJoinCriteria));
     }
 
     default T fullJoin(SqlTable joinTable, String tableAlias, SqlCriterion onJoinCriterion,
@@ -139,8 +129,7 @@ public interface JoinOperations<T extends JoinOperations<T>> {
 
     default T fullJoin(SqlTable joinTable, @Nullable SqlCriterion onJoinCriterion,
             List<AndOrCriteriaGroup> andJoinCriteria) {
-        addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.FULL, andJoinCriteria);
-        return getThis();
+        return addJoinSpecificationSupplier(joinTable, onJoinCriterion, JoinType.FULL, andJoinCriteria);
     }
 
     default T fullJoin(SqlTable joinTable, String tableAlias, @Nullable SqlCriterion onJoinCriterion,
@@ -151,14 +140,13 @@ public interface JoinOperations<T extends JoinOperations<T>> {
 
     default T fullJoin(Buildable<SelectModel> subQuery, @Nullable String tableAlias,
                       @Nullable SqlCriterion onJoinCriterion, List<AndOrCriteriaGroup> andJoinCriteria) {
-        addJoinSpecificationSupplier(buildSubQuery(subQuery, tableAlias), onJoinCriterion, JoinType.FULL,
+        return addJoinSpecificationSupplier(buildSubQuery(subQuery, tableAlias), onJoinCriterion, JoinType.FULL,
                 andJoinCriteria);
-        return getThis();
     }
 
-    private void addJoinSpecificationSupplier(TableExpression joinTable, @Nullable SqlCriterion onJoinCriterion,
+    private T addJoinSpecificationSupplier(TableExpression joinTable, @Nullable SqlCriterion onJoinCriterion,
                                               JoinType joinType, List<AndOrCriteriaGroup> andJoinCriteria) {
-        addJoinSpecificationSupplier(() -> new JoinSpecification.Builder()
+        return addJoinSpecificationSupplier(() -> new JoinSpecification.Builder()
                 .withJoinTable(joinTable)
                 .withJoinType(joinType)
                 .withInitialCriterion(onJoinCriterion)
@@ -174,7 +162,5 @@ public interface JoinOperations<T extends JoinOperations<T>> {
                 .build();
     }
 
-    T getThis();
-
-    void addJoinSpecificationSupplier(Supplier<JoinSpecification> joinSpecificationSupplier);
+    T addJoinSpecificationSupplier(Supplier<JoinSpecification> joinSpecificationSupplier);
 }

@@ -47,7 +47,7 @@ public class WhereDSL implements WhereOperations<WhereDSL.StandaloneWhereFinishe
             implements ConfigurableStatement<StandaloneWhereFinisher>, Buildable<WhereModel> {
 
         @Override
-        public StandaloneWhereFinisher getThis() {
+        protected StandaloneWhereFinisher getThis() {
             return this;
         }
 

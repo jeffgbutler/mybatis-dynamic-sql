@@ -35,8 +35,7 @@ public interface BooleanOperations<T extends BooleanOperations<T>> {
 
     default <S> T and(BindableColumn<S> column, RenderableCondition<S> condition,
                      List<AndOrCriteriaGroup> subCriteria) {
-        addSubCriterion("and", buildCriterion(column, condition), subCriteria); //$NON-NLS-1$
-        return getThis();
+        return addSubCriterion("and", buildCriterion(column, condition), subCriteria); //$NON-NLS-1$
     }
 
     default T and(ExistsPredicate existsPredicate, AndOrCriteriaGroup... subCriteria) {
@@ -44,8 +43,7 @@ public interface BooleanOperations<T extends BooleanOperations<T>> {
     }
 
     default T and(ExistsPredicate existsPredicate, List<AndOrCriteriaGroup> subCriteria) {
-        addSubCriterion("and", buildCriterion(existsPredicate), subCriteria); //$NON-NLS-1$
-        return getThis();
+        return addSubCriterion("and", buildCriterion(existsPredicate), subCriteria); //$NON-NLS-1$
     }
 
     default T and(SqlCriterion initialCriterion, AndOrCriteriaGroup... subCriteria) {
@@ -53,13 +51,11 @@ public interface BooleanOperations<T extends BooleanOperations<T>> {
     }
 
     default T and(SqlCriterion initialCriterion, List<AndOrCriteriaGroup> subCriteria) {
-        addSubCriterion("and", buildCriterion(initialCriterion), subCriteria); //$NON-NLS-1$
-        return getThis();
+        return addSubCriterion("and", buildCriterion(initialCriterion), subCriteria); //$NON-NLS-1$
     }
 
     default T and(List<AndOrCriteriaGroup> criteria) {
-        addSubCriterion("and", criteria); //$NON-NLS-1$
-        return getThis();
+        return addSubCriterion("and", criteria); //$NON-NLS-1$
     }
 
     default <S> T or(BindableColumn<S> column, RenderableCondition<S> condition,
@@ -69,8 +65,7 @@ public interface BooleanOperations<T extends BooleanOperations<T>> {
 
     default <S> T or(BindableColumn<S> column, RenderableCondition<S> condition,
                     List<AndOrCriteriaGroup> subCriteria) {
-        addSubCriterion("or", buildCriterion(column, condition), subCriteria); //$NON-NLS-1$
-        return getThis();
+        return addSubCriterion("or", buildCriterion(column, condition), subCriteria); //$NON-NLS-1$
     }
 
     default T or(ExistsPredicate existsPredicate, AndOrCriteriaGroup... subCriteria) {
@@ -78,8 +73,7 @@ public interface BooleanOperations<T extends BooleanOperations<T>> {
     }
 
     default T or(ExistsPredicate existsPredicate, List<AndOrCriteriaGroup> subCriteria) {
-        addSubCriterion("or", buildCriterion(existsPredicate), subCriteria); //$NON-NLS-1$
-        return getThis();
+        return addSubCriterion("or", buildCriterion(existsPredicate), subCriteria); //$NON-NLS-1$
     }
 
     default T or(SqlCriterion initialCriterion, AndOrCriteriaGroup... subCriteria) {
@@ -87,13 +81,11 @@ public interface BooleanOperations<T extends BooleanOperations<T>> {
     }
 
     default T or(SqlCriterion initialCriterion, List<AndOrCriteriaGroup> subCriteria) {
-        addSubCriterion("or", buildCriterion(initialCriterion), subCriteria); //$NON-NLS-1$
-        return getThis();
+        return addSubCriterion("or", buildCriterion(initialCriterion), subCriteria); //$NON-NLS-1$
     }
 
     default T or(List<AndOrCriteriaGroup> criteria) {
-        addSubCriterion("or", criteria); //$NON-NLS-1$
-        return getThis();
+        return addSubCriterion("or", criteria); //$NON-NLS-1$
     }
 
     private <R> SqlCriterion buildCriterion(BindableColumn<R> column, RenderableCondition<R> condition) {
@@ -108,23 +100,21 @@ public interface BooleanOperations<T extends BooleanOperations<T>> {
         return new CriteriaGroup.Builder().withInitialCriterion(initialCriterion).build();
     }
 
-    private void addSubCriterion(String connector, SqlCriterion initialCriterion,
-                                 List<AndOrCriteriaGroup> subCriteria) {
-        addSubCriterion(new AndOrCriteriaGroup.Builder()
+    private T addSubCriterion(String connector, SqlCriterion initialCriterion,
+                              List<AndOrCriteriaGroup> subCriteria) {
+        return addSubCriterion(new AndOrCriteriaGroup.Builder()
                 .withInitialCriterion(initialCriterion)
                 .withConnector(connector)
                 .withSubCriteria(subCriteria)
                 .build());
     }
 
-    private void addSubCriterion(String connector, List<AndOrCriteriaGroup> criteria) {
-        addSubCriterion(new AndOrCriteriaGroup.Builder()
+    private T addSubCriterion(String connector, List<AndOrCriteriaGroup> criteria) {
+        return addSubCriterion(new AndOrCriteriaGroup.Builder()
                 .withConnector(connector)
                 .withSubCriteria(criteria)
                 .build());
     }
 
-    void addSubCriterion(AndOrCriteriaGroup subCriterion);
-
-    T getThis();
+    T addSubCriterion(AndOrCriteriaGroup subCriterion);
 }

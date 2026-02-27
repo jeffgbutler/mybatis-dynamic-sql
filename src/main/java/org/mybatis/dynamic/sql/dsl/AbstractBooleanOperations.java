@@ -42,9 +42,12 @@ public abstract class AbstractBooleanOperations<T extends AbstractBooleanOperati
     }
 
     @Override
-    public void addSubCriterion(AndOrCriteriaGroup subCriterion) {
+    public T addSubCriterion(AndOrCriteriaGroup subCriterion) {
         subCriteria.add(subCriterion);
+        return getThis();
     }
+
+    protected abstract T getThis();
 
     public enum StatementType {
         WHERE("ERROR.32"), //$NON-NLS-1$

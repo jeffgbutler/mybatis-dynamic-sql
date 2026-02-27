@@ -32,7 +32,7 @@ public class HavingDSL implements HavingOperations<HavingDSL.StandaloneHavingFin
         private StandaloneHavingFinisher() {}
 
         @Override
-        public StandaloneHavingFinisher getThis() {
+        protected StandaloneHavingFinisher getThis() {
             return this;
         }
 

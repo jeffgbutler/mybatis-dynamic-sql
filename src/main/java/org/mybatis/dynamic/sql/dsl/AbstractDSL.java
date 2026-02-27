@@ -54,7 +54,7 @@ public abstract class AbstractDSL {
                 .toList()));
     }
 
-    protected void addJoinSpecificationSupplier(Supplier<JoinSpecification> joinSpecificationSupplier) {
+    protected void addJoinSpecificationSupplierInternal(Supplier<JoinSpecification> joinSpecificationSupplier) {
         joinSpecificationSuppliers.add(joinSpecificationSupplier);
     }
 

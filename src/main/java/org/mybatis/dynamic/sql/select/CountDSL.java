@@ -137,13 +137,9 @@ public class CountDSL<R> extends AbstractDSL implements WhereOperations<CountDSL
     }
 
     @Override
-    public CountDSL<R> getThis() {
+    public CountDSL<R> addJoinSpecificationSupplier(Supplier<JoinSpecification> joinSpecificationSupplier) {
+        addJoinSpecificationSupplierInternal(joinSpecificationSupplier);
         return this;
-    }
-
-    @Override
-    public void addJoinSpecificationSupplier(Supplier<JoinSpecification> joinSpecificationSupplier) {
-        super.addJoinSpecificationSupplier(joinSpecificationSupplier);
     }
 
     public class CountWhereBuilder extends AbstractWhereFinisher<CountWhereBuilder>
@@ -160,7 +156,7 @@ public class CountDSL<R> extends AbstractDSL implements WhereOperations<CountDSL
         }
 
         @Override
-        public CountWhereBuilder getThis() {
+        protected CountWhereBuilder getThis() {
             return this;
         }
 

@@ -144,7 +144,7 @@ public class DeleteDSL<R> implements WhereOperations<DeleteDSL<R>.DeleteWhereBui
         }
 
         @Override
-        public DeleteWhereBuilder getThis() {
+        protected DeleteWhereBuilder getThis() {
             return this;
         }
 
