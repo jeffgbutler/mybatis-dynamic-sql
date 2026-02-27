@@ -27,9 +27,7 @@ typealias SelectCompleter = KotlinSelectBuilder.() -> Unit
 
 @Suppress("TooManyFunctions")
 class KotlinSelectBuilder(private val dsl: QueryExpressionDSL<SelectModel>) :
-    KotlinWhereOperations<QueryExpressionDSL<SelectModel>>,
-    KotlinJoinOperations<QueryExpressionDSL<SelectModel>>,
-    KotlinConfigurableStatementOperations<QueryExpressionDSL<SelectModel>>,
+    KotlinJoinOperations<QueryExpressionDSL<SelectModel>>(dsl),
     Buildable<SelectModel>, KotlinPagingDSL {
 
     fun from(table: SqlTable) {
@@ -110,6 +108,4 @@ class KotlinSelectBuilder(private val dsl: QueryExpressionDSL<SelectModel>) :
     }
 
     override fun build(): SelectModel = dsl.build()
-
-    override fun getDsl() = dsl
 }
