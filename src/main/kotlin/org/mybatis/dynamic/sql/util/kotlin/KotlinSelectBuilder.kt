@@ -16,7 +16,6 @@
 package org.mybatis.dynamic.sql.util.kotlin
 
 import org.mybatis.dynamic.sql.BasicColumn
-import org.mybatis.dynamic.sql.CriteriaGroup
 import org.mybatis.dynamic.sql.SortSpecification
 import org.mybatis.dynamic.sql.SqlTable
 import org.mybatis.dynamic.sql.select.QueryExpressionDSL
@@ -54,11 +53,7 @@ class KotlinSelectBuilder(private val dsl: QueryExpressionDSL<SelectModel>) :
 
     fun having(criteria: GroupingCriteriaReceiver): Unit =
         GroupingCriteriaCollector().apply(criteria).let {
-            val cg = CriteriaGroup.Builder()
-                .withInitialCriterion(it.initialCriterion)
-                .withSubCriteria(it.subCriteria)
-                .build()
-            dsl.applyHaving(cg)
+            dsl.having(it.initialCriterion, it.subCriteria)
         }
 
     fun orderBy(vararg columns: SortSpecification) {

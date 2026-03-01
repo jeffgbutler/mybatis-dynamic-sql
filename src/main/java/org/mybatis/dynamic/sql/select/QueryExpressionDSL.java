@@ -28,7 +28,6 @@ import org.mybatis.dynamic.sql.AndOrCriteriaGroup;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.BindableColumn;
 import org.mybatis.dynamic.sql.ColumnAndConditionCriterion;
-import org.mybatis.dynamic.sql.CriteriaGroup;
 import org.mybatis.dynamic.sql.RenderableCondition;
 import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.SqlTable;
@@ -48,7 +47,8 @@ import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
 public class QueryExpressionDSL<R> extends AbstractDSL implements JoinOperations<QueryExpressionDSL<R>>,
         WhereOperations<QueryExpressionDSL<R>.QueryExpressionWhereBuilder>,
-        ConfigurableStatement<QueryExpressionDSL<R>>, Buildable<R>, SelectDSLOperations<R> {
+        HavingOperations<QueryExpressionDSL<R>.QueryExpressionHavingBuilder>,
+        ConfigurableStatement<QueryExpressionDSL<R>>, SelectDSLOperations<R>, Buildable<R> {
     private final static String ERROR_27 = "ERROR.27"; //$NON-NLS-1$
 
     private final @Nullable String connector;
@@ -105,23 +105,10 @@ public class QueryExpressionDSL<R> extends AbstractDSL implements JoinOperations
         return this;
     }
 
-    /**
-     * This method is protected here because it doesn't make sense at this point in the DSL.
-     *
-     * @return The having builder
-     */
-    protected QueryExpressionHavingBuilder having() {
+    @Override
+    public QueryExpressionHavingBuilder having() {
         havingBuilder = Objects.requireNonNullElseGet(havingBuilder, QueryExpressionHavingBuilder::new);
         return havingBuilder;
-    }
-
-    /**
-     * This method is meant for use by the Kotlin DSL. We expect a full set of criteria.
-     *
-     * @param criteriaGroup the full criteria for a Kotlin Having clause
-     */
-    public void applyHaving(CriteriaGroup criteriaGroup) {
-        having().setInitialCriterion(criteriaGroup, AbstractBooleanOperations.StatementType.HAVING);
     }
 
     @Override
