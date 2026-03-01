@@ -43,7 +43,7 @@ public class HavingDSL implements HavingOperations<HavingDSL.StandaloneHavingFin
         }
 
         public HavingApplier toHavingApplier() {
-            return d -> d.initialize(getInitialCriterion(), subCriteria, StatementType.HAVING);
+            return d -> d.initialize(this, StatementType.HAVING);
         }
     }
 }

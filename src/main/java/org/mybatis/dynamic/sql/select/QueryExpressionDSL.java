@@ -335,7 +335,7 @@ public class QueryExpressionDSL<R> extends AbstractDSL implements JoinOperations
         private JoinSpecification buildJoinSpecification() {
             return JoinSpecification.withJoinTable(table)
                     .withJoinType(joinType)
-                    .withInitialCriterion(getInitialCriterion())
+                    .withInitialCriterion(initialCriterion)
                     .withSubCriteria(subCriteria)
                     .build();
         }

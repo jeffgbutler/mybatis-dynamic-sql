@@ -55,7 +55,7 @@ public class WhereDSL implements WhereOperations<WhereDSL.StandaloneWhereFinishe
         @Override
         public WhereModel build() {
             return new WhereModel.Builder()
-                    .withInitialCriterion(getInitialCriterion())
+                    .withInitialCriterion(initialCriterion)
                     .withSubCriteria(subCriteria)
                     .withStatementConfiguration(statementConfiguration)
                     .build();
@@ -68,7 +68,7 @@ public class WhereDSL implements WhereOperations<WhereDSL.StandaloneWhereFinishe
         }
 
         public WhereApplier toWhereApplier() {
-            return d -> d.initialize(getInitialCriterion(), subCriteria, StatementType.WHERE);
+            return d -> d.initialize(this, StatementType.WHERE);
         }
     }
 }

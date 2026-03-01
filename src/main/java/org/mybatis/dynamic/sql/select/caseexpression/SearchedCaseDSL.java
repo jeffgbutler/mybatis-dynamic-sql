@@ -87,7 +87,7 @@ public class SearchedCaseDSL implements ElseDSL<SearchedCaseDSL.SearchedCaseEnde
         @Override
         public SearchedCaseDSL then(BasicColumn column) {
             whenConditions.add(new SearchedCaseWhenCondition.Builder()
-                    .withInitialCriterion(getInitialCriterion())
+                    .withInitialCriterion(initialCriterion)
                     .withSubCriteria(subCriteria)
                     .withThenValue(column)
                     .build());
