@@ -31,6 +31,7 @@ import org.mybatis.dynamic.sql.SqlColumn;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
+import org.mybatis.dynamic.sql.dsl.AbstractBooleanOperations;
 import org.mybatis.dynamic.sql.dsl.WhereOperations;
 import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.util.AbstractColumnMapping;
@@ -44,7 +45,6 @@ import org.mybatis.dynamic.sql.util.StringConstantMapping;
 import org.mybatis.dynamic.sql.util.ValueMapping;
 import org.mybatis.dynamic.sql.util.ValueOrNullMapping;
 import org.mybatis.dynamic.sql.util.ValueWhenPresentMapping;
-import org.mybatis.dynamic.sql.where.AbstractWhereFinisher;
 import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
 public class UpdateDSL<R> implements WhereOperations<UpdateDSL<R>.UpdateWhereBuilder>,
@@ -194,7 +194,7 @@ public class UpdateDSL<R> implements WhereOperations<UpdateDSL<R>.UpdateWhereBui
         }
     }
 
-    public class UpdateWhereBuilder extends AbstractWhereFinisher<UpdateWhereBuilder>
+    public class UpdateWhereBuilder extends AbstractBooleanOperations<UpdateWhereBuilder>
             implements ConfigurableStatement<UpdateWhereBuilder>, Buildable<R> {
 
         public UpdateDSL<R> limit(long limit) {
@@ -231,7 +231,7 @@ public class UpdateDSL<R> implements WhereOperations<UpdateDSL<R>.UpdateWhereBui
         }
 
         protected EmbeddedWhereModel buildWhereModel() {
-            return buildModel();
+            return toWhereModel();
         }
     }
 }

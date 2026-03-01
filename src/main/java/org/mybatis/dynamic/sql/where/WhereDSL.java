@@ -18,6 +18,7 @@ package org.mybatis.dynamic.sql.where;
 import java.util.function.Consumer;
 
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
+import org.mybatis.dynamic.sql.dsl.AbstractBooleanOperations;
 import org.mybatis.dynamic.sql.dsl.WhereOperations;
 import org.mybatis.dynamic.sql.util.Buildable;
 import org.mybatis.dynamic.sql.util.ConfigurableStatement;
@@ -43,7 +44,7 @@ public class WhereDSL implements WhereOperations<WhereDSL.StandaloneWhereFinishe
         return this;
     }
 
-    public class StandaloneWhereFinisher extends AbstractWhereFinisher<StandaloneWhereFinisher>
+    public class StandaloneWhereFinisher extends AbstractBooleanOperations<StandaloneWhereFinisher>
             implements ConfigurableStatement<StandaloneWhereFinisher>, Buildable<WhereModel> {
 
         @Override
@@ -67,7 +68,7 @@ public class WhereDSL implements WhereOperations<WhereDSL.StandaloneWhereFinishe
         }
 
         public WhereApplier toWhereApplier() {
-            return d -> d.initialize(getInitialCriterion(), subCriteria);
+            return d -> d.initialize(getInitialCriterion(), subCriteria, StatementType.WHERE);
         }
     }
 }

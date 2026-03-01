@@ -21,7 +21,9 @@ import java.util.List;
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.AndOrCriteriaGroup;
 import org.mybatis.dynamic.sql.SqlCriterion;
+import org.mybatis.dynamic.sql.select.HavingModel;
 import org.mybatis.dynamic.sql.util.Validator;
+import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
 public abstract class AbstractBooleanOperations<T extends AbstractBooleanOperations<T>>
         implements BooleanOperations<T> {
@@ -32,7 +34,7 @@ public abstract class AbstractBooleanOperations<T extends AbstractBooleanOperati
         this.initialCriterion = initialCriterion;
     }
 
-    protected void setInitialCriterion(@Nullable SqlCriterion initialCriterion, StatementType statementType) {
+    public void setInitialCriterion(@Nullable SqlCriterion initialCriterion, StatementType statementType) {
         Validator.assertTrue(this.initialCriterion == null, statementType.messageNumber());
         setInitialCriterion(initialCriterion);
     }
@@ -41,10 +43,30 @@ public abstract class AbstractBooleanOperations<T extends AbstractBooleanOperati
         return initialCriterion;
     }
 
+    public void initialize(@Nullable SqlCriterion sqlCriterion, List<AndOrCriteriaGroup> subCriteria,
+                           StatementType statementType) {
+        setInitialCriterion(sqlCriterion, statementType);
+        this.subCriteria.addAll(subCriteria);
+    }
+
     @Override
     public T addSubCriterion(AndOrCriteriaGroup subCriterion) {
         subCriteria.add(subCriterion);
         return getThis();
+    }
+
+    protected HavingModel toHavingModel() {
+        return new HavingModel.Builder()
+                .withInitialCriterion(initialCriterion)
+                .withSubCriteria(subCriteria)
+                .build();
+    }
+
+    protected EmbeddedWhereModel toWhereModel() {
+        return new EmbeddedWhereModel.Builder()
+                .withInitialCriterion(initialCriterion)
+                .withSubCriteria(subCriteria)
+                .build();
     }
 
     protected abstract T getThis();

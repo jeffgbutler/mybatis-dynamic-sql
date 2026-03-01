@@ -44,7 +44,6 @@ import org.mybatis.dynamic.sql.select.join.JoinType;
 import org.mybatis.dynamic.sql.util.Buildable;
 import org.mybatis.dynamic.sql.util.ConfigurableStatement;
 import org.mybatis.dynamic.sql.util.Validator;
-import org.mybatis.dynamic.sql.where.AbstractWhereFinisher;
 import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
 public class QueryExpressionDSL<R> extends AbstractDSL implements JoinOperations<QueryExpressionDSL<R>>,
@@ -122,7 +121,7 @@ public class QueryExpressionDSL<R> extends AbstractDSL implements JoinOperations
      * @param criteriaGroup the full criteria for a Kotlin Having clause
      */
     public void applyHaving(CriteriaGroup criteriaGroup) {
-        having().initialize(criteriaGroup);
+        having().setInitialCriterion(criteriaGroup, AbstractBooleanOperations.StatementType.HAVING);
     }
 
     @Override
@@ -238,7 +237,7 @@ public class QueryExpressionDSL<R> extends AbstractDSL implements JoinOperations
         return selectDSL;
     }
 
-    public class QueryExpressionWhereBuilder extends AbstractWhereFinisher<QueryExpressionWhereBuilder>
+    public class QueryExpressionWhereBuilder extends AbstractBooleanOperations<QueryExpressionWhereBuilder>
             implements ConfigurableStatement<QueryExpressionWhereBuilder>, Buildable<R>, SelectDSLOperations<R> {
         public UnionBuilder union() {
             return QueryExpressionDSL.this.union();
@@ -286,7 +285,7 @@ public class QueryExpressionDSL<R> extends AbstractDSL implements JoinOperations
         }
 
         protected EmbeddedWhereModel buildWhereModel() {
-            return super.buildModel();
+            return toWhereModel();
         }
     }
 
@@ -520,7 +519,7 @@ public class QueryExpressionDSL<R> extends AbstractDSL implements JoinOperations
         }
     }
 
-    public class QueryExpressionHavingBuilder extends AbstractHavingFinisher<QueryExpressionHavingBuilder>
+    public class QueryExpressionHavingBuilder extends AbstractBooleanOperations<QueryExpressionHavingBuilder>
             implements Buildable<R>, SelectDSLOperations<R> {
 
         public SelectDSL<R> orderBy(SortSpecification... columns) {
@@ -550,7 +549,7 @@ public class QueryExpressionDSL<R> extends AbstractDSL implements JoinOperations
         }
 
         protected HavingModel buildHavingModel() {
-            return super.buildModel();
+            return toHavingModel();
         }
 
         @Override

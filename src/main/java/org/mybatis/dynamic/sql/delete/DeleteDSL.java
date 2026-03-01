@@ -26,10 +26,10 @@ import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
+import org.mybatis.dynamic.sql.dsl.AbstractBooleanOperations;
 import org.mybatis.dynamic.sql.dsl.WhereOperations;
 import org.mybatis.dynamic.sql.util.Buildable;
 import org.mybatis.dynamic.sql.util.ConfigurableStatement;
-import org.mybatis.dynamic.sql.where.AbstractWhereFinisher;
 import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
 public class DeleteDSL<R> implements WhereOperations<DeleteDSL<R>.DeleteWhereBuilder>,
@@ -112,7 +112,7 @@ public class DeleteDSL<R> implements WhereOperations<DeleteDSL<R>.DeleteWhereBui
         return deleteFrom(Function.identity(), table, tableAlias);
     }
 
-    public class DeleteWhereBuilder extends AbstractWhereFinisher<DeleteWhereBuilder>
+    public class DeleteWhereBuilder extends AbstractBooleanOperations<DeleteWhereBuilder>
             implements ConfigurableStatement<DeleteWhereBuilder>, Buildable<R> {
 
         public DeleteDSL<R> limit(long limit) {
@@ -149,7 +149,7 @@ public class DeleteDSL<R> implements WhereOperations<DeleteDSL<R>.DeleteWhereBui
         }
 
         protected EmbeddedWhereModel buildWhereModel() {
-            return buildModel();
+            return toWhereModel();
         }
     }
 }

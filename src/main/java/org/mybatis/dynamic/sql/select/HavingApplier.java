@@ -22,7 +22,7 @@ import org.mybatis.dynamic.sql.dsl.AbstractBooleanOperations;
 @FunctionalInterface
 public interface HavingApplier {
 
-    void accept(AbstractHavingFinisher<?> havingFinisher);
+    void accept(AbstractBooleanOperations<?> havingFinisher);
 
     /**
      * Return a composed having applier that performs this operation followed by the after operation.

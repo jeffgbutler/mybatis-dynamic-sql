@@ -25,6 +25,7 @@ import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
+import org.mybatis.dynamic.sql.dsl.AbstractBooleanOperations;
 import org.mybatis.dynamic.sql.dsl.AbstractDSL;
 import org.mybatis.dynamic.sql.dsl.JoinOperations;
 import org.mybatis.dynamic.sql.dsl.WhereOperations;
@@ -32,7 +33,6 @@ import org.mybatis.dynamic.sql.select.join.JoinSpecification;
 import org.mybatis.dynamic.sql.util.Buildable;
 import org.mybatis.dynamic.sql.util.ConfigurableStatement;
 import org.mybatis.dynamic.sql.util.Validator;
-import org.mybatis.dynamic.sql.where.AbstractWhereFinisher;
 import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
 
 /**
@@ -142,7 +142,7 @@ public class CountDSL<R> extends AbstractDSL implements WhereOperations<CountDSL
         return this;
     }
 
-    public class CountWhereBuilder extends AbstractWhereFinisher<CountWhereBuilder>
+    public class CountWhereBuilder extends AbstractBooleanOperations<CountWhereBuilder>
             implements ConfigurableStatement<CountWhereBuilder>, Buildable<R> {
         @Override
         public CountWhereBuilder configureStatement(Consumer<StatementConfiguration> consumer) {
@@ -161,7 +161,7 @@ public class CountDSL<R> extends AbstractDSL implements WhereOperations<CountDSL
         }
 
         protected EmbeddedWhereModel buildWhereModel() {
-            return super.buildModel();
+            return toWhereModel();
         }
     }
 

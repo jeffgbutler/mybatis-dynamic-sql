@@ -27,7 +27,6 @@ import org.mybatis.dynamic.sql.ExistsCriterion;
 import org.mybatis.dynamic.sql.ExistsPredicate;
 import org.mybatis.dynamic.sql.RenderableCondition;
 import org.mybatis.dynamic.sql.SqlCriterion;
-import org.mybatis.dynamic.sql.where.AbstractWhereFinisher;
 import org.mybatis.dynamic.sql.where.WhereApplier;
 
 /**
@@ -37,7 +36,7 @@ import org.mybatis.dynamic.sql.where.WhereApplier;
  *
  * @param <F> the implementation of the Where DSL customized for a particular SQL statement.
  */
-public interface WhereOperations<F extends AbstractWhereFinisher<?>> {
+public interface WhereOperations<F extends AbstractBooleanOperations<?>> {
 
     default <T> F where(BindableColumn<T> column, RenderableCondition<T> condition, AndOrCriteriaGroup... subCriteria) {
         return where(column, condition, Arrays.asList(subCriteria));
@@ -95,7 +94,7 @@ public interface WhereOperations<F extends AbstractWhereFinisher<?>> {
 
     private F initialize(SqlCriterion sqlCriterion) {
         F finisher = where();
-        finisher.initialize(sqlCriterion);
+        finisher.setInitialCriterion(sqlCriterion, AbstractBooleanOperations.StatementType.WHERE);
         return finisher;
     }
 

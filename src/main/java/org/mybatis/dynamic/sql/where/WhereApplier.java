@@ -22,7 +22,7 @@ import org.mybatis.dynamic.sql.dsl.AbstractBooleanOperations;
 @FunctionalInterface
 public interface WhereApplier {
 
-    void accept(AbstractWhereFinisher<?> whereFinisher);
+    void accept(AbstractBooleanOperations<?> whereFinisher);
 
     /**
      * Return a composed where applier that performs this operation followed by the after operation.
