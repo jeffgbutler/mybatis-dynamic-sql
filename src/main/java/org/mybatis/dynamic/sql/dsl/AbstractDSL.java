@@ -15,15 +15,12 @@
  */
 package org.mybatis.dynamic.sql.dsl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.exception.DuplicateTableAliasException;
-import org.mybatis.dynamic.sql.select.CountDSL;
 import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.select.SubQuery;
 import org.mybatis.dynamic.sql.util.Buildable;
