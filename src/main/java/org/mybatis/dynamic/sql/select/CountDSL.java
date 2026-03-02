@@ -15,21 +15,26 @@
  */
 package org.mybatis.dynamic.sql.select;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SqlBuilder;
 import org.mybatis.dynamic.sql.SqlTable;
+import org.mybatis.dynamic.sql.TableExpression;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
 import org.mybatis.dynamic.sql.dsl.AbstractBooleanOperations;
 import org.mybatis.dynamic.sql.dsl.AbstractDSL;
+import org.mybatis.dynamic.sql.dsl.AbstractJoinOperations;
 import org.mybatis.dynamic.sql.dsl.JoinOperations;
 import org.mybatis.dynamic.sql.dsl.WhereOperations;
+import org.mybatis.dynamic.sql.select.join.JoinModel;
 import org.mybatis.dynamic.sql.select.join.JoinSpecification;
+import org.mybatis.dynamic.sql.select.join.JoinType;
 import org.mybatis.dynamic.sql.util.Buildable;
 import org.mybatis.dynamic.sql.util.ConfigurableStatement;
 import org.mybatis.dynamic.sql.util.Validator;
@@ -44,11 +49,15 @@ import org.mybatis.dynamic.sql.where.EmbeddedWhereModel;
  *
  * @author Jeff Butler
  */
-public class CountDSL<R> extends AbstractDSL implements WhereOperations<CountDSL<R>.CountWhereBuilder>,
-        JoinOperations<CountDSL<R>>, ConfigurableStatement<CountDSL<R>>, Buildable<R> {
+public class CountDSL<R> extends AbstractDSL implements
+        JoinOperations<CountDSL<R>, CountDSL<R>.JoinSpecificationFinisher>,
+        WhereOperations<CountDSL<R>.CountWhereBuilder>,
+        ConfigurableStatement<CountDSL<R>>,
+        Buildable<R> {
 
     private final Function<SelectModel, R> adapterFunction;
     private @Nullable SqlTable table;
+    private final List<JoinSpecificationFinisher> joinSpecifications = new ArrayList<>();
     private @Nullable CountWhereBuilder whereBuilder;
     private final BasicColumn countColumn;
     private final StatementConfiguration statementConfiguration = new StatementConfiguration();
@@ -87,7 +96,7 @@ public class CountDSL<R> extends AbstractDSL implements WhereOperations<CountDSL
                 .withSelectColumn(countColumn)
                 .withTable(table)
                 .withTableAliases(tableAliases)
-                .withJoinModel(buildJoinModel().orElse(null))
+                .withJoinModel(buildJoinModel())
                 .withWhereModel(whereBuilder == null ? null : whereBuilder.buildWhereModel())
                 .build();
 
@@ -137,9 +146,60 @@ public class CountDSL<R> extends AbstractDSL implements WhereOperations<CountDSL
     }
 
     @Override
-    public CountDSL<R> addJoinSpecificationSupplier(Supplier<JoinSpecification> joinSpecificationSupplier) {
-        addJoinSpecificationSupplierInternal(joinSpecificationSupplier);
+    public JoinSpecificationFinisher buildFinisher(JoinType joinType, TableExpression joinTable) {
+        var finisher = new JoinSpecificationFinisher(joinType, joinTable);
+        joinSpecifications.add(finisher);
+        return finisher;
+    }
+
+    @Override
+    public CountDSL<R> getDsl() {
         return this;
+    }
+
+    private @Nullable JoinModel buildJoinModel() {
+        if (joinSpecifications.isEmpty()) {
+            return null;
+        }
+
+        return JoinModel.of(joinSpecifications.stream()
+                .map(JoinSpecificationFinisher::buildJoinSpecification)
+                .toList());
+    }
+
+    public class JoinSpecificationFinisher
+            extends AbstractJoinOperations<JoinSpecificationFinisher>
+            implements WhereOperations<CountWhereBuilder>,
+            ConfigurableStatement<JoinSpecificationFinisher>, Buildable<R> {
+
+        public JoinSpecificationFinisher(JoinType joinType, TableExpression table) {
+            super(joinType, table);
+        }
+
+        protected JoinSpecification buildJoinSpecification() {
+            return super.buildJoinSpecification();
+        }
+
+        @Override
+        protected JoinSpecificationFinisher getThis() {
+            return this;
+        }
+
+        @Override
+        public CountWhereBuilder where() {
+            return CountDSL.this.where();
+        }
+
+        @Override
+        public R build() {
+            return CountDSL.this.build();
+        }
+
+        @Override
+        public JoinSpecificationFinisher configureStatement(Consumer<StatementConfiguration> consumer) {
+            CountDSL.this.configureStatement(consumer);
+            return this;
+        }
     }
 
     public class CountWhereBuilder extends AbstractBooleanOperations<CountWhereBuilder>

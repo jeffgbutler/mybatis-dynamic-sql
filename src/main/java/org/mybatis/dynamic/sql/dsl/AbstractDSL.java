@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2025 the original author or authors.
+ *    Copyright 2016-2026 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,16 +19,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 import org.mybatis.dynamic.sql.SqlTable;
 import org.mybatis.dynamic.sql.exception.DuplicateTableAliasException;
+import org.mybatis.dynamic.sql.select.CountDSL;
 import org.mybatis.dynamic.sql.select.SelectModel;
 import org.mybatis.dynamic.sql.select.SubQuery;
-import org.mybatis.dynamic.sql.select.join.JoinModel;
-import org.mybatis.dynamic.sql.select.join.JoinSpecification;
 import org.mybatis.dynamic.sql.util.Buildable;
 
 /**
@@ -41,22 +38,7 @@ import org.mybatis.dynamic.sql.util.Buildable;
  * for common functionality that can be shared across multiple DSL implementations.</p>
  */
 public abstract class AbstractDSL {
-    protected final List<Supplier<JoinSpecification>> joinSpecificationSuppliers = new ArrayList<>();
     protected final Map<SqlTable, String> tableAliases = new HashMap<>();
-
-    protected Optional<JoinModel> buildJoinModel() {
-        if (joinSpecificationSuppliers.isEmpty()) {
-            return Optional.empty();
-        }
-
-        return Optional.of(JoinModel.of(joinSpecificationSuppliers.stream()
-                .map(Supplier::get)
-                .toList()));
-    }
-
-    protected void addJoinSpecificationSupplierInternal(Supplier<JoinSpecification> joinSpecificationSupplier) {
-        joinSpecificationSuppliers.add(joinSpecificationSupplier);
-    }
 
     protected void addTableAlias(SqlTable table, String tableAlias) {
         if (tableAliases.containsKey(table)) {
