@@ -1,5 +1,5 @@
 /*
- *    Copyright 2016-2025 the original author or authors.
+ *    Copyright 2016-2026 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import org.mybatis.dynamic.sql.BasicColumn;
 import org.mybatis.dynamic.sql.SortSpecification;
 import org.mybatis.dynamic.sql.common.OrderByModel;
 import org.mybatis.dynamic.sql.configuration.StatementConfiguration;
-import org.mybatis.dynamic.sql.select.QueryExpressionDSL.FromGatherer;
 import org.mybatis.dynamic.sql.util.Buildable;
 import org.mybatis.dynamic.sql.util.ConfigurableStatement;
 import org.mybatis.dynamic.sql.util.Validator;
@@ -43,6 +42,7 @@ import org.mybatis.dynamic.sql.util.Validator;
  *            the type of model produced by this builder, typically SelectModel
  */
 public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectDSL<R>> {
+    private static final String ERROR_48 = "ERROR.48"; //$NON-NLS-1$
 
     private final Function<SelectModel, R> adapterFunction;
     private final List<QueryExpressionDSL<R>> queryExpressions = new ArrayList<>();
@@ -58,44 +58,44 @@ public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectD
         this.adapterFunction = Objects.requireNonNull(adapterFunction);
     }
 
-    public static QueryExpressionDSL.FromGatherer<SelectModel> select(BasicColumn... selectList) {
+    public static QueryExpressionDSL<SelectModel> select(BasicColumn... selectList) {
         return select(Arrays.asList(selectList));
     }
 
-    public static QueryExpressionDSL.FromGatherer<SelectModel> select(Collection<? extends BasicColumn> selectList) {
+    public static QueryExpressionDSL<SelectModel> select(Collection<? extends BasicColumn> selectList) {
         return select(Function.identity(), selectList);
     }
 
-    public static <R> QueryExpressionDSL.FromGatherer<R> select(Function<SelectModel, R> adapterFunction,
+    public static <R> QueryExpressionDSL<R> select(Function<SelectModel, R> adapterFunction,
             BasicColumn... selectList) {
         return select(adapterFunction, Arrays.asList(selectList));
     }
 
-    public static <R> QueryExpressionDSL.FromGatherer<R> select(Function<SelectModel, R> adapterFunction,
+    public static <R> QueryExpressionDSL<R> select(Function<SelectModel, R> adapterFunction,
             Collection<? extends BasicColumn> selectList) {
-        return new FromGatherer.Builder<R>()
+        return new QueryExpressionDSL.Builder<R>()
                 .withSelectList(selectList)
                 .withSelectDSL(new SelectDSL<>(adapterFunction))
                 .build();
     }
 
-    public static QueryExpressionDSL.FromGatherer<SelectModel> selectDistinct(BasicColumn... selectList) {
+    public static QueryExpressionDSL<SelectModel> selectDistinct(BasicColumn... selectList) {
         return selectDistinct(Function.identity(), selectList);
     }
 
-    public static QueryExpressionDSL.FromGatherer<SelectModel> selectDistinct(
+    public static QueryExpressionDSL<SelectModel> selectDistinct(
             Collection<? extends BasicColumn> selectList) {
         return selectDistinct(Function.identity(), selectList);
     }
 
-    public static <R> QueryExpressionDSL.FromGatherer<R> selectDistinct(Function<SelectModel, R> adapterFunction,
+    public static <R> QueryExpressionDSL<R> selectDistinct(Function<SelectModel, R> adapterFunction,
             BasicColumn... selectList) {
         return selectDistinct(adapterFunction, Arrays.asList(selectList));
     }
 
-    public static <R> QueryExpressionDSL.FromGatherer<R> selectDistinct(Function<SelectModel, R> adapterFunction,
+    public static <R> QueryExpressionDSL<R> selectDistinct(Function<SelectModel, R> adapterFunction,
             Collection<? extends BasicColumn> selectList) {
-        return new FromGatherer.Builder<R>()
+        return new QueryExpressionDSL.Builder<R>()
                 .withSelectList(selectList)
                 .withSelectDSL(new SelectDSL<>(adapterFunction))
                 .isDistinct()
@@ -138,25 +138,25 @@ public class SelectDSL<R> implements Buildable<R>, ConfigurableStatement<SelectD
     }
 
     public SelectDSL<R> forUpdate() {
-        Validator.assertNull(forClause, "ERROR.48"); //$NON-NLS-1$
+        Validator.assertNull(forClause, ERROR_48);
         forClause = "for update"; //$NON-NLS-1$
         return this;
     }
 
     public SelectDSL<R> forNoKeyUpdate() {
-        Validator.assertNull(forClause, "ERROR.48"); //$NON-NLS-1$
+        Validator.assertNull(forClause, ERROR_48);
         forClause = "for no key update"; //$NON-NLS-1$
         return this;
     }
 
     public SelectDSL<R> forShare() {
-        Validator.assertNull(forClause, "ERROR.48"); //$NON-NLS-1$
+        Validator.assertNull(forClause, ERROR_48);
         forClause = "for share"; //$NON-NLS-1$
         return this;
     }
 
     public SelectDSL<R> forKeyShare() {
-        Validator.assertNull(forClause, "ERROR.48"); //$NON-NLS-1$
+        Validator.assertNull(forClause, ERROR_48);
         forClause = "for key share"; //$NON-NLS-1$
         return this;
     }
