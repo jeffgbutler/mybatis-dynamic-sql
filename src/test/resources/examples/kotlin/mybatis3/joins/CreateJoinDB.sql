@@ -19,6 +19,7 @@ drop table ItemMaster if exists;
 drop table OrderDetail if exists;
 drop table OrderMaster if exists;
 drop table User if exists;
+drop table Address if exists;
 
 create table User (
   user_id int not null,
@@ -55,6 +56,12 @@ create table OrderLine (
    primary key(order_id, item_id)
 );
 
+create table Address (
+    user_id varchar(10) not null,
+    city varchar(30) not null,
+    primary key(user_id)
+)
+
 insert into OrderMaster(order_id, order_date) values(1, '2017-01-17');
 insert into OrderDetail(order_id, line_number, Description, quantity) values(1, 1, 'Tennis Ball', 3);
 insert into OrderDetail(order_id, line_number, Description, quantity) values(1, 2, 'Tennis Racket', 1);
@@ -77,3 +84,8 @@ insert into User(user_id, user_name) values(1, 'Fred');
 insert into User(user_id, user_name) values(2, 'Barney');
 insert into User(user_id, user_name, parent_id) values(3, 'Pebbles', 1);
 insert into User(user_id, user_name, parent_id) values(4, 'Bamm Bamm', 2);
+
+insert into Address(user_id, city) values('1', 'Seattle');
+insert into Address(user_id, city) values('2', 'Portland');
+insert into Address(user_id, city) values('3', 'Seattle');
+insert into Address(user_id, city) values('4', 'Portland');

@@ -16,6 +16,7 @@
 package examples.kotlin.mybatis3.joins
 
 import examples.kotlin.mybatis3.TestUtils
+import examples.kotlin.mybatis3.joins.AddressDynamicSQLSupport.address
 import examples.kotlin.mybatis3.joins.ItemMasterDynamicSQLSupport.itemMaster
 import examples.kotlin.mybatis3.joins.OrderDetailDynamicSQLSupport.orderDetail
 import examples.kotlin.mybatis3.joins.OrderLineDynamicSQLSupport.orderLine
@@ -32,6 +33,7 @@ import org.mybatis.dynamic.sql.util.Messages
 import org.mybatis.dynamic.sql.util.kotlin.KInvalidSQLException
 import org.mybatis.dynamic.sql.util.kotlin.elements.invoke
 import org.mybatis.dynamic.sql.util.kotlin.mybatis3.select
+import org.mybatis.dynamic.sql.util.mybatis3.CommonSelectMapper
 
 @Suppress("LargeClass")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -43,6 +45,7 @@ class DeprecatedJoinMapperTest {
         sqlSessionFactory = TestUtils.buildSqlSessionFactory {
             withInitializationScript("/examples/kotlin/mybatis3/joins/CreateJoinDB.sql")
             withMapper(JoinMapper::class)
+            withMapper(CommonSelectMapper::class)
         }
     }
 
@@ -605,5 +608,30 @@ class DeprecatedJoinMapperTest {
                 where { user2.userId isEqualTo 4 }
             }
         }.withMessage(Messages.getString("ERROR.21")) //$NON-NLS-1$
+    }
+
+    @Test
+    fun testMismatchedColumnTypes() {
+        sqlSessionFactory.openSession().use { session ->
+            val mapper = session.getMapper(CommonSelectMapper::class.java)
+
+            val selectStatement = select(user.userId, user.userName, address.city) {
+                from(user, "u")
+                join(address, "a") {
+                    on(user.userId) equalTo address.userId
+                }
+                orderBy(user.userId)
+            }
+
+            val expectedStatement = "select u.user_id, u.user_name, a.city from User u join Address a on u.user_id = a.user_id order by user_id"
+            assertThat(selectStatement.selectStatement).isEqualTo(expectedStatement)
+
+            val rows = mapper.selectManyMappedRows(selectStatement)
+            assertThat(rows).hasSize(4)
+            assertThat(rows[0]).containsOnly(entry("USER_ID", 1), entry("USER_NAME", "Fred"), entry("CITY", "Seattle"))
+            assertThat(rows[1]).containsOnly(entry("USER_ID", 2), entry("USER_NAME", "Barney"), entry("CITY", "Portland"))
+            assertThat(rows[2]).containsOnly(entry("USER_ID", 3), entry("USER_NAME", "Pebbles"), entry("CITY", "Seattle"))
+            assertThat(rows[3]).containsOnly(entry("USER_ID", 4), entry("USER_NAME", "Bamm Bamm"), entry("CITY", "Portland"))
+        }
     }
 }

@@ -16,6 +16,7 @@
 package examples.kotlin.mybatis3.joins
 
 import examples.kotlin.mybatis3.TestUtils
+import examples.kotlin.mybatis3.joins.AddressDynamicSQLSupport.address
 import examples.kotlin.mybatis3.joins.ItemMasterDynamicSQLSupport.itemMaster
 import examples.kotlin.mybatis3.joins.OrderDetailDynamicSQLSupport.orderDetail
 import examples.kotlin.mybatis3.joins.OrderLineDynamicSQLSupport.orderLine
@@ -863,6 +864,31 @@ class JoinMapperNewSyntaxTest {
             assertThat(rows).hasSize(2)
             assertThat(rows[0]).containsOnly(entry("ORDER_ID", 1), entry("LINECOUNT", 2L))
             assertThat(rows[1]).containsOnly(entry("ORDER_ID", 2), entry("LINECOUNT", 1L))
+        }
+    }
+
+    @Test
+    fun testMismatchedColumnTypes() {
+        sqlSessionFactory.openSession().use { session ->
+            val mapper = session.getMapper(CommonSelectMapper::class.java)
+
+            val selectStatement = select(user.userId, user.userName, address.city) {
+                from(user, "u")
+                join(address, "a") on {
+                    user.userId isEqualTo address.userId
+                }
+                orderBy(user.userId)
+            }
+
+            val expectedStatement = "select u.user_id, u.user_name, a.city from User u join Address a on u.user_id = a.user_id order by user_id"
+            assertThat(selectStatement.selectStatement).isEqualTo(expectedStatement)
+
+            val rows = mapper.selectManyMappedRows(selectStatement)
+            assertThat(rows).hasSize(4)
+            assertThat(rows[0]).containsOnly(entry("USER_ID", 1), entry("USER_NAME", "Fred"), entry("CITY", "Seattle"))
+            assertThat(rows[1]).containsOnly(entry("USER_ID", 2), entry("USER_NAME", "Barney"), entry("CITY", "Portland"))
+            assertThat(rows[2]).containsOnly(entry("USER_ID", 3), entry("USER_NAME", "Pebbles"), entry("CITY", "Seattle"))
+            assertThat(rows[3]).containsOnly(entry("USER_ID", 4), entry("USER_NAME", "Bamm Bamm"), entry("CITY", "Portland"))
         }
     }
 }
